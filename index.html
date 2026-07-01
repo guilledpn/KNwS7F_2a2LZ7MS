@@ -11,7 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
   <link rel="apple-touch-icon" href="./icons/icon.svg">
-  <title>CRM FFVV</title>
+  <title>CRM FFVV · v65</title>
   <style>
     html,body{margin:0;min-height:100%;background:#f6f9ff;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     .boot{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}
@@ -26,7 +26,7 @@
       <div class="mark">FF</div>
       <h1>CRM FFVV</h1>
       <p>Cargando app...</p>
-      <p class="small">GitHub Pages + Supabase</p>
+      <p class="small">GitHub Pages + Supabase · v65</p>
       <div class="err" id="err"></div>
     </section>
   </main>
@@ -36,6 +36,26 @@
     function showError(msg){
       var el=document.getElementById('err');
       if(el){ el.style.display='block'; el.textContent=msg; }
+    }
+    function patchApp(html){
+      var before, after;
+      html = html.replace('<title>CRM FFVV · v64 PWA</title>', '<title>CRM FFVV · v65</title>');
+      before = "let currentScreen='contacts',filter='all',search='',filtered=[],detailIndex=-1,stats='hoy',importType='mensual',importStep=-1,pageOffset=0,totalCount=0,loading=false;\nlet emailEditMode=false;";
+      after  = "let currentScreen='contacts',filter='all',search='',filtered=[],detailIndex=-1,stats='hoy',importType='mensual',importStep=-1,pageOffset=0,totalCount=0,loading=false;\nlet emailEditMode=false,listDirtyAfterDetail=false;";
+      html = html.replace(before, after);
+      before = "function closeDetail(){$('detail').classList.remove('on');detailIndex=-1;emailEditMode=false}";
+      after  = "function closeDetail(){const shouldReload=listDirtyAfterDetail;$('detail').classList.remove('on');detailIndex=-1;emailEditMode=false;if(shouldReload){listDirtyAfterDetail=false;loadQueue(true);}}";
+      html = html.replace(before, after);
+      before = "async function persistGestion(d){if(!sb||!d)return;const label=LABEL_BY_KEY[d.estado]||'Pendiente';const {data,error}=await sb.rpc('save_gestion_v2',{p_work_item_id:d.work_item_id,p_contact_id:d.contact_id,p_active_period:null,p_estado:label,p_ingreso:d.ingreso||0,p_comentarios:d.comentario||''});if(error)toast('No se pudo guardar: '+error.message);else if(data&&data.work_item_id){d.work_item_id=data.work_item_id;d.id=data.work_item_id;}}";
+      after  = "async function persistGestion(d){if(!sb||!d)return false;const label=LABEL_BY_KEY[d.estado]||'Pendiente';const {data,error}=await sb.rpc('save_gestion_v2',{p_work_item_id:d.work_item_id,p_contact_id:d.contact_id,p_active_period:null,p_estado:label,p_ingreso:d.ingreso||0,p_comentarios:d.comentario||''});if(error){toast('No se pudo guardar: '+error.message);return false;}else if(data&&data.work_item_id){d.work_item_id=data.work_item_id;d.id=data.work_item_id;}return true;}";
+      html = html.replace(before, after);
+      before = "async function persistReminder(d){if(!sb||!d)return;const ts=d.fecha?new Date(`${d.fecha}T${d.hora||'09:00'}:00`).toISOString():null;const {data,error}=await sb.rpc('save_reminder_v2',{p_work_item_id:d.work_item_id,p_contact_id:d.contact_id,p_active_period:null,p_titulo:d.recordatorio||'',p_fecha_hora:ts});if(error)toast('Recordatorio no guardado: '+error.message);else if(data&&data.work_item_id){d.work_item_id=data.work_item_id;d.id=data.work_item_id;}}\nasync function createGoogleTask(){";
+      after  = "async function persistReminder(d){if(!sb||!d)return;const ts=d.fecha?new Date(`${d.fecha}T${d.hora||'09:00'}:00`).toISOString():null;const {data,error}=await sb.rpc('save_reminder_v2',{p_work_item_id:d.work_item_id,p_contact_id:d.contact_id,p_active_period:null,p_titulo:d.recordatorio||'',p_fecha_hora:ts});if(error)toast('Recordatorio no guardado: '+error.message);else if(data&&data.work_item_id){d.work_item_id=data.work_item_id;d.id=data.work_item_id;}}\nfunction optimisticListGestionUpdate(d,prevEstado){if(!d)return;const i=filtered.findIndex(x=>(d.work_item_id&&x.work_item_id===d.work_item_id)||(d.contact_id&&x.contact_id===d.contact_id));if(i>=0&&filtered[i]!==d){Object.assign(filtered[i],d);}if(prevEstado!==d.estado){if(prevEstado==='pendiente')chipCounts.pendiente=Math.max(0,(chipCounts.pendiente||0)-1);if(d.estado==='pendiente')chipCounts.pendiente=(chipCounts.pendiente||0)+1;}try{renderFilters();renderContacts();}catch(e){}listDirtyAfterDetail=true;}\nasync function createGoogleTask(){";
+      html = html.replace(before, after);
+      before = "async function setEstado(k){const d=current();if(!d)return;d.estado=d.estado===k?'pendiente':k;haptic();renderDetail();flashSaved();toast((STATE[d.estado]||STATE.pendiente).label);await persistGestion(d);refreshChipCounts();refreshGoal();}";
+      after  = "async function setEstado(k){const d=current();if(!d)return;const prevEstado=d.estado;d.estado=d.estado===k?'pendiente':k;haptic();renderDetail();optimisticListGestionUpdate(d,prevEstado);flashSaved();toast((STATE[d.estado]||STATE.pendiente).label);const ok=await persistGestion(d);if(!ok){const failedEstado=d.estado;d.estado=prevEstado;renderDetail();optimisticListGestionUpdate(d,failedEstado);return;}refreshGoal();}";
+      html = html.replace(before, after);
+      return html;
     }
     if('serviceWorker' in navigator){
       window.addEventListener('load', function(){
@@ -51,6 +71,7 @@
         if(!/^\s*<!doctype html/i.test(html) && !/^\s*<html/i.test(html)){
           throw new Error('La respuesta no parece HTML válido.');
         }
+        html = patchApp(html);
         document.open();
         document.write(html);
         document.close();
