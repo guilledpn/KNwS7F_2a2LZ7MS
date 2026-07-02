@@ -1,8 +1,15 @@
-const APP_VERSION='crm-llamados-github-wrapper-v71';
+const APP_VERSION='crm-llamados-github-wrapper-v72';
 const APP_CACHE=APP_VERSION+'-shell';
 const SHELL_ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./assets/logo-horizontal.svg'];
 const SUPA='https://ojaimqutuycralrjbxwr.supabase.co';
 const ACTIVE_PERIOD='2026-06';
+const REAL_MONTHS=[
+  {period:'2026-06',rows:89948,distinct_ruts:89948},
+  {period:'2026-05',rows:95608,distinct_ruts:95607},
+  {period:'2026-04',rows:65275,distinct_ruts:65275},
+  {period:'2026-03',rows:67241,distinct_ruts:67241},
+  {period:'2026-02',rows:72758,distinct_ruts:72758}
+];
 const DEFAULT_TOTAL=25840;
 const DEFAULT_PENDING=25755;
 const DEFAULT_ASSIGNED=234;
@@ -18,7 +25,8 @@ async function exactCount(path,headers){const r=await fetch(SUPA+path,{method:'G
 function buildConds(p){
   const situation=p.p_situation||'gestionables';
   const search=String(p.p_search||'').trim().toLowerCase();
-  const months=Array.isArray(p.p_months)?p.p_months.filter(Boolean):[];
+  const realSet=new Set(REAL_MONTHS.map(m=>m.period));
+  const months=(Array.isArray(p.p_months)?p.p_months.filter(Boolean):[]).filter(m=>realSet.has(m));
   const types=Array.isArray(p.p_types)?p.p_types.filter(Boolean):[];
   const monthMode=p.p_month_mode||'any';
   const cond=[];
@@ -35,6 +43,8 @@ function buildConds(p){
     if(monthMode==='all')cond.push('meses_aparicion=cs.'+enc(pgArray(months)));
     else if(monthMode==='only'){cond.push('meses_aparicion=cs.'+enc(pgArray(months)));cond.push('meses_aparicion=cd.'+enc(pgArray(months)));}
     else cond.push('meses_aparicion=ov.'+enc(pgArray(months)));
+  }else if(Array.isArray(p.p_months)&&p.p_months.length){
+    cond.push('rut_norm=eq.__no_real_month_selected__');
   }
   return cond;
 }
@@ -60,10 +70,11 @@ async function fallbackGetContactsV2(req){
     cs.forEach(c=>{contactMap[c.rut_norm]=c;});
   }
   const rows=baseRows.map(x=>{const c=contactMap[x.rut_norm]||{};return {...x,contact_id:c.contact_id||x.contact_id,rut:c.rut||x.rut_norm,nombre:c.nombre||'',telefono_1:c.telefono_1||'',telefono_2:c.telefono_2||'',telefono_3:c.telefono_3||'',telefono_activo_idx:c.telefono_activo_idx??null,email:c.email||'',motivo_label:x.motivo_gestionabilidad==='asignado'?'Asignado':(x.motivo_gestionabilidad==='disponible_por_regla'?'Disponible por regla':(x.motivo_gestionabilidad==='campana_activa_no_asignado'?'Campaña activa no asignado':(x.motivo_gestionabilidad==='historico_gestionado'?'Histórico gestionado':'Histórico informativo')))};});
-  return okJson({ok:true,source:'lite_v71',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
+  return okJson({ok:true,source:'lite_v72',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
 }
 self.addEventListener('fetch',event=>{
   const req=event.request;
+  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v72',months:REAL_MONTHS}));return;}
   if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2')){event.respondWith(fallbackGetContactsV2(req).catch(()=>fetch(req)));return;}
   if(req.method!=='GET')return;
   event.respondWith(fetch(req).catch(()=>caches.match(req)));
