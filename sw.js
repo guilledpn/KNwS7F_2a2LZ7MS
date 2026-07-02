@@ -1,4 +1,4 @@
-const APP_VERSION='crm-llamados-github-wrapper-v70';
+const APP_VERSION='crm-llamados-github-wrapper-v71';
 const APP_CACHE=APP_VERSION+'-shell';
 const SHELL_ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./assets/logo-horizontal.svg'];
 const SUPA='https://ojaimqutuycralrjbxwr.supabase.co';
@@ -7,7 +7,8 @@ const DEFAULT_TOTAL=25840;
 const DEFAULT_PENDING=25755;
 const DEFAULT_ASSIGNED=234;
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(APP_CACHE).then(cache=>cache.addAll(SHELL_ASSETS)).catch(()=>null));});
-self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(key=>key!==APP_CACHE).map(key=>caches.delete(key)));await self.clients.claim();})());});
+self.addEventListener('message',event=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting();});
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(key=>key!==APP_CACHE).map(key=>caches.delete(key)));await self.clients.claim();const wins=await self.clients.matchAll({type:'window',includeUncontrolled:true});await Promise.all(wins.map(client=>{try{const u=new URL(client.url);if(u.searchParams.get('_swv')!==APP_VERSION){u.searchParams.set('_swv',APP_VERSION);return client.navigate(u.href);}}catch(e){}return Promise.resolve();}));})());});
 function copyHeaders(req){const o={};['apikey','authorization','x-client-info'].forEach(k=>{const v=req.headers.get(k);if(v)o[k]=v;});o.accept='application/json';return o;}
 function okJson(obj){return new Response(JSON.stringify(obj),{status:200,headers:{'content-type':'application/json; charset=utf-8','access-control-allow-origin':'*'}})}
 function pgList(vals){return '('+vals.map(v=>'"'+String(v).replace(/"/g,'')+'"').join(',')+')'}
@@ -59,7 +60,7 @@ async function fallbackGetContactsV2(req){
     cs.forEach(c=>{contactMap[c.rut_norm]=c;});
   }
   const rows=baseRows.map(x=>{const c=contactMap[x.rut_norm]||{};return {...x,contact_id:c.contact_id||x.contact_id,rut:c.rut||x.rut_norm,nombre:c.nombre||'',telefono_1:c.telefono_1||'',telefono_2:c.telefono_2||'',telefono_3:c.telefono_3||'',telefono_activo_idx:c.telefono_activo_idx??null,email:c.email||'',motivo_label:x.motivo_gestionabilidad==='asignado'?'Asignado':(x.motivo_gestionabilidad==='disponible_por_regla'?'Disponible por regla':(x.motivo_gestionabilidad==='campana_activa_no_asignado'?'Campaña activa no asignado':(x.motivo_gestionabilidad==='historico_gestionado'?'Histórico gestionado':'Histórico informativo')))};});
-  return okJson({ok:true,source:'lite_v70',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
+  return okJson({ok:true,source:'lite_v71',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
 }
 self.addEventListener('fetch',event=>{
   const req=event.request;
