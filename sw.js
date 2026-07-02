@@ -1,4 +1,4 @@
-const APP_VERSION='crm-ffvv-github-wrapper-v65';
+const APP_VERSION='crm-ffvv-github-wrapper-v66';
 const APP_CACHE=APP_VERSION+'-shell';
 const SHELL_ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg'];
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(APP_CACHE).then(cache=>cache.addAll(SHELL_ASSETS)).catch(()=>null));});
