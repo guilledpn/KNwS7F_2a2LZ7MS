@@ -1,4 +1,4 @@
-const APP_VERSION='crm-llamados-github-wrapper-v72';
+const APP_VERSION='crm-llamados-github-wrapper-v73';
 const APP_CACHE=APP_VERSION+'-shell';
 const SHELL_ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./assets/logo-horizontal.svg'];
 const SUPA='https://ojaimqutuycralrjbxwr.supabase.co';
@@ -21,12 +21,13 @@ function okJson(obj){return new Response(JSON.stringify(obj),{status:200,headers
 function pgList(vals){return '('+vals.map(v=>'"'+String(v).replace(/"/g,'')+'"').join(',')+')'}
 function pgArray(vals){return '{'+vals.map(v=>String(v).replace(/[{}]/g,'')).join(',')+'}'}
 function enc(s){return encodeURIComponent(String(s));}
+function monthInfo(p){const realSet=new Set(REAL_MONTHS.map(m=>m.period));const raw=(Array.isArray(p.p_months)?p.p_months.filter(Boolean):[]);const months=raw.filter(m=>realSet.has(m));const allReal=REAL_MONTHS.every(m=>raw.includes(m.period));return{raw,months,allReal};}
 async function exactCount(path,headers){const r=await fetch(SUPA+path,{method:'GET',headers:{...headers,'prefer':'count=exact'},mode:'cors'});const cr=r.headers.get('content-range')||'';const m=cr.match(/\/(\d+)$/);return m?Number(m[1]):0;}
 function buildConds(p){
   const situation=p.p_situation||'gestionables';
   const search=String(p.p_search||'').trim().toLowerCase();
-  const realSet=new Set(REAL_MONTHS.map(m=>m.period));
-  const months=(Array.isArray(p.p_months)?p.p_months.filter(Boolean):[]).filter(m=>realSet.has(m));
+  const mi=monthInfo(p);
+  const months=mi.months;
   const types=Array.isArray(p.p_types)?p.p_types.filter(Boolean):[];
   const monthMode=p.p_month_mode||'any';
   const cond=[];
@@ -39,11 +40,11 @@ function buildConds(p){
   if(p.p_pending_only)cond.push('estado_gestion=eq.Pendiente');
   if(p.p_assigned_only)cond.push('motivo_gestionabilidad=eq.asignado');
   if(search)cond.push('search_text=like.*'+enc(search.replace(/[*]/g,''))+'*');
-  if(months.length){
+  if(months.length&&!mi.allReal){
     if(monthMode==='all')cond.push('meses_aparicion=cs.'+enc(pgArray(months)));
     else if(monthMode==='only'){cond.push('meses_aparicion=cs.'+enc(pgArray(months)));cond.push('meses_aparicion=cd.'+enc(pgArray(months)));}
     else cond.push('meses_aparicion=ov.'+enc(pgArray(months)));
-  }else if(Array.isArray(p.p_months)&&p.p_months.length){
+  }else if(mi.raw.length&&!mi.allReal){
     cond.push('rut_norm=eq.__no_real_month_selected__');
   }
   return cond;
@@ -59,7 +60,9 @@ async function fallbackGetContactsV2(req){
   const select='active_period,contact_id,rut_norm,work_item_id,campaign_key,campaign_name,campaign_desc,estado_gestion,fecha_estado_gestion,ingreso_estimado,comentarios,recordatorio_titulo,recordatorio_fecha_hora,ultimo_contacto,meses_aparicion,ultimo_mes_observado,ultimo_estado_observado,aparece_en_campana_activa,asignado_a_mi,gestionable_actual,motivo_gestionabilidad,display_order';
   const order='order=motivo_gestionabilidad.asc.nullslast&order=display_order.asc.nullslast&order=rut_norm.asc';
   const q='/rest/v1/contact_operational_state_v2?select='+select+'&'+baseCond+'&'+order+'&limit='+limit+'&offset='+offset;
-  const isDefault=(p.p_situation||'gestionables')==='gestionables'&&!String(p.p_search||'').trim()&&!(Array.isArray(p.p_months)&&p.p_months.length)&&!(Array.isArray(p.p_types)&&p.p_types.length)&&!p.p_pending_only&&!p.p_assigned_only;
+  const mi=monthInfo(p);
+  const noMonthFilter=!mi.raw.length||mi.allReal;
+  const isDefault=(p.p_situation||'gestionables')==='gestionables'&&!String(p.p_search||'').trim()&&noMonthFilter&&!(Array.isArray(p.p_types)&&p.p_types.length)&&!p.p_pending_only&&!p.p_assigned_only;
   const totalPromise=isDefault?Promise.resolve(DEFAULT_TOTAL):exactCount('/rest/v1/contact_operational_state_v2?select=rut_norm&'+baseCond+'&limit=1',headers);
   const [baseRows,total]=await Promise.all([fetch(SUPA+q,{headers,mode:'cors'}).then(r=>{if(!r.ok)throw new Error('contacts fallback base '+r.status);return r.json();}),totalPromise]);
   const ruts=[...new Set(baseRows.map(x=>x.rut_norm).filter(Boolean))];
@@ -70,11 +73,11 @@ async function fallbackGetContactsV2(req){
     cs.forEach(c=>{contactMap[c.rut_norm]=c;});
   }
   const rows=baseRows.map(x=>{const c=contactMap[x.rut_norm]||{};return {...x,contact_id:c.contact_id||x.contact_id,rut:c.rut||x.rut_norm,nombre:c.nombre||'',telefono_1:c.telefono_1||'',telefono_2:c.telefono_2||'',telefono_3:c.telefono_3||'',telefono_activo_idx:c.telefono_activo_idx??null,email:c.email||'',motivo_label:x.motivo_gestionabilidad==='asignado'?'Asignado':(x.motivo_gestionabilidad==='disponible_por_regla'?'Disponible por regla':(x.motivo_gestionabilidad==='campana_activa_no_asignado'?'Campaña activa no asignado':(x.motivo_gestionabilidad==='historico_gestionado'?'Histórico gestionado':'Histórico informativo')))};});
-  return okJson({ok:true,source:'lite_v72',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
+  return okJson({ok:true,source:'lite_v73',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
 }
 self.addEventListener('fetch',event=>{
   const req=event.request;
-  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v72',months:REAL_MONTHS}));return;}
+  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v73',months:REAL_MONTHS}));return;}
   if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2')){event.respondWith(fallbackGetContactsV2(req).catch(()=>fetch(req)));return;}
   if(req.method!=='GET')return;
   event.respondWith(fetch(req).catch(()=>caches.match(req)));
