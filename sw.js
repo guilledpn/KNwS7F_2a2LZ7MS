@@ -1,4 +1,4 @@
-const APP_VERSION='crm-llamados-github-wrapper-v76-contactos-test';
+const APP_VERSION='crm-llamados-github-wrapper-v77';
 const APP_CACHE=APP_VERSION+'-shell';
 const SHELL_ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./assets/logo-horizontal.svg'];
 const SUPA='https://ojaimqutuycralrjbxwr.supabase.co';
@@ -23,7 +23,7 @@ function pgList(vals){return '('+vals.map(v=>'"'+String(v).replace(/"/g,'')+'"')
 function pgArray(vals){return '{'+vals.map(v=>String(v).replace(/[{}]/g,'')).join(',')+'}'}
 function enc(s){return encodeURIComponent(String(s));}
 function monthInfo(p){const realSet=new Set(REAL_MONTHS.map(m=>m.period));const raw=(Array.isArray(p.p_months)?p.p_months.filter(Boolean):[]);const months=raw.filter(m=>realSet.has(m));const allReal=REAL_MONTHS.every(m=>raw.includes(m.period));return{raw,months,allReal};}
-function patchAppHtml(html){return html.split('<div class="top-title" id="main-title">Contactos</div>').join('<div class="top-title" id="main-title">Contactos test</div>').split("contacts:'Contactos',stats:'Stats',import:'Importar'").join("contacts:'Contactos test',stats:'Stats',import:'Importar'");}
+function patchAppHtml(html){const versionBlock='<div class="settings-section" id="crm-version-section"><label class="settings-label">Versión de la app</label><div class="settings-note" style="margin:8px 2px 0">v77 · crm llamados · '+APP_VERSION+'</div></div>';let out=html.split('Contactos test').join('Contactos');if(out.indexOf('id="crm-version-section"')<0){out=out.split('<div class="settings-actions"><button class="sheet-close"').join(versionBlock+'<div class="settings-actions"><button class="sheet-close"');}return out;}
 async function patchAppSource(req){const res=await fetch(req,{cache:'no-store'});const html=await res.text();const headers=new Headers(res.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store');return new Response(patchAppHtml(html),{status:res.status,statusText:res.statusText,headers});}
 async function exactCount(path,headers){const r=await fetch(SUPA+path,{method:'GET',headers:{...headers,'prefer':'count=exact'},mode:'cors'});const cr=r.headers.get('content-range')||'';const m=cr.match(/\/(\d+)$/);return m?Number(m[1]):0;}
 function buildConds(p){
@@ -76,12 +76,12 @@ async function fallbackGetContactsV2(req){
     cs.forEach(c=>{contactMap[c.rut_norm]=c;});
   }
   const rows=baseRows.map(x=>{const c=contactMap[x.rut_norm]||{};return {...x,contact_id:c.contact_id||x.contact_id,rut:c.rut||x.rut_norm,nombre:c.nombre||'',telefono_1:c.telefono_1||'',telefono_2:c.telefono_2||'',telefono_3:c.telefono_3||'',telefono_activo_idx:c.telefono_activo_idx??null,email:c.email||'',motivo_label:x.motivo_gestionabilidad==='asignado'?'Asignado':(x.motivo_gestionabilidad==='disponible_por_regla'?'Disponible por regla':(x.motivo_gestionabilidad==='campana_activa_no_asignado'?'Campaña activa no asignado':(x.motivo_gestionabilidad==='historico_gestionado'?'Histórico gestionado':'Histórico informativo')))};});
-  return okJson({ok:true,source:'lite_v76_contactos_test',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
+  return okJson({ok:true,source:'lite_v77',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
 }
 self.addEventListener('fetch',event=>{
   const req=event.request;
   if(req.method==='GET'&&req.url.startsWith(APP_SOURCE_PREFIX)){event.respondWith(patchAppSource(req).catch(()=>fetch(req)));return;}
-  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v76_contactos_test',months:REAL_MONTHS}));return;}
+  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v77',months:REAL_MONTHS}));return;}
   if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2')){event.respondWith(fallbackGetContactsV2(req).catch(()=>fetch(req)));return;}
   if(req.method!=='GET')return;
   event.respondWith(fetch(req).catch(()=>caches.match(req)));
