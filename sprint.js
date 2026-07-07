@@ -2,6 +2,7 @@
   const KEY = 'crm_sprint_v1';
   let timer = null;
   let lastStatsHtml = '';
+  let lastReportHtml = '';
   let lastChipText = '';
   let lastChipMode = '';
   let lastChipWarn = false;
@@ -312,18 +313,29 @@
     if (!reportCard) {
       reportCard = document.createElement('div');
       reportCard.id = 'crm-daily-report-card';
-      card.insertAdjacentElement('afterend', reportCard);
+    }
+    if (reportCard.parentElement !== statsScroll || reportCard !== statsScroll.lastElementChild) {
+      statsScroll.appendChild(reportCard);
     }
     const rep = dailyReport;
     const block1 = rep ? rep.block1 : 'Agendamientos\nCargando...';
     const block2 = rep ? rep.block2 : 'Reporte\nCargando...';
-    reportCard.innerHTML = '<h3>Informe diario</h3><div class="crm-report-block"><div class="crm-report-title">Bloque 1: Agendamientos</div><div class="crm-report-pre" id="crm-report-block1"></div><div class="crm-report-actions"><button class="crm-report-copy" id="crm-copy-block1">Copiar Bloque 1</button></div></div><div class="crm-report-block"><div class="crm-report-title">Bloque 2: Reporte</div><div class="crm-report-pre" id="crm-report-block2"></div><div class="crm-report-actions"><button class="crm-report-copy" id="crm-copy-block2">Copiar Bloque 2</button><button class="crm-report-copy secondary" id="crm-refresh-report">Actualizar</button></div></div>';
-    reportCard.querySelector('#crm-report-block1').textContent = block1;
-    reportCard.querySelector('#crm-report-block2').textContent = block2;
-    reportCard.querySelector('#crm-copy-block1').onclick = () => copyText((dailyReport || {}).block1 || block1);
-    reportCard.querySelector('#crm-copy-block2').onclick = () => copyText((dailyReport || {}).block2 || block2);
-    reportCard.querySelector('#crm-refresh-report').onclick = async () => { await loadDailyReport(true); lastStatsHtml = ''; update(); };
-    if (!rep && !dailyReportLoading) loadDailyReport(false).then(() => { lastStatsHtml = ''; update(); });
+    const reportHtml = '<h3>Informe diario</h3><div class="crm-report-block"><div class="crm-report-title">Agendamientos</div><div class="crm-report-pre" id="crm-report-block1"></div><div class="crm-report-actions"><button class="crm-report-copy" id="crm-copy-block1">Copiar Agendamientos</button></div></div><div class="crm-report-block"><div class="crm-report-title">Reporte</div><div class="crm-report-pre" id="crm-report-block2"></div><div class="crm-report-actions"><button class="crm-report-copy" id="crm-copy-block2">Copiar Reporte</button><button class="crm-report-copy secondary" id="crm-refresh-report">Actualizar</button></div></div>';
+    if (reportHtml !== lastReportHtml) {
+      lastReportHtml = reportHtml;
+      reportCard.innerHTML = reportHtml;
+    }
+    const b1 = reportCard.querySelector('#crm-report-block1');
+    const b2 = reportCard.querySelector('#crm-report-block2');
+    if (b1 && b1.textContent !== block1) b1.textContent = block1;
+    if (b2 && b2.textContent !== block2) b2.textContent = block2;
+    const c1 = reportCard.querySelector('#crm-copy-block1');
+    const c2 = reportCard.querySelector('#crm-copy-block2');
+    const rf = reportCard.querySelector('#crm-refresh-report');
+    if (c1) c1.onclick = () => copyText((dailyReport || {}).block1 || block1);
+    if (c2) c2.onclick = () => copyText((dailyReport || {}).block2 || block2);
+    if (rf) rf.onclick = async () => { await loadDailyReport(true); update(); };
+    if (!rep && !dailyReportLoading) loadDailyReport(false).then(() => update());
   }
 
   function update() {
