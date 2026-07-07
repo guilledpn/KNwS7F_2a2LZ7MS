@@ -1,4 +1,4 @@
-const APP_VERSION='crm-llamados-github-wrapper-v85-july-assigned';
+const APP_VERSION='crm-llamados-github-wrapper-v86-july-rows-report';
 const APP_CACHE=APP_VERSION+'-shell';
 const SUPA='https://ojaimqutuycralrjbxwr.supabase.co';
 const APP_SOURCE_PREFIX=SUPA+'/storage/v1/object/public/pwa/index.html';
@@ -28,13 +28,13 @@ function monthInfo(params){const real=new Set(REAL_MONTHS.map(m=>m.period));cons
 function escapeLike(s){return String(s||'').trim().replace(/[*,()]/g,'');}
 
 function patchAppHtml(html){
-  const sprintStateCss='<style id="crm-sprint-state-css">#crm-sprint-chip.idle{background:#E8EEF7!important;color:#0F172A!important;border:1px solid #CBD5E1!important;box-shadow:none!important}#crm-sprint-chip.paused{background:#64748B!important;color:#fff!important;border:0!important}#crm-sprint-chip.warn{background:#BA1A1A!important;color:#fff!important;border:0!important}#crm-sprint-chip:not(.idle):not(.paused):not(.warn){background:#166534!important;color:#fff!important;border:0!important}</style>';
-  const versionBlock='<div class="settings-section" id="crm-version-section"><label class="settings-label">Versión de la app</label><div class="settings-note" style="margin:8px 2px 0">v85 · crm llamados · '+APP_VERSION+'</div></div>';
+  const sprintStateCss='<style id="crm-sprint-state-css">#crm-sprint-chip.idle{background:#E8EEF7!important;color:#0F172A!important;border:1px solid #CBD5E1!important;box-shadow:none!important}#crm-sprint-chip.paused{background:#64748B!important;color:#fff!important;border:0!important}#crm-sprint-chip.warn{background:#BA1A1A!important;color:#fff!important;border:0!important}#crm-sprint-chip.running{background:#166534!important;color:#fff!important;border:0!important}</style>';
+  const versionBlock='<div class="settings-section" id="crm-version-section"><label class="settings-label">Versión de la app</label><div class="settings-note" style="margin:8px 2px 0">v86 · crm llamados · '+APP_VERSION+'</div></div>';
   let out=html.split('Contactos test').join('Contactos');
   if(!out.includes('id="crm-sprint-state-css"')) out=out.split('</head>').join(sprintStateCss+'</head>');
   if(!out.includes('id="crm-version-section"')) out=out.split('<div class="settings-actions"><button class="sheet-close"').join(versionBlock+'<div class="settings-actions"><button class="sheet-close"');
   if(!out.includes('id="crm-sprint-chip"')) out=out.split('<button class="goal-chip"').join('<button id="crm-sprint-chip" class="idle" type="button" style="height:38px;border:1px solid #CBD5E1;border-radius:19px;background:#E8EEF7;color:#0F172A;font-weight:800;font-size:12.5px;padding:0 11px;display:flex;align-items:center;gap:6px;white-space:nowrap"><span id="crm-sprint-chip-txt">Sprint</span></button><button class="goal-chip"');
-  if(!out.includes('sprint.js?v=85')) out=out.split('</body>').join('<script src="./sprint.js?v=85"></script></body>');
+  if(!out.includes('sprint.js?v=86')) out=out.split('</body>').join('<script src="./sprint.js?v=86"></script></body>');
   return out;
 }
 async function patchAppSource(req){const res=await fetch(req,{cache:'no-store'});const html=await res.text();const headers=new Headers(res.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store');return new Response(patchAppHtml(html),{status:res.status,statusText:res.statusText,headers});}
@@ -74,7 +74,7 @@ function shouldUseWorkQueue(params){
 }
 
 async function fallbackWorkQueue(params,headers,limit,offset){
-  if(!shouldUseWorkQueue(params))return okJson({ok:true,source:'lite_v85_work_queue_empty',active_period:ACTIVE_PERIOD,limit,offset,base_total:0,base_pending:0,base_assigned:0,base_gestionables:0,base_no_gestionables:0,result_total:0,rows:[]});
+  if(!shouldUseWorkQueue(params))return okJson({ok:true,source:'lite_v86_work_queue_empty',active_period:ACTIVE_PERIOD,limit,offset,base_total:0,base_pending:0,base_assigned:0,base_gestionables:0,base_no_gestionables:0,result_total:0,rows:[]});
   const cond=['period=eq.'+enc(ACTIVE_PERIOD),'visible=eq.true','origen=eq.asignado'];
   if(params.p_pending_only)cond.push('estado_gestion=eq.Pendiente');
   const search=escapeLike(params.p_search||'');
@@ -90,38 +90,9 @@ async function fallbackWorkQueue(params,headers,limit,offset){
     exactCount(pendingPath,headers).catch(()=>DEFAULT_PENDING)
   ]);
   const mapped=(rows||[]).map(row=>({
-    active_period:ACTIVE_PERIOD,
-    contact_id:row.contact_id,
-    rut_norm:row.rut_norm,
-    work_item_id:row.work_item_id,
-    campaign_key:row.campaign_key,
-    campaign_name:row.campaign_name,
-    campaign_desc:row.campaign_desc,
-    estado_gestion:row.estado_gestion||'Pendiente',
-    fecha_estado_gestion:row.fecha_estado_gestion,
-    ingreso_estimado:row.ingreso_estimado,
-    comentarios:row.comentarios,
-    recordatorio_titulo:row.recordatorio_titulo,
-    recordatorio_fecha_hora:row.recordatorio_fecha_hora,
-    ultimo_contacto:row.ultimo_contacto,
-    meses_aparicion:[],
-    ultimo_mes_observado:null,
-    ultimo_estado_observado:null,
-    aparece_en_campana_activa:false,
-    asignado_a_mi:true,
-    gestionable_actual:true,
-    motivo_gestionabilidad:'asignado',
-    motivo_label:'Asignado',
-    display_order:row.display_order,
-    rut:row.rut_norm,
-    nombre:row.nombre||'',
-    telefono_1:row.telefono_1||'',
-    telefono_2:row.telefono_2||'',
-    telefono_3:row.telefono_3||'',
-    telefono_activo_idx:null,
-    email:row.email||''
+    active_period:ACTIVE_PERIOD,contact_id:row.contact_id,rut_norm:row.rut_norm,work_item_id:row.work_item_id,campaign_key:row.campaign_key,campaign_name:row.campaign_name,campaign_desc:row.campaign_desc,estado_gestion:row.estado_gestion||'Pendiente',fecha_estado_gestion:row.fecha_estado_gestion,ingreso_estimado:row.ingreso_estimado,comentarios:row.comentarios,recordatorio_titulo:row.recordatorio_titulo,recordatorio_fecha_hora:row.recordatorio_fecha_hora,ultimo_contacto:row.ultimo_contacto,meses_aparicion:[],ultimo_mes_observado:null,ultimo_estado_observado:null,aparece_en_campana_activa:false,asignado_a_mi:true,gestionable_actual:true,motivo_gestionabilidad:'asignado',motivo_label:'Asignado',display_order:row.display_order,rut:row.rut_norm,nombre:row.nombre||'',telefono_1:row.telefono_1||'',telefono_2:row.telefono_2||'',telefono_3:row.telefono_3||'',telefono_activo_idx:null,email:row.email||''
   }));
-  return okJson({ok:true,source:'lite_v85_work_queue_july',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:Number(pending||0),base_assigned:Number(total||0),base_gestionables:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows:mapped});
+  return okJson({ok:true,source:'lite_v86_work_queue_july',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:Number(pending||0),base_assigned:Number(total||0),base_gestionables:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows:mapped});
 }
 
 async function fallbackGetContactsV2(req){
@@ -140,7 +111,7 @@ async function fallbackGetContactsV2(req){
   const totalPromise=isDefault?Promise.resolve(DEFAULT_TOTAL):exactCount('/rest/v1/contact_operational_state_v2?select=rut_norm&'+baseCond+'&limit=1',headers);
   const rowsPromise=fetch(SUPA+path,{headers,mode:'cors'}).then(res=>{if(!res.ok)throw new Error('contacts fallback base '+res.status);return res.json();});
   const [baseRows,total]=await Promise.all([rowsPromise,totalPromise]);
-  if((!baseRows||!baseRows.length)&&Number(total||0)===0){return fallbackWorkQueue(params,headers,limit,offset);}
+  if((!baseRows||!baseRows.length)&&shouldUseWorkQueue(params)){return fallbackWorkQueue(params,headers,limit,offset);}
   const ruts=[...new Set(baseRows.map(row=>row.rut_norm).filter(Boolean))];
   const contactMap={};
   if(ruts.length){
@@ -149,13 +120,13 @@ async function fallbackGetContactsV2(req){
     contacts.forEach(c=>{contactMap[c.rut_norm]=c;});
   }
   const rows=baseRows.map(row=>{const c=contactMap[row.rut_norm]||{};return {...row,contact_id:c.contact_id||row.contact_id,rut:c.rut||row.rut_norm,nombre:c.nombre||'',telefono_1:c.telefono_1||'',telefono_2:c.telefono_2||'',telefono_3:c.telefono_3||'',telefono_activo_idx:c.telefono_activo_idx??null,email:c.email||'',motivo_label:row.motivo_gestionabilidad==='asignado'?'Asignado':(row.motivo_gestionabilidad==='disponible_por_regla'?'Disponible por regla':'Histórico informativo')};});
-  return okJson({ok:true,source:'lite_v85_cos',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
+  return okJson({ok:true,source:'lite_v86_cos',active_period:ACTIVE_PERIOD,limit,offset,base_total:Number(total||0),base_pending:isDefault?DEFAULT_PENDING:Number(total||0),base_assigned:isDefault?DEFAULT_ASSIGNED:0,base_gestionables:isDefault?DEFAULT_TOTAL:Number(total||0),base_no_gestionables:0,result_total:Number(total||0),rows});
 }
 
 self.addEventListener('fetch',event=>{
   const req=event.request;
   if(req.method==='GET'&&req.url.startsWith(APP_SOURCE_PREFIX)){event.respondWith(patchAppSource(req).catch(()=>fetch(req)));return;}
-  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v85_months',months:REAL_MONTHS}));return;}
+  if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2_months')){event.respondWith(okJson({ok:true,source:'lite_v86_months',months:REAL_MONTHS}));return;}
   if(req.method==='POST'&&req.url.startsWith(SUPA+'/rest/v1/rpc/get_contacts_v2')){event.respondWith(fallbackGetContactsV2(req).catch(()=>fetch(req)));return;}
   if(req.method!=='GET')return;
   event.respondWith(fetch(req).catch(()=>caches.match(req)));
