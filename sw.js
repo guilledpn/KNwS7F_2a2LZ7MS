@@ -1,4 +1,4 @@
-const APP_VERSION = 'crm-llamados-github-wrapper-v83-order-report';
+const APP_VERSION = 'crm-llamados-github-wrapper-v84-sprint-assigned-audit';
 const APP_CACHE = APP_VERSION + '-shell';
 const SUPA = 'https://ojaimqutuycralrjbxwr.supabase.co';
 const APP_SOURCE_PREFIX = SUPA + '/storage/v1/object/public/pwa/index.html';
@@ -12,7 +12,7 @@ const REAL_MONTHS = [
 ];
 const DEFAULT_TOTAL = 25840;
 const DEFAULT_PENDING = 25755;
-const DEFAULT_ASSIGNED = 234;
+const DEFAULT_ASSIGNED = 232;
 const SHELL_ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './assets/logo-horizontal.svg', './sprint.js'];
 
 self.addEventListener('install', (event) => {
@@ -76,16 +76,20 @@ function monthInfo(params) {
 }
 
 function patchAppHtml(html) {
-  const versionBlock = '<div class="settings-section" id="crm-version-section"><label class="settings-label">Versión de la app</label><div class="settings-note" style="margin:8px 2px 0">v83 · crm llamados · ' + APP_VERSION + '</div></div>';
+  const sprintStateCss = '<style id="crm-sprint-state-css">#crm-sprint-chip.idle{background:#E8EEF7!important;color:#0F172A!important;border:1px solid #CBD5E1!important;box-shadow:none!important}#crm-sprint-chip.paused{background:#64748B!important;color:#fff!important;border:0!important}#crm-sprint-chip.warn{background:#BA1A1A!important;color:#fff!important;border:0!important}#crm-sprint-chip:not(.idle):not(.paused):not(.warn){background:#166534!important;color:#fff!important;border:0!important}</style>';
+  const versionBlock = '<div class="settings-section" id="crm-version-section"><label class="settings-label">Versión de la app</label><div class="settings-note" style="margin:8px 2px 0">v84 · crm llamados · ' + APP_VERSION + '</div></div>';
   let out = html.split('Contactos test').join('Contactos');
+  if (!out.includes('id="crm-sprint-state-css"')) {
+    out = out.split('</head>').join(sprintStateCss + '</head>');
+  }
   if (!out.includes('id="crm-version-section"')) {
     out = out.split('<div class="settings-actions"><button class="sheet-close"').join(versionBlock + '<div class="settings-actions"><button class="sheet-close"');
   }
   if (!out.includes('id="crm-sprint-chip"')) {
-    out = out.split('<button class="goal-chip"').join('<button id="crm-sprint-chip" type="button" style="height:38px;border:0;border-radius:19px;background:#166534;color:#fff;font-weight:800;font-size:12.5px;padding:0 11px;display:flex;align-items:center;gap:6px;white-space:nowrap"><span id="crm-sprint-chip-txt">Sprint</span></button><button class="goal-chip"');
+    out = out.split('<button class="goal-chip"').join('<button id="crm-sprint-chip" class="idle" type="button" style="height:38px;border:1px solid #CBD5E1;border-radius:19px;background:#E8EEF7;color:#0F172A;font-weight:800;font-size:12.5px;padding:0 11px;display:flex;align-items:center;gap:6px;white-space:nowrap"><span id="crm-sprint-chip-txt">Sprint</span></button><button class="goal-chip"');
   }
-  if (!out.includes('sprint.js?v=83')) {
-    out = out.split('</body>').join('<script src="./sprint.js?v=83"></script></body>');
+  if (!out.includes('sprint.js?v=84')) {
+    out = out.split('</body>').join('<script src="./sprint.js?v=84"></script></body>');
   }
   return out;
 }
@@ -187,7 +191,7 @@ async function fallbackGetContactsV2(req) {
 
   return okJson({
     ok: true,
-    source: 'lite_v83_order_report',
+    source: 'lite_v84_sprint_assigned_audit',
     active_period: ACTIVE_PERIOD,
     limit,
     offset,
@@ -208,7 +212,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (req.method === 'POST' && req.url.startsWith(SUPA + '/rest/v1/rpc/get_contacts_v2_months')) {
-    event.respondWith(okJson({ ok: true, source: 'lite_v83_order_report', months: REAL_MONTHS }));
+    event.respondWith(okJson({ ok: true, source: 'lite_v84_sprint_assigned_audit', months: REAL_MONTHS }));
     return;
   }
   if (req.method === 'POST' && req.url.startsWith(SUPA + '/rest/v1/rpc/get_contacts_v2')) {
