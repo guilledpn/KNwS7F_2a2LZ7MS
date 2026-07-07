@@ -1,6 +1,9 @@
 (() => {
   const KEY = 'crm_sprint_v1';
   let timer = null;
+  let lastStatsHtml = '';
+  let lastChipText = '';
+  let lastChipMode = '';
 
   function base() {
     return { workMin: 20, breakMin: 5, logs: [], active: null };
@@ -50,6 +53,8 @@
   function toast(message) {
     try {
       if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+      const old = document.querySelector('.crm-sprint-toast');
+      if (old) old.remove();
       const el = document.createElement('div');
       el.className = 'crm-sprint-toast';
       el.textContent = message;
@@ -183,7 +188,11 @@
     const state = load();
     const s = dayStats(state);
     const status = state.active ? ((state.active.mode === 'work' ? 'Sprint en curso · ' : 'Descanso en curso · ') + fmt(state.active.endAt - Date.now())) : 'Sin sprint activo';
-    card.innerHTML = '<h3>Sprint de llamados</h3><div class="crm-sprint-grid"><div class="crm-sprint-metric"><b>' + s.sprints + '</b><span>Sprints hoy</span></div><div class="crm-sprint-metric"><b>' + s.minutes + '</b><span>Min llamados</span></div><div class="crm-sprint-metric"><b>' + s.breaks + '</b><span>Descansos</span></div></div><div class="crm-sprint-log"><b>Estado:</b> ' + status + (s.items.length ? '<br><b>Registro:</b> ' + s.items.join(' · ') : '') + '</div>';
+    const html = '<h3>Sprint de llamados</h3><div class="crm-sprint-grid"><div class="crm-sprint-metric"><b>' + s.sprints + '</b><span>Sprints hoy</span></div><div class="crm-sprint-metric"><b>' + s.minutes + '</b><span>Min llamados</span></div><div class="crm-sprint-metric"><b>' + s.breaks + '</b><span>Descansos</span></div></div><div class="crm-sprint-log"><b>Estado:</b> ' + status + (s.items.length ? '<br><b>Registro:</b> ' + s.items.join(' · ') : '') + '</div>';
+    if (html !== lastStatsHtml) {
+      lastStatsHtml = html;
+      card.innerHTML = html;
+    }
   }
 
   function update() {
@@ -195,13 +204,17 @@
     }
     const chip = ensureChip();
     if (chip) {
-      chip.classList.remove('work', 'break');
-      const text = document.getElementById('crm-sprint-chip-txt');
-      if (state.active) {
-        chip.classList.add(state.active.mode);
-        text.textContent = (state.active.mode === 'work' ? 'Sprint ' : 'Descanso ') + fmt(state.active.endAt - Date.now());
-      } else {
-        text.textContent = 'Sprint';
+      const mode = state.active ? state.active.mode : '';
+      const label = state.active ? ((state.active.mode === 'work' ? 'Sprint ' : 'Descanso ') + fmt(state.active.endAt - Date.now())) : 'Sprint';
+      if (mode !== lastChipMode) {
+        chip.classList.remove('work', 'break');
+        if (mode) chip.classList.add(mode);
+        lastChipMode = mode;
+      }
+      if (label !== lastChipText) {
+        lastChipText = label;
+        const text = document.getElementById('crm-sprint-chip-txt');
+        if (text) text.textContent = label;
       }
     }
     const s = dayStats(state);
@@ -219,7 +232,7 @@
     update();
     if (timer) clearInterval(timer);
     timer = setInterval(update, 1000);
-    new MutationObserver(update).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('click', () => setTimeout(update, 80), true);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
