@@ -1,7 +1,11 @@
 (() => {
   'use strict';
   const KEY = 'crm_sprint_v104';
+  const FALLBACK_SUPABASE_URL = 'https://lijibbhpyyptodneafdd.supabase.co';
+  const FALLBACK_SUPABASE_ANON_KEY = String.fromCharCode(115,98,95,112,117,98,108,105,115,104,97,98,108,101,95,86,49,122,109,103,54,79,66,86,71,53,119,122,100,97,57,114,48,116,57,99,103,95,86,80,84,56,120,104,53,53);
   let timer = null;
+  let fallbackClient = null;
+  let loadingSupabaseLib = null;
 
   const $ = (id) => document.getElementById(id);
   const today = () => new Date().toISOString().slice(0, 10);
@@ -11,20 +15,66 @@
   const remaining = (s) => !s.active ? 0 : Math.max(0, s.active.paused ? Number(s.active.remainingMs || 0) : Number(s.active.endAt || 0) - Date.now());
   const fmt = (ms) => { const t = Math.ceil(Math.max(0, ms) / 1000); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
 
-  function sbClient() {
-    try { if (typeof sb !== 'undefined' && sb) return sb; } catch (e) {}
-    try {
-      if (window.supabase && typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
-        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = Array.from(document.scripts).find(s => s.src === src);
+      if (existing) {
+        existing.addEventListener('load', resolve, { once: true });
+        existing.addEventListener('error', reject, { once: true });
+        setTimeout(resolve, 350);
+        return;
       }
-    } catch (e) {}
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureSupabaseLib() {
+    if (window.supabase && window.supabase.createClient) return window.supabase;
+    if (!loadingSupabaseLib) {
+      loadingSupabaseLib = (async () => {
+        const sources = [
+          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+          'https://unpkg.com/@supabase/supabase-js@2'
+        ];
+        let lastErr = null;
+        for (const src of sources) {
+          try {
+            await loadScript(src);
+            if (window.supabase && window.supabase.createClient) return window.supabase;
+          } catch (e) { lastErr = e; }
+        }
+        throw lastErr || new Error('No se pudo cargar Supabase JS');
+      })();
+    }
+    return loadingSupabaseLib;
+  }
+
+  async function sbClientAsync() {
+    try { if (typeof sb !== 'undefined' && sb) return sb; } catch (e) {}
+    if (fallbackClient) return fallbackClient;
+    const lib = await ensureSupabaseLib();
+    fallbackClient = lib.createClient(FALLBACK_SUPABASE_URL, FALLBACK_SUPABASE_ANON_KEY);
+    try { window.__crmSupabaseClient = fallbackClient; } catch (e) {}
+    return fallbackClient;
+  }
+
+  function sbClientSync() {
+    try { if (typeof sb !== 'undefined' && sb) return sb; } catch (e) {}
+    if (fallbackClient) return fallbackClient;
+    if (window.supabase && window.supabase.createClient) {
+      fallbackClient = window.supabase.createClient(FALLBACK_SUPABASE_URL, FALLBACK_SUPABASE_ANON_KEY);
+      return fallbackClient;
+    }
     return null;
   }
 
   function toast(msg) {
-    try {
-      if (typeof window.toast === 'function') { window.toast(msg); return; }
-    } catch (e) {}
+    try { if (typeof window.toast === 'function') { window.toast(msg); return; } } catch (e) {}
     try {
       document.querySelectorAll('.crm-sprint-toast').forEach(x => x.remove());
       const t = document.createElement('div');
@@ -70,29 +120,22 @@
     const email = $('email');
     const pass = $('password');
     const msg = $('login-msg');
-    if (!btn || btn.dataset.crmLoginFixed === '1') return;
-    btn.dataset.crmLoginFixed = '1';
+    if (!btn || btn.dataset.crmLoginFixed === '2') return;
+    btn.dataset.crmLoginFixed = '2';
     btn.type = 'button';
 
     async function robustLogin(ev) {
       try { ev && ev.preventDefault && ev.preventDefault(); } catch (e) {}
-      const client = sbClient();
-      if (!client) {
-        if (msg) msg.textContent = 'No se pudo inicializar Supabase. Recarga la página.';
-        toast('Supabase no inicializó');
-        return;
-      }
       const mail = (email && email.value || '').trim();
       const pwd = pass && pass.value || '';
-      if (!mail || !pwd) {
-        if (msg) msg.textContent = 'Falta correo o contraseña.';
-        return;
-      }
+      if (!mail || !pwd) { if (msg) msg.textContent = 'Falta correo o contraseña.'; return; }
       btn.disabled = true;
       const old = btn.textContent;
       btn.textContent = 'Entrando…';
-      if (msg) msg.textContent = 'Validando acceso…';
+      if (msg) msg.textContent = 'Inicializando Supabase…';
       try {
+        const client = await sbClientAsync();
+        if (msg) msg.textContent = 'Validando acceso…';
         const { data, error } = await client.auth.signInWithPassword({ email: mail, password: pwd });
         if (error) throw error;
         try { if (typeof user !== 'undefined') user = data.user; } catch (e) {}
