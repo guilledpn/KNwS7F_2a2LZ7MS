@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rescate CRM</title>
+  <style>
+    body{margin:0;min-height:100vh;background:#f6f9ff;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:20px}
+    .card{max-width:780px;margin:0 auto;background:#fff;border:1px solid #dbe5f3;border-radius:24px;box-shadow:0 12px 30px rgba(15,23,42,.12);padding:22px}
+    h1{font-size:24px;margin:0 0 8px}.muted{color:#475569;line-height:1.45}.row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}button,a.btn{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:800;padding:11px 14px;text-decoration:none;display:inline-block}.secondary{background:#e8eef7!important;color:#0f172a!important}.danger{background:#b42318!important}.box{background:#f8fafc;border:1px solid #dbe5f3;border-radius:16px;padding:12px;margin:12px 0;white-space:pre-wrap;overflow:auto;max-height:340px;font:12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.ok{color:#027a48}.warn{color:#b54708}.err{color:#b42318}.pill{display:inline-block;background:#e8eef7;border-radius:999px;padding:5px 10px;margin:4px 4px 0 0;font-size:12px;font-weight:700;color:#334155}
+  </style>
+</head>
+<body>
+  <section class="card">
+    <h1>Rescate de datos locales CRM</h1>
+    <p class="muted">Esta herramienta no sube nada a internet. Lee lo que queda en este navegador/app: localStorage, sessionStorage, IndexedDB y Cache Storage, y permite descargar un respaldo JSON antes de limpiar el CRM.</p>
+    <div class="row">
+      <button id="scan">Escanear</button>
+      <button id="download" class="secondary" disabled>Descargar respaldo JSON</button>
+      <a class="btn secondary" href="./">Volver al CRM</a>
+      <a class="btn danger" href="./reset.html">Limpiar después</a>
+    </div>
+    <div id="summary" class="box">Listo para escanear.</div>
+    <div id="details" class="box" style="display:none"></div>
+  </section>
+<script>
+let lastDump=null;
+const $=id=>document.getElementById(id);
+function safeParse(v){try{return JSON.parse(v)}catch(e){return null}}
+function estimateRowsFromValue(v){
+  let out=[];
+  const s=typeof v==='string'?v:JSON.stringify(v||'');
+  const candidates=['contact','contacts','work_queue','rows','rut_norm','telefono','campaign','gestion'];
+  const hits=candidates.filter(x=>s.toLowerCase().includes(x));
+  if(hits.length)out.push('hits='+hits.join(','));
+  const arr=safeParse(s);
+  function countArrays(o,path){
+    if(!o||typeof o!=='object')return;
+    if(Array.isArray(o)){ if(o.length>10)out.push(path+': array '+o.length); o.slice(0,3).forEach((x,i)=>countArrays(x,path+'['+i+']')); return; }
+    Object.keys(o).slice(0,80).forEach(k=>countArrays(o[k],path?path+'.'+k:k));
+  }
+  if(arr)countArrays(arr,'json');
+  return out;
+}
+async function dumpLocalStorage(){
+  const items=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i); const value=localStorage.getItem(key);
+    items.push({key,value,length:value?value.length:0,signals:estimateRowsFromValue(value)});
+  }
+  return items.sort((a,b)=>b.length-a.length);
+}
+async function dumpSessionStorage(){
+  const items=[];
+  for(let i=0;i<sessionStorage.length;i++){
+    const key=sessionStorage.key(i); const value=sessionStorage.getItem(key);
+    items.push({key,value,length:value?value.length:0,signals:estimateRowsFromValue(value)});
+  }
+  return items.sort((a,b)=>b.length-a.length);
+}
+function reqToPromise(req){return new Promise((res,rej)=>{req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error)})}
+async function dumpIndexedDB(){
+  const result=[];
+  if(!indexedDB.databases)return [{warning:'Este navegador no permite enumerar IndexedDB desde una página.'}];
+  const dbs=await indexedDB.databases();
+  for(const info of dbs){
+    if(!info.name)continue;
+    const db=await new Promise((res,rej)=>{const r=indexedDB.open(info.name);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}).catch(e=>({error:String(e)}));
+    if(!db||db.error){result.push({name:info.name,error:db&&db.error});continue;}
+    const stores=[];
+    for(const storeName of Array.from(db.objectStoreNames)){
+      try{
+        const tx=db.transaction(storeName,'readonly'); const st=tx.objectStore(storeName);
+        const count=await reqToPromise(st.count());
+        let sample=[];
+        if(st.getAll){sample=await reqToPromise(st.getAll(undefined,Math.min(count,50))).catch(()=>[])}
+        stores.push({storeName,count,sample});
+      }catch(e){stores.push({storeName,error:String(e)})}
+    }
+    db.close(); result.push({name:info.name,version:info.version,stores});
+  }
+  return result;
+}
+async function dumpCaches(){
+  const out=[];
+  if(!('caches' in window))return out;
+  const keys=await caches.keys();
+  for(const cacheName of keys){
+    const cache=await caches.open(cacheName); const reqs=await cache.keys();
+    const entries=[];
+    for(const req of reqs.slice(0,80)){
+      const res=await cache.match(req).catch(()=>null);
+      let text=null, type=res?res.headers.get('content-type'):null;
+      if(res&&type&&(type.includes('json')||type.includes('text')||type.includes('html')||type.includes('javascript'))){
+        text=await res.clone().text().catch(()=>null);
+      }
+      entries.push({url:req.url,method:req.method,status:res&&res.status,contentType:type,text,length:text?text.length:null,signals:text?estimateRowsFromValue(text):[]});
+    }
+    out.push({cacheName,count:reqs.length,entries});
+  }
+  return out;
+}
+function summarize(dump){
+  const lines=[];
+  lines.push('Fecha: '+dump.created_at);
+  lines.push('Origen: '+location.origin);
+  lines.push('localStorage keys: '+dump.localStorage.length);
+  lines.push('sessionStorage keys: '+dump.sessionStorage.length);
+  lines.push('IndexedDB DBs: '+dump.indexedDB.length);
+  lines.push('Caches: '+dump.caches.length);
+  lines.push('');
+  lines.push('Claves locales más grandes:');
+  dump.localStorage.slice(0,12).forEach(x=>lines.push('- '+x.key+' | '+x.length+' chars | '+(x.signals||[]).join(' / ')));
+  lines.push('');
+  lines.push('IndexedDB:');
+  dump.indexedDB.forEach(db=>{
+    if(db.warning||db.error){lines.push('- '+(db.name||'indexedDB')+': '+(db.warning||db.error));return;}
+    lines.push('- '+db.name+': '+(db.stores||[]).map(s=>s.storeName+'='+s.count).join(', '));
+  });
+  lines.push('');
+  lines.push('Caches:');
+  dump.caches.forEach(c=>lines.push('- '+c.cacheName+': '+c.count+' entradas'));
+  return lines.join('\n');
+}
+$('scan').onclick=async()=>{
+  $('summary').textContent='Escaneando...'; $('details').style.display='none'; $('download').disabled=true;
+  try{
+    lastDump={created_at:new Date().toISOString(),origin:location.origin,href:location.href,userAgent:navigator.userAgent,localStorage:await dumpLocalStorage(),sessionStorage:await dumpSessionStorage(),indexedDB:await dumpIndexedDB(),caches:await dumpCaches()};
+    $('summary').textContent=summarize(lastDump);
+    $('details').style.display='block';
+    $('details').textContent=JSON.stringify(lastDump,null,2).slice(0,200000);
+    $('download').disabled=false;
+  }catch(e){$('summary').innerHTML='<span class="err">Error: '+String(e&&e.message?e.message:e)+'</span>'}
+};
+$('download').onclick=()=>{
+  if(!lastDump)return;
+  const blob=new Blob([JSON.stringify(lastDump,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='crm_rescate_local_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+</script>
+</body>
+</html>
