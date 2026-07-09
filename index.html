@@ -1,1 +1,87 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f172a"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="crm llamados"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="./icons/icon.svg"><link rel="apple-touch-icon" href="./icons/icon.svg"><title>crm llamados</title><style>html,body{margin:0;min-height:100%;background:#f6f9ff;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}.boot{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.card{width:min(440px,100%);background:#fff;border:1px solid #dbe5f3;border-radius:24px;box-shadow:0 12px 30px rgba(15,23,42,.12);padding:28px}.mark{width:58px;height:58px;border-radius:18px;background:#0a6cff;color:white;display:grid;place-items:center;margin:0 auto 16px;font-weight:800;font-size:18px}h1{font-size:24px;margin:0 0 8px}p{margin:0;color:#475569;line-height:1.45}.small{font-size:13px;margin-top:12px;color:#64748b}.err{color:#b42318;white-space:pre-wrap;text-align:left;background:#fff1f1;border:1px solid #ffd0d0;border-radius:14px;padding:12px;margin-top:14px;display:none}.actions{display:none;margin-top:14px;gap:10px;justify-content:center}.actions button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:800;padding:11px 14px}.actions .secondary{background:#e8eef7;color:#0f172a}</style></head><body><main class="boot" id="boot"><section class="card"><div class="mark">crm</div><h1>crm llamados</h1><p>Cargando...</p><p class="small" id="status">Actualizando app si es necesario</p><div class="err" id="err"></div><div class="actions" id="actions"><button onclick="location.reload()">Reintentar</button><button class="secondary" id="use-cache">Usar copia local</button></div></section></main><script>(function(){var APP_VERSION='wrapper-v89-resilient-source';var CACHE_KEY='crm_llamados_cached_app_html_v1';var APP_SOURCES=['https://ojaimqutuycralrjbxwr.supabase.co/storage/v1/object/public/pwa/index.html?v=64-github-pages-2','https://ojaimqutuycralrjbxwr.supabase.co/storage/v1/object/public/pwa/index.html'];function $(id){return document.getElementById(id)}function setStatus(t){var e=$('status');if(e)e.textContent=t}function showError(msg,showActions){var el=$('err');if(el){el.style.display='block';el.textContent=msg}var a=$('actions');if(a&&showActions)a.style.display='flex'}function isHtml(html){return /^\s*<!doctype html/i.test(html)||/^\s*<html/i.test(html)}function patchApp(html){html=html.split('Contactos test').join('Contactos');html=html.replace('<title>CRM FFVV · v64 PWA</title>','<title>crm llamados</title>');html=html.replace('<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">','<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">');html=html.replace('<link rel="apple-touch-icon" href="./icons/icon-192.png">','<link rel="apple-touch-icon" href="./icons/icon.svg">');return html}function render(html,source){if(!isHtml(html))throw new Error('La respuesta no parece HTML válido.');try{localStorage.setItem(CACHE_KEY,html);localStorage.setItem(CACHE_KEY+':source',source||'unknown');localStorage.setItem(CACHE_KEY+':ts',String(Date.now()))}catch(e){}html=patchApp(html);document.open();document.write(html);document.close()}async function fetchText(url){var r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return await r.text()}async function loadApp(){var errors=[];for(var i=0;i<APP_SOURCES.length;i++){try{setStatus('Descargando app...');var html=await fetchText(APP_SOURCES[i]);render(html,APP_SOURCES[i]);return}catch(e){errors.push(APP_SOURCES[i]+' → '+(e&&e.message?e.message:e));}}try{var cached=localStorage.getItem(CACHE_KEY);if(cached&&isHtml(cached)){setStatus('Usando copia local');render(cached,'local-cache');return}}catch(e){}showError('No se pudo cargar la app desde Supabase Storage.\n\n'+errors.join('\n')+'\n\nNo hay copia local disponible todavía.',true)}if('serviceWorker'in navigator){(function(){var refreshing=false,regRef=null,lastCheck=0;navigator.serviceWorker.addEventListener('controllerchange',function(){if(refreshing)return;refreshing=true;try{sessionStorage.setItem('crm_sw_updated','1')}catch(e){}location.reload();});function activateWaiting(reg){if(reg&&reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'});}catch(e){}}}function checkUpdate(force){if(!regRef||!regRef.update)return Promise.resolve();var now=Date.now();if(!force&&now-lastCheck<60000)return Promise.resolve();lastCheck=now;return regRef.update().then(function(){activateWaiting(regRef)}).catch(function(){});}navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).then(function(reg){regRef=reg;activateWaiting(reg);checkUpdate(true);setInterval(function(){checkUpdate(false)},180000);document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkUpdate(true)});window.addEventListener('focus',function(){checkUpdate(true)});window.addEventListener('online',function(){checkUpdate(true)});reg.addEventListener&&reg.addEventListener('updatefound',function(){var nw=reg.installing;if(!nw)return;nw.addEventListener('statechange',function(){if(nw.state==='installed'&&navigator.serviceWorker.controller)activateWaiting(reg)})});}).catch(function(e){console.warn('SW wrapper:',e);});})();}var cacheBtn=$('use-cache');if(cacheBtn)cacheBtn.onclick=function(){try{var cached=localStorage.getItem(CACHE_KEY);if(cached&&isHtml(cached))render(cached,'manual-cache');else showError('No hay copia local disponible todavía.',true)}catch(e){showError('No se pudo usar la copia local: '+(e.message||e),true)}};loadApp();})();</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="crm llamados">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+<link rel="apple-touch-icon" href="./icons/icon.svg">
+<title>crm llamados</title>
+<style>
+html,body{margin:0;min-height:100%;background:#f6f9ff;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}.boot{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}.card{width:min(440px,100%);background:#fff;border:1px solid #dbe5f3;border-radius:24px;box-shadow:0 12px 30px rgba(15,23,42,.12);padding:28px}.mark{width:58px;height:58px;border-radius:18px;background:#0a6cff;color:white;display:grid;place-items:center;margin:0 auto 16px;font-weight:800;font-size:18px}h1{font-size:24px;margin:0 0 8px}p{margin:0;color:#475569;line-height:1.45}.small{font-size:13px;margin-top:12px;color:#64748b}.err{color:#b42318;white-space:pre-wrap;text-align:left;background:#fff1f1;border:1px solid #ffd0d0;border-radius:14px;padding:12px;margin-top:14px;display:none}.actions{display:none;margin-top:14px;gap:10px;justify-content:center;flex-wrap:wrap}.actions button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:800;padding:11px 14px}.actions .secondary{background:#e8eef7;color:#0f172a}
+</style>
+</head>
+<body>
+<main class="boot" id="boot"><section class="card"><div class="mark">crm</div><h1>crm llamados</h1><p>Cargando...</p><p class="small" id="status">Actualizando app si es necesario</p><div class="err" id="err"></div><div class="actions" id="actions"><button onclick="location.reload()">Reintentar</button><button class="secondary" id="use-cache">Usar copia local</button></div></section></main>
+<script>
+(function(){
+  var APP_VERSION='wrapper-v90-new-supabase-space-safe';
+  var CACHE_KEY='crm_llamados_cached_app_html_v1';
+  var NEW_SUPABASE_URL='https://lijibbhpyyptodneafdd.supabase.co';
+  var NEW_SUPABASE_KEY='sb_publishable_V1zmg6OBVG5wzda9r0t9cg_VPT8xh55';
+  var OLD_SUPABASE_URL='https://ojaimqutuycralrjbxwr.supabase.co';
+  var APP_SOURCES=[
+    OLD_SUPABASE_URL+'/storage/v1/object/public/pwa/index.html?v=64-github-pages-2',
+    OLD_SUPABASE_URL+'/storage/v1/object/public/pwa/index.html'
+  ];
+  function $(id){return document.getElementById(id)}
+  function setStatus(t){var e=$('status');if(e)e.textContent=t}
+  function showError(msg,showActions){var el=$('err');if(el){el.style.display='block';el.textContent=msg}var a=$('actions');if(a&&showActions)a.style.display='flex'}
+  function isHtml(html){return /^\s*<!doctype html/i.test(html)||/^\s*<html/i.test(html)}
+  function replaceConst(html,name,value){
+    var re=new RegExp('(const\\s+'+name+'\\s*=\\s*)[\'\"][^\'\"]*[\'\"]','g');
+    return html.replace(re,"$1'"+value+"'");
+  }
+  function patchApp(html){
+    html=String(html||'');
+    html=html.split('Contactos test').join('Contactos');
+    html=html.replace('<title>CRM FFVV · v64 PWA</title>','<title>crm llamados</title>');
+    html=html.replace('<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">','<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">');
+    html=html.replace('<link rel="apple-touch-icon" href="./icons/icon-192.png">','<link rel="apple-touch-icon" href="./icons/icon.svg">');
+    html=html.split(OLD_SUPABASE_URL).join(NEW_SUPABASE_URL);
+    html=replaceConst(html,'SUPABASE_URL',NEW_SUPABASE_URL);
+    html=replaceConst(html,'SUPABASE_ANON_KEY',NEW_SUPABASE_KEY);
+    html=replaceConst(html,'SUPABASE_PUBLISHABLE_KEY',NEW_SUPABASE_KEY);
+    html=replaceConst(html,'SUPABASE_KEY',NEW_SUPABASE_KEY);
+    html=html.replace(/sb_publishable_[A-Za-z0-9_-]+/g,NEW_SUPABASE_KEY);
+    html=html.replace(/(CONTACTS_V2_CACHE_VERSION\s*=\s*)[\'\"][^\'\"]*[\'\"]/g,"$1'v2_space_safe_2026_07'");
+    html=html.replace(/sprint\.js\?v=\d+/g,'sprint.js?v=90');
+    html=html.split('v88 · crm llamados').join('v90 · crm llamados · Supabase v2 space-safe');
+    return html;
+  }
+  function render(html,source){
+    if(!isHtml(html))throw new Error('La respuesta no parece HTML válido.');
+    try{localStorage.setItem(CACHE_KEY,html);localStorage.setItem(CACHE_KEY+':source',source||'unknown');localStorage.setItem(CACHE_KEY+':ts',String(Date.now()))}catch(e){}
+    html=patchApp(html);
+    document.open();document.write(html);document.close();
+  }
+  async function fetchText(url){var r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return await r.text()}
+  async function loadApp(){
+    var errors=[];
+    for(var i=0;i<APP_SOURCES.length;i++){
+      try{setStatus('Descargando app...');var html=await fetchText(APP_SOURCES[i]);render(html,APP_SOURCES[i]);return}catch(e){errors.push(APP_SOURCES[i]+' → '+(e&&e.message?e.message:e));}
+    }
+    try{var cached=localStorage.getItem(CACHE_KEY);if(cached&&isHtml(cached)){setStatus('Usando copia local con Supabase v2');render(cached,'local-cache');return}}catch(e){}
+    showError('No se pudo cargar la app fuente desde Supabase Storage.\n\n'+errors.join('\n')+'\n\nSi este teléfono ya había abierto la app antes, toca “Usar copia local”.',true);
+  }
+  if('serviceWorker'in navigator){
+    (function(){
+      var refreshing=false,regRef=null,lastCheck=0;
+      navigator.serviceWorker.addEventListener('controllerchange',function(){if(refreshing)return;refreshing=true;try{sessionStorage.setItem('crm_sw_updated','1')}catch(e){}location.reload();});
+      function activateWaiting(reg){if(reg&&reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'});}catch(e){}}}
+      function checkUpdate(force){if(!regRef||!regRef.update)return Promise.resolve();var now=Date.now();if(!force&&now-lastCheck<60000)return Promise.resolve();lastCheck=now;return regRef.update().then(function(){activateWaiting(regRef)}).catch(function(){});}
+      navigator.serviceWorker.register('./sw.js?v=90',{scope:'./',updateViaCache:'none'}).then(function(reg){regRef=reg;activateWaiting(reg);checkUpdate(true);setInterval(function(){checkUpdate(false)},180000);document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')checkUpdate(true)});window.addEventListener('focus',function(){checkUpdate(true)});window.addEventListener('online',function(){checkUpdate(true)});reg.addEventListener&&reg.addEventListener('updatefound',function(){var nw=reg.installing;if(!nw)return;nw.addEventListener('statechange',function(){if(nw.state==='installed'&&navigator.serviceWorker.controller)activateWaiting(reg)})});}).catch(function(e){console.warn('SW wrapper:',e);});
+    })();
+  }
+  var cacheBtn=$('use-cache');
+  if(cacheBtn)cacheBtn.onclick=function(){try{var cached=localStorage.getItem(CACHE_KEY);if(cached&&isHtml(cached))render(cached,'manual-cache');else showError('No hay copia local disponible todavía.',true)}catch(e){showError('No se pudo usar la copia local: '+(e.message||e),true)}};
+  loadApp();
+})();
+</script>
+</body>
+</html>
