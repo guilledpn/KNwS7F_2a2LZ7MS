@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reset CRM</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f6f9ff;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px}
+    .card{width:min(440px,100%);background:#fff;border:1px solid #dbe5f3;border-radius:24px;box-shadow:0 12px 30px rgba(15,23,42,.12);padding:28px;text-align:center}
+    .mark{width:58px;height:58px;border-radius:18px;background:#0a6cff;color:white;display:grid;place-items:center;margin:0 auto 16px;font-weight:800;font-size:18px}
+    h1{font-size:22px;margin:0 0 8px}p{margin:0;color:#475569;line-height:1.45}.small{font-size:13px;margin-top:12px;color:#64748b}.err{display:none;margin-top:14px;color:#b42318;white-space:pre-wrap;text-align:left;background:#fff1f1;border:1px solid #ffd0d0;border-radius:14px;padding:12px}button{margin-top:16px;border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:800;padding:11px 14px}
+  </style>
+</head>
+<body>
+  <section class="card">
+    <div class="mark">crm</div>
+    <h1>Reiniciando app</h1>
+    <p>Limpiando caché local y service worker antiguo.</p>
+    <p class="small" id="status">Preparando...</p>
+    <div class="err" id="err"></div>
+    <button id="go" style="display:none">Abrir CRM</button>
+  </section>
+  <script>
+  (async function(){
+    const status=document.getElementById('status');
+    const err=document.getElementById('err');
+    const go=document.getElementById('go');
+    function set(t){status.textContent=t}
+    function fail(e){err.style.display='block';err.textContent=String(e&&e.message?e.message:e);go.style.display='inline-block'}
+    go.onclick=()=>location.href='./?reset_done='+Date.now();
+    try{
+      set('Cerrando sesiones y caché vieja...');
+      try{localStorage.clear()}catch(e){}
+      try{sessionStorage.clear()}catch(e){}
+      if('caches' in window){
+        try{const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}catch(e){}
+      }
+      if('serviceWorker' in navigator){
+        try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}catch(e){}
+      }
+      set('Listo. Abriendo CRM nuevo...');
+      setTimeout(()=>{location.replace('./?reset_done='+Date.now())},900);
+    }catch(e){fail(e)}
+  })();
+  </script>
+</body>
+</html>
