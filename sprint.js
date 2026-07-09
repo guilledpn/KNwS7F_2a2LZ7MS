@@ -165,3 +165,115 @@
   function boot() { update(); if (timer) clearInterval(timer); timer = setInterval(update, 1000); document.addEventListener('click', () => setTimeout(update, 80), true); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
+
+;(() => {
+  if (window.__crmV103RuntimeAudit) return;
+  window.__crmV103RuntimeAudit = true;
+  const VERSION_TEXT = 'v103 · 2026-07-09 · GitHub estable auditada · Graphite';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const fmt = (n) => Number(n || 0).toLocaleString('es-CL');
+  function client() { try { return sb || null; } catch (e) { return null; } }
+  function addAuditStyles() {
+    if ($('crm-v103-style')) return;
+    const st = document.createElement('style');
+    st.id = 'crm-v103-style';
+    st.textContent = `
+      .settings-section:has(#palette-select){display:none!important}
+      #crm-version-section{display:block!important}
+      .native-story{margin-top:12px}.native-scenarios{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}.native-scenario{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:14px;border-radius:20px;border:1px solid var(--outline-variant);background:var(--surface-container-low)}.native-scenario b{font-size:14px}.native-scenario strong{font-size:28px;letter-spacing:-.04em}.native-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.native-mini div{border:1px solid var(--outline-variant);border-radius:18px;background:var(--surface-container-low);padding:11px;text-align:center}.native-mini b{display:block;font-size:24px;letter-spacing:-.04em}.native-mini span{font-size:12px;color:var(--muted,var(--on-surface-variant))}.native-chart{height:210px;border:1px solid var(--outline-variant);border-radius:22px;background:var(--surface-container-low);margin:12px 18px 0;padding:10px;overflow:hidden}.native-chart svg{width:100%;height:100%;display:block}.native-legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 18px 14px}.native-legend span{font-size:12px;color:var(--muted,var(--on-surface-variant))}@media(min-width:760px){.native-scenarios{grid-template-columns:repeat(3,1fr)}}`;
+    document.head.appendChild(st);
+  }
+  function forceGraphite() {
+    try { localStorage.setItem('crm_ffvv_palette_v2', 'graphite'); } catch (e) {}
+    try { if (typeof applyPalette === 'function') applyPalette('graphite', true); } catch (e) {}
+  }
+  function ensureVersion() {
+    const body = document.querySelector('.settings-body') || $('settings-sheet');
+    if (!body) return;
+    document.querySelectorAll('.settings-section').forEach((sec) => { if (sec.querySelector('#palette-select')) sec.style.display = 'none'; });
+    let v = $('crm-version-section');
+    if (!v) {
+      v = document.createElement('div');
+      v.id = 'crm-version-section';
+      v.className = 'settings-section';
+      v.innerHTML = '<label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px"></div>';
+      body.insertBefore(v, body.firstChild);
+    }
+    const note = v.querySelector('.settings-note') || v;
+    note.textContent = VERSION_TEXT;
+  }
+  function miniBlocks(n) {
+    n = Math.max(0, Number(n || 0));
+    const parts = []; let left = n;
+    for (let i = 0; i < 4; i++) { const x = i < 3 ? Math.min(2, left) : left; left -= x; parts.push(Math.max(0, x)); }
+    return parts.map((x, i) => '<div><b>' + fmt(x) + '</b><span>bloque ' + (i + 1) + '</span></div>').join('');
+  }
+  function chartMonth(story) {
+    const rows = story && story.series || [];
+    if (!rows.length) return '<div class="native-chart"><div class="metric-note">Sin calendario todavía.</div></div>';
+    const max = Math.max(1, ...rows.map(r => Number(r.expected_cumulative || 0)), ...rows.map(r => Number(r.actual_cumulative || 0)));
+    const n = rows.length, x = (i) => 5 + (n === 1 ? 0 : i / (n - 1) * 90), y = (v) => 46 - (Number(v || 0) / max) * 38;
+    const path = (k) => rows.map((r, i) => (i ? 'L' : 'M') + x(i).toFixed(2) + ' ' + y(r[k]).toFixed(2)).join(' ');
+    const idx = Math.max(0, rows.findIndex(r => r.day === story.today));
+    return '<div class="native-chart"><svg viewBox="0 0 100 56" preserveAspectRatio="none">' + [0, .25, .5, .75, 1].map(k => '<line x1="5" x2="95" y1="' + (46 - k * 38).toFixed(2) + '" y2="' + (46 - k * 38).toFixed(2) + '" stroke="rgba(100,116,139,.22)"/>').join('') + '<line x1="' + x(idx).toFixed(2) + '" x2="' + x(idx).toFixed(2) + '" y1="6" y2="50" stroke="#f59e0b" stroke-width=".55"/><path d="' + path('expected_cumulative') + '" fill="none" stroke="rgba(100,116,139,.75)" stroke-width="1.2" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round"/><path d="' + path('actual_cumulative') + '" fill="none" stroke="var(--primary)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="native-legend"><span>— real</span><span>··· ideal</span><span>│ hoy</span></div>';
+  }
+  async function renderStatsV103() {
+    addAuditStyles();
+    const c = client();
+    const sc = $('stats-scroll');
+    if (!sc) return;
+    if (!c) { sc.innerHTML = '<div class="empty">Configura Supabase para ver estadísticas</div>'; return; }
+    const sub = $('stats-sub'); if (sub) sub.textContent = 'Cockpit de trabajo, ritmo mensual y misiones';
+    sc.innerHTML = '<div class="empty">Cargando estadísticas…</div>';
+    try {
+      const mode = window.stats || 'hoy';
+      const { data, error } = await c.rpc('get_stats_v1', { p_days: mode === 'hoy' ? 1 : (mode === 'semana' ? 7 : 30), p_goal_agendas: null });
+      if (error) throw error;
+      const t = data?.today || {}, p = data?.period || {}, m = data?.month || {}, story = data?.month_story || {};
+      const target = Number(m.target_agendas_total || 0), actual = Number(m.agendas || 0), needed = Number(m.needed_daily_to_finish || 0);
+      const rec = Math.max(Number(m.recommended_today_agendas || 0), needed, Number(t.goal_agendas || 0));
+      const todayAg = Number(t.agendas || 0), todayCalls = Number(t.calls || 0);
+      const progress = target ? Math.min(100, Math.round(actual / target * 100)) : 0;
+      const missionPct = rec ? Math.min(100, Math.round(todayAg / rec * 100)) : 0;
+      let html = '<div class="metric-grid"><div class="metric full"><div class="metric-label">Misión útil de hoy</div><div class="metric-number">' + fmt(todayAg) + ' / ' + fmt(rec) + '</div><div class="progress"><div class="fill" style="width:' + missionPct + '%"></div></div><div class="metric-note">Meta normal: ' + fmt(t.goal_agendas || 0) + '. Para cerrar el mes conviene apuntar a ' + fmt(needed) + ' agenda(s) por día útil restante.</div><div class="native-mini">' + miniBlocks(rec) + '</div></div><div class="metric"><div class="metric-label">Llamados hoy</div><div class="metric-number">' + fmt(todayCalls) + '</div><div class="metric-note">Gestiones guardadas hoy.</div></div><div class="metric"><div class="metric-label">Agendas hoy</div><div class="metric-number">' + fmt(todayAg) + '</div><div class="metric-note">Agendas reales del día.</div></div><div class="metric"><div class="metric-label">Conversión</div><div class="metric-number">' + (p.agenda_rate == null ? '–' : p.agenda_rate + '%') + '</div><div class="metric-note">Período seleccionado.</div></div><div class="metric"><div class="metric-label">Llamados / agenda</div><div class="metric-number">' + (p.calls_per_agenda == null ? '–' : p.calls_per_agenda) + '</div><div class="metric-note">Mientras más bajo, mejor.</div></div></div>';
+      html += '<div class="status-list native-story"><div class="status-list-title">Historia del mes</div><div class="metric-note" style="padding:14px 18px 0">' + esc(m.pace_sentence || story.story_sentence || 'La curva ideal es mapa; la curva real es tu historia.') + '</div>' + chartMonth(story) + '</div>';
+      html += '<div class="native-scenarios"><div class="native-scenario"><div><b>Si sigues igual</b><div class="metric-note">Proyección al cierre.</div></div><strong>' + fmt(m.projected_end_at_current_pace || 0) + '/' + fmt(target) + '</strong></div><div class="native-scenario"><div><b>Si haces lo normal</b><div class="metric-note">' + fmt(m.default_daily_target || 0) + ' por día útil.</div></div><strong>' + fmt(m.projected_end_if_normal_from_now || 0) + '/' + fmt(target) + '</strong></div><div class="native-scenario"><div><b>Para llegar</b><div class="metric-note">Días útiles restantes: ' + fmt(m.business_days_left_including_today || 0) + '</div></div><strong>' + fmt(needed) + '/día</strong></div></div>';
+      html += '<div class="metric-grid"><div class="metric full"><div class="metric-label">Mes laboral</div><div class="metric-number">' + fmt(actual) + ' / ' + fmt(target) + '</div><div class="progress"><div class="fill" style="width:' + progress + '%"></div></div><div class="metric-note">Faltan ' + fmt(m.remaining_agendas || 0) + ' agendas. Meta diaria sugerida desde ahora: ' + fmt(needed) + '.</div></div></div>';
+      sc.innerHTML = html;
+    } catch (e) { sc.innerHTML = '<div class="empty">Error al cargar estadísticas<br>' + esc(e.message || e) + '</div>'; }
+  }
+  async function refreshGoalV103() {
+    const c = client(); if (!c) return;
+    try {
+      const { data } = await c.rpc('get_stats_v1', { p_days: 30, p_goal_agendas: null });
+      const t = data?.today || {}, done = Number(t.agendas || 0), goal = Number(t.goal_agendas || 0), txt = done + '/' + (goal || 0);
+      const chip = $('goal-chip-text'); if (chip) chip.textContent = txt;
+      const detail = $('goal-chip-detail'); if (detail) detail.textContent = txt;
+    } catch (e) {}
+  }
+  function patchListAfterSave() {
+    if (window.__crmV103SetEstadoPatched || typeof window.setEstado !== 'function') return;
+    const old = window.setEstado;
+    window.setEstado = async function(...args) {
+      const r = await old.apply(this, args);
+      try { if (typeof window.renderContacts === 'function') window.renderContacts(); } catch (e) {}
+      try { await refreshGoalV103(); } catch (e) {}
+      return r;
+    };
+    window.__crmV103SetEstadoPatched = true;
+  }
+  function install() {
+    addAuditStyles(); forceGraphite(); ensureVersion(); patchListAfterSave();
+    try { window.renderStats = renderStatsV103; } catch (e) {}
+    try { window.refreshGoal = refreshGoalV103; } catch (e) {}
+    const oldOpen = window.openSettings;
+    if (typeof oldOpen === 'function' && !oldOpen.__crmV103) {
+      const wrapped = function(...args) { const r = oldOpen.apply(this, args); setTimeout(() => { forceGraphite(); ensureVersion(); }, 60); return r; };
+      wrapped.__crmV103 = true; window.openSettings = wrapped;
+    }
+    if ($('screen-stats')?.classList.contains('on')) renderStatsV103();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();
+  setTimeout(install, 500); setTimeout(install, 1500); setInterval(install, 2000);
+})();
