@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - prod/restore-pwa-installability
     paths:
       - .github/workflows/restore-prod-pwa.yml
       - tools/restore_prod_pwa.py
@@ -13,14 +14,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: restore-prod-pwa
+  group: restore-prod-pwa-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   restore-prod-pwa:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout exact main state
+      - name: Checkout exact ref state
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -85,6 +86,7 @@ jobs:
           done
 
       - name: Commit protected PROD patch
+        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
