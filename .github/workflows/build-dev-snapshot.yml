@@ -6,12 +6,15 @@ on:
     branches:
       - main
       - dev/modular-foundation
+      - dev/assigned-import-source-status
     paths:
       - .github/workflows/build-dev-snapshot.yml
       - src/dev/**
       - tools/build_dev_snapshot.py
+      - tools/patch_dev_assigned_status.py
       - tools/enhance_dev_pwa_identity.py
       - tools/validate_dev_snapshot.py
+      - tools/validate_dev_assigned_status.py
       - tools/validate_dev_pwa_identity.py
 
 permissions:
@@ -42,40 +45,56 @@ jobs:
           set -o pipefail
           python tools/build_dev_snapshot.py 2>&1 | tee /tmp/01-build.log
 
-      - name: Apply distinct DEV PWA identity
-        id: identity
+      - name: Apply assigned source-status UI patch
+        id: assigned_patch
         if: steps.build.outcome == 'success'
         continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           set -o pipefail
-          python tools/enhance_dev_pwa_identity.py 2>&1 | tee /tmp/02-identity.log
+          python tools/patch_dev_assigned_status.py 2>&1 | tee /tmp/02-assigned-patch.log
+
+      - name: Apply distinct DEV PWA identity
+        id: identity
+        if: steps.build.outcome == 'success' && steps.assigned_patch.outcome == 'success'
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/enhance_dev_pwa_identity.py 2>&1 | tee /tmp/03-identity.log
 
       - name: Validate DEV artifact and modules
         id: validate
-        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        if: steps.build.outcome == 'success' && steps.assigned_patch.outcome == 'success' && steps.identity.outcome == 'success'
         continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           set -o pipefail
-          python tools/validate_dev_snapshot.py 2>&1 | tee /tmp/03-validate.log
+          python tools/validate_dev_snapshot.py 2>&1 | tee /tmp/04-validate.log
+
+      - name: Validate assigned source-status UI
+        id: validate_assigned
+        if: steps.build.outcome == 'success' && steps.assigned_patch.outcome == 'success' && steps.identity.outcome == 'success'
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/validate_dev_assigned_status.py 2>&1 | tee /tmp/05-validate-assigned.log
 
       - name: Validate distinct DEV PWA identity
         id: validate_identity
-        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        if: steps.build.outcome == 'success' && steps.assigned_patch.outcome == 'success' && steps.identity.outcome == 'success'
         continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           set -o pipefail
-          python tools/validate_dev_pwa_identity.py 2>&1 | tee /tmp/04-validate-identity.log
+          python tools/validate_dev_pwa_identity.py 2>&1 | tee /tmp/06-validate-identity.log
 
       - name: Verify PROD files remain untouched
         id: isolation
-        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        if: steps.build.outcome == 'success' && steps.assigned_patch.outcome == 'success' && steps.identity.outcome == 'success'
         continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           set -o pipefail
           changed="$(git diff --name-only)"
-          printf '%s\n' "$changed" | tee /tmp/05-isolation.log
+          printf '%s\n' "$changed" | tee /tmp/07-isolation.log
           if printf '%s\n' "$changed" | grep -Ev '^(dev/)' | grep -q .; then
-            echo 'El build intentó modificar archivos fuera de dev/' | tee -a /tmp/05-isolation.log >&2
+            echo 'El build intentó modificar archivos fuera de dev/' | tee -a /tmp/07-isolation.log >&2
             exit 1
           fi
 
@@ -83,8 +102,10 @@ jobs:
         if: >-
           github.ref != 'refs/heads/main' &&
           (steps.build.outcome != 'success' ||
+           steps.assigned_patch.outcome != 'success' ||
            steps.identity.outcome != 'success' ||
            steps.validate.outcome != 'success' ||
+           steps.validate_assigned.outcome != 'success' ||
            steps.validate_identity.outcome != 'success' ||
            steps.isolation.outcome != 'success')
         run: |
@@ -92,7 +113,7 @@ jobs:
           {
             echo "commit=${GITHUB_SHA}"
             echo "validated_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            for file in /tmp/01-build.log /tmp/02-identity.log /tmp/03-validate.log /tmp/04-validate-identity.log /tmp/05-isolation.log; do
+            for file in /tmp/01-build.log /tmp/02-assigned-patch.log /tmp/03-identity.log /tmp/04-validate.log /tmp/05-validate-assigned.log /tmp/06-validate-identity.log /tmp/07-isolation.log; do
               if [ -f "$file" ]; then
                 echo
                 echo "===== $(basename "$file") ====="
@@ -110,8 +131,10 @@ jobs:
         if: >-
           github.ref != 'refs/heads/main' &&
           steps.build.outcome == 'success' &&
+          steps.assigned_patch.outcome == 'success' &&
           steps.identity.outcome == 'success' &&
           steps.validate.outcome == 'success' &&
+          steps.validate_assigned.outcome == 'success' &&
           steps.validate_identity.outcome == 'success' &&
           steps.isolation.outcome == 'success'
         run: |
@@ -121,6 +144,7 @@ jobs:
             "status": "PASS",
             "environment": "DEV",
             "architecture": "modular-foundation",
+            "assigned_source_status": true,
             "validated_commit": "${GITHUB_SHA}",
             "validated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "published": false,
@@ -130,15 +154,17 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add diagnostics/dev-modular-validation.json
-          git commit -m 'dev: certify modular foundation validation [skip ci]'
+          git commit -m 'dev: certify assigned import status validation [skip ci]'
           git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Commit isolated DEV artifact
         if: >-
           github.ref == 'refs/heads/main' &&
           steps.build.outcome == 'success' &&
+          steps.assigned_patch.outcome == 'success' &&
           steps.identity.outcome == 'success' &&
           steps.validate.outcome == 'success' &&
+          steps.validate_assigned.outcome == 'success' &&
           steps.validate_identity.outcome == 'success' &&
           steps.isolation.outcome == 'success'
         run: |
@@ -149,5 +175,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add dev/
-          git commit -m 'dev: publish modular isolated snapshot [skip ci]'
+          git commit -m 'dev: publish modular assigned-status snapshot [skip ci]'
           git push origin HEAD:main
