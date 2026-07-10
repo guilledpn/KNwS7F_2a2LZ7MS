@@ -1,10 +1,11 @@
 'use strict';
-const CACHE_NAME='app-llamados-dev-f16de3e53edf';
+const CACHE_NAME='app-llamados-dev-15aedf75b82d';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
+const MODULE_SHELL=["./assets/app/config/environment.js","./assets/app/core/errors.js","./assets/app/core/storage.js","./assets/app/core/supabase-client.js","./assets/app/core/auth.js","./assets/app/core/pwa.js","./assets/app/app.js"];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
-  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(SHELL)));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(SHELL.concat(MODULE_SHELL))));
 });
 
 self.addEventListener('activate',event=>{

@@ -1,18 +1,22 @@
 # APP LLAMADOS DEV
 
-Artefacto DEV autónomo generado desde el commit `f16de3e53edf`.
+Artefacto DEV autónomo generado desde el commit `15aedf75b82d`.
 
 - Supabase: `crm-ffvv-dev`
 - URL: <https://guilledpn.github.io/KNwS7F_2a2LZ7MS/dev/>
+- Arquitectura: fundación modular con capa temporal de compatibilidad de UI.
+- Configuración, errores, almacenamiento, Supabase, auth y PWA viven en `src/dev/`.
+- Los módulos se copian a `dev/assets/app/`; no se cargan desde PROD.
 - No descarga ni modifica `../index.html` en tiempo de ejecución.
-- Usa manifest, icono, service worker y claves de `localStorage` propios.
 - Los webhooks externos quedan desactivados por defecto.
 
-No editar `dev/index.html` manualmente. Regenerar con:
+No editar `dev/index.html` ni `dev/assets/app/` manualmente. Regenerar con:
 
 ```bash
 python tools/build_dev_snapshot.py
+python tools/enhance_dev_pwa_identity.py
 python tools/validate_dev_snapshot.py
+python tools/validate_dev_pwa_identity.py
 ```
 
 ## Identidad instalable

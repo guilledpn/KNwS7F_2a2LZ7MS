@@ -239,6 +239,13 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
   body[data-app-env="dev"] .login-logo:after{content:" DEV";color:#f59e0b;font-weight:800}
   body[data-app-env="dev"] .settings-body:before{content:"AMBIENTE DEV · Datos ficticios · No productivo";display:block;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:#fef3c7;color:#92400e;font-weight:800;font-size:12px;letter-spacing:.04em}
 </style>
+<script src="./assets/app/config/environment.js"></script>
+<script src="./assets/app/core/errors.js"></script>
+<script src="./assets/app/core/storage.js"></script>
+<script src="./assets/app/core/supabase-client.js"></script>
+<script src="./assets/app/core/auth.js"></script>
+<script src="./assets/app/core/pwa.js"></script>
+<script src="./assets/app/app.js"></script>
 </head>
 <body data-app-env="dev">
 <div class="login on" id="login">
@@ -372,7 +379,7 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
   <div class="sheet" id="sheet"><div class="grip"></div><div class="sheet-title">Período activo</div><div id="period-list"></div></div>
   <div class="sheet-bg" id="settings-bg" onclick="closeSettings()"></div>
   <div class="sheet settings-sheet" id="settings-sheet"><div class="grip"></div><div class="sheet-head"><div class="sheet-title">Ajustes</div><button class="sheet-close" onclick="closeSettings()">Listo</button></div><div class="settings-body">
-      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · v1.05 · build f16de3e53edf · Supabase DEV</div></div>
+      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · v1.05 · build 15aedf75b82d · modular foundation</div></div>
       <div class="settings-section"><div class="toggle-row"><div class="toggle-main"><div class="toggle-title">Llamado automático</div><div class="toggle-sub">Cuando está activo, el botón de llamar envía el número al webhook MacroDroid en formato 9 dígitos.</div></div><button id="auto-call-switch" class="switch" onclick="toggleAutoCall()" aria-label="Activar llamado automático"></button></div><label class="settings-label" for="auto-call-url">Webhook MacroDroid</label><div class="input-surface compact"><input id="auto-call-url" type="url" inputmode="url" oninput="saveAutoCallUrl(this.value)"></div></div>
       <div class="settings-section"><label class="settings-label" for="tasks-webhook-url">Webhook Google Tasks</label><div class="input-surface compact"><input id="tasks-webhook-url" type="url" inputmode="url" placeholder="Pega aquí el webhook de Tasks" oninput="saveTasksWebhookUrl(this.value)"></div><div class="settings-note" style="margin:8px 2px 0">El recordatorio solo se guarda cuando presionas el botón Tasks en la tarjeta.</div></div>
       <div class="settings-section"><label class="settings-label" for="monthly-goal-input">Meta mensual de agendas</label><div class="input-surface compact"><input id="monthly-goal-input" type="number" min="0" inputmode="numeric" placeholder="Ej: 160"></div><div style="margin-top:10px"><button class="primary-btn" onclick="saveMonthlyGoal()">Guardar meta mensual</button></div><div class="settings-note" id="monthly-goal-note" style="margin:8px 2px 0"></div></div>
@@ -385,17 +392,24 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════════
-//  CONFIG — rellena con los datos de tu proyecto Supabase
-//  (Project Settings → API)
+//  DEV MODULAR RUNTIME · capa temporal de compatibilidad
 // ════════════════════════════════════════════════════════════════════
-const SUPABASE_URL      = 'https://xcujixexjbuqqzlbomgw.supabase.co';   // Supabase DEV
-const SUPABASE_ANON_KEY = 'sb_publishable_eCchzuWGoCSl_Vnvyv_cYg_0A2CTDK8'; // publishable key DEV
-const APP_ENV = 'DEV';
-const APP_BUILD = 'f16de3e53edf';
-const PAGE = 50;                                                // tamaño de página
-const CONTACTS_V2_CACHE_VERSION = 'v2_space_safe_2026_07_restore_v62';
-const DEFAULT_MACRODROID_URL = ''; // DEV: integración externa desactivada por defecto
-const DEFAULT_TASKS_WEBHOOK_URL = ''; // DEV: integración externa desactivada por defecto
+const DEV_RUNTIME = window.AppDev;
+if(!DEV_RUNTIME || !DEV_RUNTIME.ready){
+  throw new Error('APP LLAMADOS DEV: runtime modular no inicializado');
+}
+const DEV_ENV = DEV_RUNTIME.environment;
+const DEV_STORAGE = DEV_RUNTIME.storage;
+const DEV_ERRORS = DEV_RUNTIME.errors;
+const DEV_AUTH = DEV_RUNTIME.auth;
+const APP_ENV = DEV_ENV.appEnv;
+const APP_BUILD = DEV_ENV.buildId;
+const SUPABASE_URL = DEV_ENV.supabaseUrl;
+const SUPABASE_ANON_KEY = DEV_ENV.supabasePublishableKey;
+const PAGE = DEV_ENV.pageSize;
+const CONTACTS_V2_CACHE_VERSION = DEV_ENV.contactsCacheVersion;
+const DEFAULT_MACRODROID_URL = DEV_ENV.macroDroidUrl;
+const DEFAULT_TASKS_WEBHOOK_URL = DEV_ENV.tasksWebhookUrl;
 // ════════════════════════════════════════════════════════════════════
 
 const $=id=>document.getElementById(id);
@@ -412,12 +426,8 @@ let toastTimer;function toast(msg,ms=null){
   toastTimer=setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-if(APP_ENV!=='DEV'||SUPABASE_URL!=='https://xcujixexjbuqqzlbomgw.supabase.co'){
-  throw new Error('Bloqueo de seguridad: configuración DEV inválida');
-}
-
-const isConfigured = /^https?:\/\//.test(SUPABASE_URL) && !/TU-PROYECTO/.test(SUPABASE_URL) && !/TU-ANON-KEY/.test(SUPABASE_ANON_KEY);
-const sb = (window.supabase && isConfigured) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const isConfigured = DEV_RUNTIME.supabase.isConfigured();
+const sb = DEV_RUNTIME.supabase.getClient();
 
 // ── fecha local Chile ──
 function todayCL(){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santiago',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
@@ -447,7 +457,7 @@ const PALETTES={
   emerald:{name:'Emerald',sub:'Verde frío, operativo',vars:{'--bg':'#f5faf7','--surface-container-low':'#edf7f1','--surface-container':'#e1f0e7','--surface-container-high':'#d5e8dd','--outline':'#bfd2c8','--outline-variant':'#dfeae4','--primary':'#047857','--primary-pressed':'#065f46','--primary-container':'#d1fae5','--on-primary-container':'#064e3b'}},
   violet:{name:'Violet',sub:'Más moderna, menos corporativa',vars:{'--bg':'#faf8ff','--surface-container-low':'#f5f1ff','--surface-container':'#ede7fb','--surface-container-high':'#e4dbf6','--outline':'#d1c5e3','--outline-variant':'#e8e0f4','--primary':'#7c3aed','--primary-pressed':'#6d28d9','--primary-container':'#ede9fe','--on-primary-container':'#4c1d95'}}
 };
-let activePalette='graphite';try{localStorage.setItem('crm_ffvv_dev_palette_v2','graphite')}catch(e){}
+let activePalette='graphite';try{DEV_STORAGE.setRaw('crm_ffvv_dev_palette_v2','graphite')}catch(e){}
 const STATE={
   agenda:{label:'Agenda',color:'var(--success)',bg:'var(--success-container)'},
   no_agenda:{label:'No agenda',color:'var(--orange)',bg:'var(--orange-container)'},
@@ -528,9 +538,9 @@ function updateFunnel(){
 let currentScreen='contacts',filter='all',search='',filtered=[],detailIndex=-1,stats='hoy',importType='mensual',importStep=-1,pageOffset=0,totalCount=0,loading=false;
 let emailEditMode=false;
 let chipCounts={all:0,pendiente:0,asignado:0,agenda:0,volver:0};
-let autoCallEnabled=localStorage.getItem('crm_ffvv_dev_auto_call')==='1';
-let autoCallUrl=localStorage.getItem('crm_ffvv_dev_auto_call_url')||DEFAULT_MACRODROID_URL;
-let tasksWebhookUrl=localStorage.getItem('crm_ffvv_dev_tasks_webhook_url')||DEFAULT_TASKS_WEBHOOK_URL;
+let autoCallEnabled=DEV_STORAGE.getRaw('crm_ffvv_dev_auto_call')==='1';
+let autoCallUrl=DEV_STORAGE.getRaw('crm_ffvv_dev_auto_call_url')||DEFAULT_MACRODROID_URL;
+let tasksWebhookUrl=DEV_STORAGE.getRaw('crm_ffvv_dev_tasks_webhook_url')||DEFAULT_TASKS_WEBHOOK_URL;
 
 // ── BD fila -> objeto UI ──
 function mapRow(r){
@@ -850,7 +860,7 @@ function statsRange(k){
 function currentGoalMonth(){return todayCL().slice(0,7);}
 function workdaysInRange(from,to){let n=0;const f=new Date(from+'T12:00:00'),t=new Date(to+'T12:00:00');for(let d=new Date(f);d<=t;d.setDate(d.getDate()+1)){const w=d.getDay();if(w>=1&&w<=5)n++;}return n;}
 async function goalSettings(m=currentGoalMonth()){
-  const local=Number(localStorage.getItem('crm_ffvv_dev_monthly_goal_'+m)||0);
+  const local=Number(DEV_STORAGE.getRaw('crm_ffvv_dev_monthly_goal_'+m)||0);
   if(local>0)return{daily_goal:Math.ceil(local/workdaysInMonthCode(m)),monthly_goal:local,source:'local'};
   if(!sb)return{daily_goal:0,monthly_goal:0,source:'none'};
   try{const {data}=await sb.from('crm_goals').select('daily_goal,monthly_goal').eq('goal_month',m).maybeSingle();return Object.assign({daily_goal:0,monthly_goal:0,source:'db'},data||{});} 
@@ -1082,7 +1092,7 @@ async function prepareOperationalCacheIfNeeded(force=false){
     if(st.error)throw st.error;
     const status=st.data||{};
     const versionKey='crm_ffvv_dev_'+(status.active_period||'default')+'_contacts_v2_cache_version';
-    const versionOk=localStorage.getItem(versionKey)===CONTACTS_V2_CACHE_VERSION;
+    const versionOk=DEV_STORAGE.getRaw(versionKey)===CONTACTS_V2_CACHE_VERSION;
     if(status.ready && !force && versionOk)return true;
 
     const prep=await sb.rpc('prepare_contact_operational_state_v2',{p_active_period:null});
@@ -1115,7 +1125,7 @@ async function prepareOperationalCacheIfNeeded(force=false){
       await new Promise(r=>setTimeout(r,0));
     }
     if(activePeriod){
-      localStorage.setItem('crm_ffvv_dev_'+activePeriod+'_contacts_v2_cache_version', CONTACTS_V2_CACHE_VERSION);
+      DEV_STORAGE.setRaw('crm_ffvv_dev_'+activePeriod+'_contacts_v2_cache_version', CONTACTS_V2_CACHE_VERSION);
     }
     return true;
   }catch(e){
@@ -1153,7 +1163,7 @@ async function refreshOperationalCacheForSession(session,p=null){
       await new Promise(r=>setTimeout(r,0));
     }
     if(activePeriod){
-      localStorage.setItem('crm_ffvv_dev_'+activePeriod+'_contacts_v2_cache_version', CONTACTS_V2_CACHE_VERSION);
+      DEV_STORAGE.setRaw('crm_ffvv_dev_'+activePeriod+'_contacts_v2_cache_version', CONTACTS_V2_CACHE_VERSION);
     }
     return true;
   }catch(e){
@@ -1395,16 +1405,16 @@ async function renderSettingsSheet(){
   const tw=$('tasks-webhook-url');if(tw)tw.value=tasksWebhookUrl||'';
   await loadMonthlyGoalInput();
 }
-function applyPalette(k,silent=false){activePalette=k;if(k==='system'){PALETTE_VARS.forEach(name=>document.documentElement.style.removeProperty(name));}else{const vars=(PALETTES[k]||PALETTES.system).vars;PALETTE_VARS.forEach(name=>document.documentElement.style.removeProperty(name));Object.entries(vars).forEach(([name,val])=>document.documentElement.style.setProperty(name,val));}localStorage.setItem('crm_ffvv_dev_palette_v2',k);if(!silent)toast('Paleta: '+(PALETTES[k]||PALETTES.system).name)}
-function toggleAutoCall(){autoCallEnabled=!autoCallEnabled;localStorage.setItem('crm_ffvv_dev_auto_call',autoCallEnabled?'1':'0');const sw=$('auto-call-switch');if(sw)sw.classList.toggle('on',autoCallEnabled);renderDetail();toast(autoCallEnabled?'Llamado automático activo':'Llamado automático desactivado')}
-function saveAutoCallUrl(v){autoCallUrl=String(v||'').trim()||DEFAULT_MACRODROID_URL;localStorage.setItem('crm_ffvv_dev_auto_call_url',autoCallUrl)}
-function saveTasksWebhookUrl(v){tasksWebhookUrl=String(v||'').trim();localStorage.setItem('crm_ffvv_dev_tasks_webhook_url',tasksWebhookUrl)}
+function applyPalette(k,silent=false){activePalette=k;if(k==='system'){PALETTE_VARS.forEach(name=>document.documentElement.style.removeProperty(name));}else{const vars=(PALETTES[k]||PALETTES.system).vars;PALETTE_VARS.forEach(name=>document.documentElement.style.removeProperty(name));Object.entries(vars).forEach(([name,val])=>document.documentElement.style.setProperty(name,val));}DEV_STORAGE.setRaw('crm_ffvv_dev_palette_v2',k);if(!silent)toast('Paleta: '+(PALETTES[k]||PALETTES.system).name)}
+function toggleAutoCall(){autoCallEnabled=!autoCallEnabled;DEV_STORAGE.setRaw('crm_ffvv_dev_auto_call',autoCallEnabled?'1':'0');const sw=$('auto-call-switch');if(sw)sw.classList.toggle('on',autoCallEnabled);renderDetail();toast(autoCallEnabled?'Llamado automático activo':'Llamado automático desactivado')}
+function saveAutoCallUrl(v){autoCallUrl=String(v||'').trim()||DEFAULT_MACRODROID_URL;DEV_STORAGE.setRaw('crm_ffvv_dev_auto_call_url',autoCallUrl)}
+function saveTasksWebhookUrl(v){tasksWebhookUrl=String(v||'').trim();DEV_STORAGE.setRaw('crm_ffvv_dev_tasks_webhook_url',tasksWebhookUrl)}
 async function loadMonthlyGoalInput(){const inp=$('monthly-goal-input'),note=$('monthly-goal-note');if(!inp)return;const m=currentGoalMonth();const g=await goalSettings(m);inp.value=g.monthly_goal||'';if(note)note.textContent=`Mes de gestión: ${monthLabel(m)}. Cuota diaria estimada: ${g.monthly_goal?Math.ceil(Number(g.monthly_goal)/workdaysInMonthCode(m)):0}. Los contactos de otros períodos igual cuentan si se gestionan este mes.`;}
 async function saveMonthlyGoal(){
   const m=currentGoalMonth();
   const val=Number(($('monthly-goal-input')?.value||'').replace(/\D/g,''))||0;
   const daily=val?Math.ceil(val/workdaysInMonthCode(m)):0;
-  try{localStorage.setItem('crm_ffvv_dev_monthly_goal_'+m,String(val));}catch(e){}
+  try{DEV_STORAGE.setRaw('crm_ffvv_dev_monthly_goal_'+m,String(val));}catch(e){}
   if(sb){
     try{
       const {error}=await sb.from('crm_goals').upsert({goal_month:m,monthly_goal:val,daily_goal:daily,updated_at:new Date().toISOString()},{onConflict:'goal_month'});
@@ -1490,20 +1500,28 @@ const ICON_RADIO=`<svg width="20" height="20" fill="none" stroke="currentColor" 
 const ICON_DONE_WHITE=`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`;
 const ICON_DONE=`<svg width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2.4" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`;
 
-// ── auth ──
+// ── auth modular con compatibilidad de UI ──
 function showLogin(){$('login').classList.add('on');}
 function showApp(){$('login').classList.remove('on');bootData();}
 async function doLogin(){
-  if(!sb){$('login-err').textContent='Falta configurar Supabase en el archivo.';return;}
   const email=($('login-email').value||'').trim(),pass=$('login-pass').value||'';
   if(!email||!pass){$('login-err').textContent='Ingresa correo y contraseña.';return;}
   $('login-btn').disabled=true;$('login-err').textContent='';
-  const {error}=await sb.auth.signInWithPassword({email,password:pass});
-  $('login-btn').disabled=false;
-  if(error){$('login-err').textContent=error.message;return;}
+  try{await DEV_AUTH.signIn(email,pass);}
+  catch(error){DEV_ERRORS.report(error,{source:'ui.doLogin'});$('login-err').textContent=error.message||String(error);}
+  finally{$('login-btn').disabled=false;}
 }
-async function doMagic(){if(!sb){$('login-err').textContent='Falta configurar Supabase.';return;}const email=($('login-email').value||'').trim();if(!email){$('login-err').textContent='Ingresa tu correo.';return;}const {error}=await sb.auth.signInWithOtp({email});toast(error?error.message:'Enlace enviado, revisa tu correo');}
-async function signOut(){if(sb)await sb.auth.signOut();closeSettings();}
+async function doMagic(){
+  const email=($('login-email').value||'').trim();
+  if(!email){$('login-err').textContent='Ingresa tu correo.';return;}
+  try{await DEV_AUTH.signInWithOtp(email);toast('Enlace enviado, revisa tu correo');}
+  catch(error){DEV_ERRORS.report(error,{source:'ui.doMagic'});toast(error.message||String(error));}
+}
+async function signOut(){
+  try{await DEV_AUTH.signOut();}
+  catch(error){DEV_ERRORS.report(error,{source:'ui.signOut'});toast('No se pudo cerrar sesión: '+(error.message||error));}
+  finally{closeSettings();}
+}
 let booted=false;
 async function bootData(){
   if(booted)return;booted=true;
@@ -1516,16 +1534,20 @@ async function bootData(){
   const contactsPromise=loadQueue(true);
   const auxPromise=Promise.allSettled([loadCampaigns(),refreshGoal()]).then(()=>{if($('filter-sheet')?.classList.contains('on'))renderFilterSheet();});
   await contactsPromise;
-  auxPromise.catch(()=>{});
+  auxPromise.catch(error=>DEV_ERRORS.report(error,{source:'bootData.aux'}));
 }
 async function initAuth(){
   applyPalette(activePalette,true);
-  if(!isConfigured){showLogin();const w=$('login-config-warn');if(w)w.style.display='block';const b=$('login-btn');if(b)b.disabled=true;return;}
+  if(!DEV_AUTH.isConfigured()){showLogin();const w=$('login-config-warn');if(w)w.style.display='block';const b=$('login-btn');if(b)b.disabled=true;return;}
   try{
-    const {data:{session}}=await sb.auth.getSession();
+    const session=await DEV_AUTH.getSession();
     if(session)showApp();else showLogin();
-    sb.auth.onAuthStateChange((_e,s)=>{if(s)showApp();else showLogin();});
-  }catch(e){showLogin();$('login-err').textContent='Error de conexión: '+(e.message||e);}
+    DEV_AUTH.onChange((_event,nextSession)=>{if(nextSession)showApp();else showLogin();});
+  }catch(error){
+    DEV_ERRORS.report(error,{source:'ui.initAuth'});
+    showLogin();
+    $('login-err').textContent='Error de conexión: '+(error.message||error);
+  }
 }
 initAuth();
 
@@ -1540,8 +1562,8 @@ initAuth();
   const $=id=>document.getElementById(id);
   const today=()=>new Date().toISOString().slice(0,10);
   const base=()=>({workMin:20,breakMin:5,logs:[],active:null});
-  const load=()=>{try{return Object.assign(base(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return base()}};
-  const save=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+  const load=()=>{try{return Object.assign(base(),JSON.parse(DEV_STORAGE.getRaw(KEY)||'{}'))}catch(e){return base()}};
+  const save=s=>{try{DEV_STORAGE.setRaw(KEY,JSON.stringify(s))}catch(e){}};
   const remaining=s=>!s.active?0:Math.max(0,s.active.paused?Number(s.active.remainingMs||0):Number(s.active.endAt||0)-Date.now());
   const fmt=ms=>{const t=Math.ceil(Math.max(0,ms)/1000);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
   function addStyles(){if($('sprint-inline-style'))return;const st=document.createElement('style');st.id='sprint-inline-style';st.textContent=`.crm-sprint-chip,#crm-sprint-chip{height:38px;border-radius:19px;font-weight:700;font-size:13px;padding:0 12px;display:flex;align-items:center;gap:6px;white-space:nowrap;background:var(--primary-container);color:var(--on-primary-container);border:1px solid var(--outline)}.crm-sprint-chip.running,#crm-sprint-chip.running{background:#166534;color:#fff;border-color:#166534}.crm-sprint-chip.warn,#crm-sprint-chip.warn{background:#b91c1c;color:#fff;border-color:#b91c1c}.crm-sprint-chip.paused,#crm-sprint-chip.paused{background:#64748b;color:#fff;border-color:#64748b}.sprint-panel{position:fixed;inset:0;background:rgba(15,23,42,.36);z-index:9999;display:none;align-items:flex-end;justify-content:center}.sprint-panel.on{display:flex}.sprint-card{width:100%;max-width:520px;background:var(--surface);border-radius:26px 26px 0 0;padding:22px 20px calc(22px + var(--safe-b));box-shadow:0 -18px 45px rgba(15,23,42,.24);color:var(--on-surface)}.sprint-card h3{margin:0 0 10px;font-size:22px}.sprint-time{font-size:42px;font-weight:800;letter-spacing:-.04em;margin:8px 0}.sprint-muted{color:var(--muted);font-size:14px;line-height:1.35}.sprint-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}.sprint-btn{border:0;border-radius:18px;background:#111827;color:#fff;font-weight:800;padding:13px 16px}.sprint-btn.secondary{background:var(--surface-container);color:var(--on-surface)}.sprint-btn.danger{background:#b91c1c}.sprint-input{width:72px;border:1px solid var(--outline);border-radius:14px;padding:10px 11px;font-weight:700;background:var(--surface);color:var(--on-surface)}#crm-sprint-settings{padding:12px 2px 14px;border-top:1px solid var(--outline-variant)}#crm-sprint-settings .sprint-row{margin-top:8px}`;document.head.appendChild(st)}
@@ -1561,12 +1583,5 @@ initAuth();
 })();
 </script>
 
-<script id="dev-service-worker-registration">
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(err=>console.warn('DEV service worker:',err));
-  });
-}
-</script>
 </body>
 </html>
