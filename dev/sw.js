@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='app-llamados-dev-15aedf75b82d';
+const CACHE_NAME='app-llamados-dev-adb03a99cfd6';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
 const MODULE_SHELL=["./assets/app/config/environment.js","./assets/app/core/errors.js","./assets/app/core/storage.js","./assets/app/core/supabase-client.js","./assets/app/core/auth.js","./assets/app/core/pwa.js","./assets/app/app.js"];
 
