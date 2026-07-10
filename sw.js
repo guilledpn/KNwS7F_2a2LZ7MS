@@ -1,4 +1,4 @@
-const APP_VERSION='App_llamados_v1.05-20260709';
+const APP_VERSION='App_llamados_v1.05-pwa-restored-20260710';
 
 self.addEventListener('install', event => {
   self.skipWaiting();

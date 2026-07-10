@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<!-- PROD_PWA_METADATA_START -->
+<meta name="theme-color" content="#0f172a">
+<meta name="application-name" content="CRM FFVV App Llamados">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRM FFVV">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png">
+<!-- PROD_PWA_METADATA_END -->
 <title>App_llamados_v1.05</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1545,5 +1556,13 @@ initAuth();
 })();
 </script>
 
+<script id="prod-service-worker-registration">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(error => console.warn('PROD service worker:', error));
+  });
+}
+</script>
 </body>
 </html>

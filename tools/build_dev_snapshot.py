@@ -49,6 +49,22 @@ def build() -> None:
     source_sha = os.getenv("GITHUB_SHA", "local")[:12]
     built_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
+    # Strip PROD-only install metadata before creating the autonomous DEV artifact.
+    html = re.sub(
+        r"\n?<!-- PROD_PWA_METADATA_START -->.*?<!-- PROD_PWA_METADATA_END -->\n?",
+        "\n",
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+    html = re.sub(
+        r"\n?<script id=\"prod-service-worker-registration\">.*?</script>\n?",
+        "\n",
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+
     html = replace_once(
         html,
         '<title>App_llamados_v1.05</title>',
