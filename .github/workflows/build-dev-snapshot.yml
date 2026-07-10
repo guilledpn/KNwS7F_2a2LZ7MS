@@ -36,18 +36,37 @@ jobs:
           python-version: '3.12'
 
       - name: Build DEV artifact
-        run: python tools/build_dev_snapshot.py
+        id: build
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/build_dev_snapshot.py 2>&1 | tee /tmp/dev-build.log
+
+      - name: Save branch diagnostic without publishing
+        if: github.ref != 'refs/heads/main' && steps.build.outcome == 'failure'
+        run: |
+          mkdir -p diagnostics
+          cp /tmp/dev-build.log diagnostics/dev-modular-last-build.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/dev-modular-last-build.log
+          git commit -m 'dev: capture modular build diagnostic [skip ci]'
+          git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Apply distinct DEV PWA identity
+        if: steps.build.outcome == 'success'
         run: python tools/enhance_dev_pwa_identity.py
 
       - name: Validate DEV artifact and modules
+        if: steps.build.outcome == 'success'
         run: python tools/validate_dev_snapshot.py
 
       - name: Validate distinct DEV PWA identity
+        if: steps.build.outcome == 'success'
         run: python tools/validate_dev_pwa_identity.py
 
       - name: Verify PROD files remain untouched
+        if: steps.build.outcome == 'success'
         run: |
           changed="$(git diff --name-only)"
           printf '%s\n' "$changed"
@@ -57,13 +76,13 @@ jobs:
           fi
 
       - name: Branch validation complete
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && steps.build.outcome == 'success'
         run: |
           echo 'PASS: fundación modular validada en rama.'
           echo 'No se publicó ni se modificó main.'
 
       - name: Commit isolated DEV artifact
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && steps.build.outcome == 'success'
         run: |
           if git diff --quiet -- dev/; then
             echo 'DEV ya estaba actualizado'
