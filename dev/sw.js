@@ -1,6 +1,6 @@
 'use strict';
-const CACHE_NAME='app-llamados-dev-4f6b088d3c2f';
-const SHELL=['./','./index.html','./manifest.webmanifest','./icons/icon.svg'];
+const CACHE_NAME='app-llamados-dev-f16de3e53edf';
+const SHELL=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();

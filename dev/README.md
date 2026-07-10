@@ -1,6 +1,6 @@
 # APP LLAMADOS DEV
 
-Artefacto DEV autónomo generado desde el commit `4f6b088d3c2f`.
+Artefacto DEV autónomo generado desde el commit `f16de3e53edf`.
 
 - Supabase: `crm-ffvv-dev`
 - URL: <https://guilledpn.github.io/KNwS7F_2a2LZ7MS/dev/>
@@ -14,3 +14,9 @@ No editar `dev/index.html` manualmente. Regenerar con:
 python tools/build_dev_snapshot.py
 python tools/validate_dev_snapshot.py
 ```
+
+## Identidad instalable
+
+- PWA id: `/KNwS7F_2a2LZ7MS/dev/`
+- Nombre: `APP LLAMADOS DEV`
+- Iconos amarillos: 192 px, 512 px y SVG.

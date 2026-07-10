@@ -1,8 +1,8 @@
 {
-  "id": "./",
+  "id": "/KNwS7F_2a2LZ7MS/dev/",
   "name": "APP LLAMADOS DEV",
   "short_name": "LLAMADOS DEV",
-  "description": "Ambiente de desarrollo no productivo de APP LLAMADOS",
+  "description": "Ambiente DEV aislado de APP LLAMADOS",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -11,10 +11,26 @@
   "lang": "es-CL",
   "icons": [
     {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "./icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
+  ],
+  "categories": [
+    "business",
+    "productivity"
   ]
 }

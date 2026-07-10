@@ -6,6 +6,8 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#f59e0b">
 <link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png">
 <title>APP LLAMADOS DEV · v1.05</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -370,7 +372,7 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
   <div class="sheet" id="sheet"><div class="grip"></div><div class="sheet-title">Período activo</div><div id="period-list"></div></div>
   <div class="sheet-bg" id="settings-bg" onclick="closeSettings()"></div>
   <div class="sheet settings-sheet" id="settings-sheet"><div class="grip"></div><div class="sheet-head"><div class="sheet-title">Ajustes</div><button class="sheet-close" onclick="closeSettings()">Listo</button></div><div class="settings-body">
-      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · v1.05 · build 4f6b088d3c2f · Supabase DEV</div></div>
+      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · v1.05 · build f16de3e53edf · Supabase DEV</div></div>
       <div class="settings-section"><div class="toggle-row"><div class="toggle-main"><div class="toggle-title">Llamado automático</div><div class="toggle-sub">Cuando está activo, el botón de llamar envía el número al webhook MacroDroid en formato 9 dígitos.</div></div><button id="auto-call-switch" class="switch" onclick="toggleAutoCall()" aria-label="Activar llamado automático"></button></div><label class="settings-label" for="auto-call-url">Webhook MacroDroid</label><div class="input-surface compact"><input id="auto-call-url" type="url" inputmode="url" oninput="saveAutoCallUrl(this.value)"></div></div>
       <div class="settings-section"><label class="settings-label" for="tasks-webhook-url">Webhook Google Tasks</label><div class="input-surface compact"><input id="tasks-webhook-url" type="url" inputmode="url" placeholder="Pega aquí el webhook de Tasks" oninput="saveTasksWebhookUrl(this.value)"></div><div class="settings-note" style="margin:8px 2px 0">El recordatorio solo se guarda cuando presionas el botón Tasks en la tarjeta.</div></div>
       <div class="settings-section"><label class="settings-label" for="monthly-goal-input">Meta mensual de agendas</label><div class="input-surface compact"><input id="monthly-goal-input" type="number" min="0" inputmode="numeric" placeholder="Ej: 160"></div><div style="margin-top:10px"><button class="primary-btn" onclick="saveMonthlyGoal()">Guardar meta mensual</button></div><div class="settings-note" id="monthly-goal-note" style="margin:8px 2px 0"></div></div>
@@ -389,7 +391,7 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
 const SUPABASE_URL      = 'https://xcujixexjbuqqzlbomgw.supabase.co';   // Supabase DEV
 const SUPABASE_ANON_KEY = 'sb_publishable_eCchzuWGoCSl_Vnvyv_cYg_0A2CTDK8'; // publishable key DEV
 const APP_ENV = 'DEV';
-const APP_BUILD = '4f6b088d3c2f';
+const APP_BUILD = 'f16de3e53edf';
 const PAGE = 50;                                                // tamaño de página
 const CONTACTS_V2_CACHE_VERSION = 'v2_space_safe_2026_07_restore_v62';
 const DEFAULT_MACRODROID_URL = ''; // DEV: integración externa desactivada por defecto

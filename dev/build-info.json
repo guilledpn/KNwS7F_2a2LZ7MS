@@ -1,9 +1,12 @@
 {
   "environment": "DEV",
-  "source_commit": "4f6b088d3c2f",
-  "built_at_utc": "2026-07-10T05:21:35+00:00",
+  "source_commit": "f16de3e53edf",
+  "built_at_utc": "2026-07-10T05:34:15+00:00",
   "supabase_project": "crm-ffvv-dev",
   "supabase_ref": "xcujixexjbuqqzlbomgw",
   "runtime_dependency_on_prod": false,
-  "external_webhooks_enabled_by_default": false
+  "external_webhooks_enabled_by_default": false,
+  "pwa_id": "/KNwS7F_2a2LZ7MS/dev/",
+  "pwa_identity_distinct_from_prod": true,
+  "icon_theme": "dev_yellow"
 }
