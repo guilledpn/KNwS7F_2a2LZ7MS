@@ -27,3 +27,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Supabase RPC smoke test
+        run: node scripts/smoke-supabase.mjs
