@@ -13,7 +13,7 @@ Cerrar el acceso anónimo a tablas y RPC de Supabase DEV sin alterar PROD ni int
 
 - 16 tablas del esquema `public` sin RLS.
 - Rol `anon` con permisos de lectura, inserción, actualización y eliminación.
-- 16 funciones públicas ejecutables por `anon`.
+- 16 RPC propias de la aplicación ejecutables por `anon`.
 - El login de la interfaz ocultaba la aplicación, pero la base no exigía autenticación.
 
 ## Cambio aplicado
@@ -32,10 +32,12 @@ La migración:
 2. revoca todos los privilegios DML de `anon`;
 3. crea una política de acceso para usuarios autenticados;
 4. conserva SELECT, INSERT, UPDATE y DELETE para `authenticated`;
-5. revoca EXECUTE público y anónimo sobre las funciones del esquema `public`;
-6. mantiene las funciones disponibles para usuarios autenticados;
+5. revoca EXECUTE público y anónimo sobre las RPC propias del esquema `public`;
+6. mantiene las RPC disponibles para usuarios autenticados;
 7. fija `search_path = public, pg_temp` en las funciones `SECURITY DEFINER`;
 8. endurece los privilegios por defecto para objetos futuros.
+
+Las funciones internas pertenecientes a la extensión `pg_trgm` no se consideran RPC de la aplicación ni acceden por sí solas a los datos del CRM.
 
 ## Validación ejecutada
 
@@ -45,9 +47,9 @@ Resultado de catálogo:
 - tablas con RLS: 16;
 - tablas con DML para `anon`: 0;
 - políticas autenticadas: 16;
-- funciones públicas revisadas: 16;
-- funciones ejecutables por `anon`: 0;
-- funciones ejecutables por `authenticated`: 16;
+- RPC propias revisadas: 16;
+- RPC propias ejecutables por `anon`: 0;
+- RPC propias ejecutables por `authenticated`: 16;
 - funciones `SECURITY DEFINER` sin `search_path` fijo: 0.
 
 Pruebas de ejecución:
@@ -77,6 +79,6 @@ El test falla explícitamente si encuentra:
 
 - una tabla pública sin RLS;
 - permisos DML para `anon`;
-- funciones públicas ejecutables por `anon`;
+- RPC propias ejecutables por `anon`;
 - funciones `SECURITY DEFINER` sin `search_path` fijo;
 - tablas sin la política autenticada acordada.
