@@ -40,49 +40,107 @@ jobs:
         continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           set -o pipefail
-          python tools/build_dev_snapshot.py 2>&1 | tee /tmp/dev-build.log
-
-      - name: Save branch diagnostic without publishing
-        if: github.ref != 'refs/heads/main' && steps.build.outcome == 'failure'
-        run: |
-          mkdir -p diagnostics
-          cp /tmp/dev-build.log diagnostics/dev-modular-last-build.log
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add diagnostics/dev-modular-last-build.log
-          git commit -m 'dev: capture modular build diagnostic [skip ci]'
-          git push origin HEAD:${GITHUB_REF_NAME}
+          python tools/build_dev_snapshot.py 2>&1 | tee /tmp/01-build.log
 
       - name: Apply distinct DEV PWA identity
+        id: identity
         if: steps.build.outcome == 'success'
-        run: python tools/enhance_dev_pwa_identity.py
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/enhance_dev_pwa_identity.py 2>&1 | tee /tmp/02-identity.log
 
       - name: Validate DEV artifact and modules
-        if: steps.build.outcome == 'success'
-        run: python tools/validate_dev_snapshot.py
+        id: validate
+        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/validate_dev_snapshot.py 2>&1 | tee /tmp/03-validate.log
 
       - name: Validate distinct DEV PWA identity
-        if: steps.build.outcome == 'success'
-        run: python tools/validate_dev_pwa_identity.py
+        id: validate_identity
+        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          set -o pipefail
+          python tools/validate_dev_pwa_identity.py 2>&1 | tee /tmp/04-validate-identity.log
 
       - name: Verify PROD files remain untouched
-        if: steps.build.outcome == 'success'
+        id: isolation
+        if: steps.build.outcome == 'success' && steps.identity.outcome == 'success'
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
+          set -o pipefail
           changed="$(git diff --name-only)"
-          printf '%s\n' "$changed"
+          printf '%s\n' "$changed" | tee /tmp/05-isolation.log
           if printf '%s\n' "$changed" | grep -Ev '^(dev/)' | grep -q .; then
-            echo 'El build intentó modificar archivos fuera de dev/' >&2
+            echo 'El build intentó modificar archivos fuera de dev/' | tee -a /tmp/05-isolation.log >&2
             exit 1
           fi
 
-      - name: Branch validation complete
-        if: github.ref != 'refs/heads/main' && steps.build.outcome == 'success'
+      - name: Save branch diagnostic without publishing
+        if: >-
+          github.ref != 'refs/heads/main' &&
+          (steps.build.outcome != 'success' ||
+           steps.identity.outcome != 'success' ||
+           steps.validate.outcome != 'success' ||
+           steps.validate_identity.outcome != 'success' ||
+           steps.isolation.outcome != 'success')
         run: |
-          echo 'PASS: fundación modular validada en rama.'
-          echo 'No se publicó ni se modificó main.'
+          mkdir -p diagnostics
+          {
+            echo "commit=${GITHUB_SHA}"
+            echo "validated_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            for file in /tmp/01-build.log /tmp/02-identity.log /tmp/03-validate.log /tmp/04-validate-identity.log /tmp/05-isolation.log; do
+              if [ -f "$file" ]; then
+                echo
+                echo "===== $(basename "$file") ====="
+                cat "$file"
+              fi
+            done
+          } > diagnostics/dev-modular-last-build.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/dev-modular-last-build.log
+          git commit -m 'dev: capture modular build diagnostic [skip ci]' || exit 0
+          git push origin HEAD:${GITHUB_REF_NAME}
+
+      - name: Certify branch validation
+        if: >-
+          github.ref != 'refs/heads/main' &&
+          steps.build.outcome == 'success' &&
+          steps.identity.outcome == 'success' &&
+          steps.validate.outcome == 'success' &&
+          steps.validate_identity.outcome == 'success' &&
+          steps.isolation.outcome == 'success'
+        run: |
+          mkdir -p diagnostics
+          cat > diagnostics/dev-modular-validation.json <<EOF
+          {
+            "status": "PASS",
+            "environment": "DEV",
+            "architecture": "modular-foundation",
+            "validated_commit": "${GITHUB_SHA}",
+            "validated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "published": false,
+            "prod_modified": false
+          }
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/dev-modular-validation.json
+          git commit -m 'dev: certify modular foundation validation [skip ci]'
+          git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Commit isolated DEV artifact
-        if: github.ref == 'refs/heads/main' && steps.build.outcome == 'success'
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          steps.build.outcome == 'success' &&
+          steps.identity.outcome == 'success' &&
+          steps.validate.outcome == 'success' &&
+          steps.validate_identity.outcome == 'success' &&
+          steps.isolation.outcome == 'success'
         run: |
           if git diff --quiet -- dev/; then
             echo 'DEV ya estaba actualizado'
