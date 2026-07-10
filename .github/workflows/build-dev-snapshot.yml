@@ -5,8 +5,10 @@ on:
   push:
     branches:
       - main
+      - dev/modular-foundation
     paths:
       - .github/workflows/build-dev-snapshot.yml
+      - src/dev/**
       - tools/build_dev_snapshot.py
       - tools/enhance_dev_pwa_identity.py
       - tools/validate_dev_snapshot.py
@@ -16,7 +18,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-isolated-dev-snapshot
+  group: build-isolated-dev-snapshot-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -39,7 +41,7 @@ jobs:
       - name: Apply distinct DEV PWA identity
         run: python tools/enhance_dev_pwa_identity.py
 
-      - name: Validate DEV artifact
+      - name: Validate DEV artifact and modules
         run: python tools/validate_dev_snapshot.py
 
       - name: Validate distinct DEV PWA identity
@@ -47,13 +49,21 @@ jobs:
 
       - name: Verify PROD files remain untouched
         run: |
-          if git diff --name-only | grep -Ev '^(dev/)' | grep -q .; then
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          if printf '%s\n' "$changed" | grep -Ev '^(dev/)' | grep -q .; then
             echo 'El build intentó modificar archivos fuera de dev/' >&2
-            git diff --name-only >&2
             exit 1
           fi
 
+      - name: Branch validation complete
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo 'PASS: fundación modular validada en rama.'
+          echo 'No se publicó ni se modificó main.'
+
       - name: Commit isolated DEV artifact
+        if: github.ref == 'refs/heads/main'
         run: |
           if git diff --quiet -- dev/; then
             echo 'DEV ya estaba actualizado'
@@ -62,5 +72,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add dev/
-          git commit -m 'dev: publish isolated snapshot [skip ci]'
+          git commit -m 'dev: publish modular isolated snapshot [skip ci]'
           git push origin HEAD:main
