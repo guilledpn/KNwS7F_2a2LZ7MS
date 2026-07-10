@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>APP LLAMADOS DEV</title>
+  <style>
+    html,body{height:100%;margin:0;background:#0f1115;color:#f8fafc;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+    .boot{min-height:100%;display:grid;place-items:center;padding:24px;text-align:center}
+    .card{max-width:420px;border:1px solid rgba(148,163,184,.28);border-radius:24px;background:#171a21;padding:24px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+    .kicker{font-size:12px;font-weight:800;letter-spacing:.16em;color:#f59e0b;margin-bottom:10px}
+    h1{font-size:24px;line-height:1.1;margin:0 0 10px}
+    p{color:#cbd5e1;line-height:1.45;margin:0}.err{color:#fecaca;margin-top:14px;white-space:pre-wrap;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="boot"><div class="card"><div class="kicker">DEV</div><h1>Cargando APP LLAMADOS DEV</h1><p>Ambiente no productivo conectado a Supabase DEV.</p><div id="err" class="err"></div></div></div>
+  <script>
+    (async function(){
+      const DEV_SUPABASE_URL='https://xcujixexjbuqqzlbomgw.supabase.co';
+      const DEV_SUPABASE_KEY='sb_publishable_eCchzuWGoCSl_Vnvyv_cYg_0A2CTDK8';
+      const err=document.getElementById('err');
+      try{
+        const res=await fetch('../index.html?dev_boot='+Date.now(),{cache:'no-store'});
+        if(!res.ok)throw new Error('No se pudo cargar index.html productivo: HTTP '+res.status);
+        let html=await res.text();
+        html=html.replace(/<title>[^<]*<\/title>/,'<title>App_llamados_DEV</title>');
+        html=html.replace(/const SUPABASE_URL\s*=\s*'[^']*';/,"const SUPABASE_URL      = '"+DEV_SUPABASE_URL+"';");
+        html=html.replace(/const SUPABASE_ANON_KEY\s*=\s*String\.fromCharCode\([^;]*;[^\n]*/,"const SUPABASE_ANON_KEY = '"+DEV_SUPABASE_KEY+"'; // DEV publishable key");
+        html=html.replace(/App_llamados_v1\.05/g,'App_llamados_DEV · v1.05');
+        html=html.replace('Acceso privado','Acceso privado · DEV');
+        const devCss='<style id="dev-env-style">.dev-env-badge{position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:99999;height:28px;border-radius:14px;padding:0 12px;display:flex;align-items:center;gap:6px;background:#f59e0b;color:#111827;font:800 11px/1 Roboto,system-ui,sans-serif;letter-spacing:.08em;box-shadow:0 6px 18px rgba(0,0,0,.18);pointer-events:none}.dev-env-badge span{font-family:Roboto Mono,ui-monospace,monospace}.login-logo:after{content:" DEV";color:#f59e0b;font-weight:800}.settings-body:before{content:"AMBIENTE DEV · Datos ficticios · No productivo";display:block;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:#fef3c7;color:#92400e;font-weight:800;font-size:12px;letter-spacing:.04em}</style>';
+        html=html.replace('</head>',devCss+'</head>');
+        html=html.replace('<body>','<body><div class="dev-env-badge">DEV · <span>NO PRODUCTIVO</span></div>');
+        document.open();document.write(html);document.close();
+      }catch(e){err.textContent=String(e&&e.message?e.message:e);}
+    })();
+  </script>
+</body>
+</html>
