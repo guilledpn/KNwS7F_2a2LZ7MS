@@ -27,15 +27,23 @@ BEGIN
     failures := array_append(failures, 'anon conserva privilegios DML en tablas public');
   END IF;
 
+  -- Only application-owned functions are checked. Internal functions installed
+  -- by extensions such as pg_trgm are not application RPC endpoints.
   IF EXISTS (
     SELECT 1
     FROM pg_proc p
     JOIN pg_namespace n ON n.oid = p.pronamespace
+    LEFT JOIN pg_depend d
+      ON d.classid = 'pg_proc'::regclass
+     AND d.objid = p.oid
+     AND d.deptype = 'e'
+    LEFT JOIN pg_extension e ON e.oid = d.refobjid
     WHERE n.nspname = 'public'
       AND p.prokind = 'f'
+      AND e.oid IS NULL
       AND has_function_privilege('anon', p.oid, 'EXECUTE')
   ) THEN
-    failures := array_append(failures, 'anon conserva EXECUTE sobre funciones public');
+    failures := array_append(failures, 'anon conserva EXECUTE sobre RPC propias');
   END IF;
 
   IF EXISTS (
@@ -89,12 +97,18 @@ SELECT jsonb_build_object(
       AND c.relkind IN ('r', 'p')
       AND has_table_privilege('anon', c.oid, 'SELECT,INSERT,UPDATE,DELETE')
   ),
-  'anon_executable_functions', (
+  'anon_executable_app_functions', (
     SELECT count(*)
     FROM pg_proc p
     JOIN pg_namespace n ON n.oid = p.pronamespace
+    LEFT JOIN pg_depend d
+      ON d.classid = 'pg_proc'::regclass
+     AND d.objid = p.oid
+     AND d.deptype = 'e'
+    LEFT JOIN pg_extension e ON e.oid = d.refobjid
     WHERE n.nspname = 'public'
       AND p.prokind = 'f'
+      AND e.oid IS NULL
       AND has_function_privilege('anon', p.oid, 'EXECUTE')
   )
 ) AS result;
