@@ -70,7 +70,7 @@ jobs:
       - name: Enforce minimal allowed diff
         run: |
           git diff --check
-          changed="$(git diff --name-only)"
+          changed="$({ git diff --name-only; git ls-files --others --exclude-standard; } | sort -u)"
           printf '%s\n' "$changed"
           unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(index\.html|manifest\.webmanifest|sw\.js|icons/icon-192\.png|icons/icon-512\.png|tools/build_dev_snapshot\.py)$' || true)"
           if [ -n "$unexpected" ]; then
