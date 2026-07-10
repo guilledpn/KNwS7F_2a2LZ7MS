@@ -29,9 +29,8 @@
         html=html.replace(/const SUPABASE_ANON_KEY\s*=\s*String\.fromCharCode\([^;]*;[^\n]*/,"const SUPABASE_ANON_KEY = '"+DEV_SUPABASE_KEY+"'; // DEV publishable key");
         html=html.replace(/App_llamados_v1\.05/g,'App_llamados_DEV · v1.05');
         html=html.replace('Acceso privado','Acceso privado · DEV');
-        const devCss='<style id="dev-env-style">.dev-env-badge{position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:99999;height:28px;border-radius:14px;padding:0 12px;display:flex;align-items:center;gap:6px;background:#f59e0b;color:#111827;font:800 11px/1 Roboto,system-ui,sans-serif;letter-spacing:.08em;box-shadow:0 6px 18px rgba(0,0,0,.18);pointer-events:none}.dev-env-badge span{font-family:Roboto Mono,ui-monospace,monospace}.login-logo:after{content:" DEV";color:#f59e0b;font-weight:800}.settings-body:before{content:"AMBIENTE DEV · Datos ficticios · No productivo";display:block;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:#fef3c7;color:#92400e;font-weight:800;font-size:12px;letter-spacing:.04em}</style>';
+        const devCss='<style id="dev-env-style">.top-title:after{content:"DEV";display:inline-flex;vertical-align:middle;margin-left:8px;height:18px;padding:0 7px;border-radius:9px;align-items:center;background:#f59e0b;color:#111827;font:800 10px/18px Roboto,system-ui,sans-serif;letter-spacing:.08em}.login-logo:after{content:" DEV";color:#f59e0b;font-weight:800}.settings-body:before{content:"AMBIENTE DEV · Datos ficticios · No productivo";display:block;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:#fef3c7;color:#92400e;font-weight:800;font-size:12px;letter-spacing:.04em}</style>';
         html=html.replace('</head>',devCss+'</head>');
-        html=html.replace('<body>','<body><div class="dev-env-badge">DEV · <span>NO PRODUCTIVO</span></div>');
         document.open();document.write(html);document.close();
       }catch(e){err.textContent=String(e&&e.message?e.message:e);}
     })();
