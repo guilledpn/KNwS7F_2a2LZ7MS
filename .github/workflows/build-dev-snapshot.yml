@@ -1,0 +1,58 @@
+name: Build isolated DEV snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-dev-snapshot.yml
+      - tools/build_dev_snapshot.py
+      - tools/validate_dev_snapshot.py
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-isolated-dev-snapshot
+  cancel-in-progress: false
+
+jobs:
+  build-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build DEV artifact
+        run: python tools/build_dev_snapshot.py
+
+      - name: Validate DEV artifact
+        run: python tools/validate_dev_snapshot.py
+
+      - name: Verify PROD files remain untouched
+        run: |
+          if git diff --name-only | grep -Ev '^(dev/)' | grep -q .; then
+            echo 'El build intentó modificar archivos fuera de dev/' >&2
+            git diff --name-only >&2
+            exit 1
+          fi
+
+      - name: Commit isolated DEV artifact
+        run: |
+          if git diff --quiet -- dev/; then
+            echo 'DEV ya estaba actualizado'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dev/
+          git commit -m 'dev: publish isolated snapshot [skip ci]'
+          git push origin HEAD:main
