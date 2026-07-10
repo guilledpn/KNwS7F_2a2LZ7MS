@@ -8,7 +8,9 @@ on:
     paths:
       - .github/workflows/build-dev-snapshot.yml
       - tools/build_dev_snapshot.py
+      - tools/enhance_dev_pwa_identity.py
       - tools/validate_dev_snapshot.py
+      - tools/validate_dev_pwa_identity.py
 
 permissions:
   contents: write
@@ -34,8 +36,14 @@ jobs:
       - name: Build DEV artifact
         run: python tools/build_dev_snapshot.py
 
+      - name: Apply distinct DEV PWA identity
+        run: python tools/enhance_dev_pwa_identity.py
+
       - name: Validate DEV artifact
         run: python tools/validate_dev_snapshot.py
+
+      - name: Validate distinct DEV PWA identity
+        run: python tools/validate_dev_pwa_identity.py
 
       - name: Verify PROD files remain untouched
         run: |
