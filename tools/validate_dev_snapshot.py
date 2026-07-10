@@ -106,6 +106,7 @@ def main() -> None:
         "marca estructural DEV": 'data-app-env="dev"' in html,
         "runtime modular": "const DEV_RUNTIME = window.AppDev;" in html,
         "cliente Supabase modular": "DEV_RUNTIME.supabase.getClient()" in html,
+        "sin createClient directo en UI": "createClient(" not in html,
         "auth modular": "DEV_AUTH.signIn" in html and "DEV_AUTH.getSession" in html,
         "storage modular": "const DEV_STORAGE = DEV_RUNTIME.storage;" in html,
         "sin localStorage directo en UI": "localStorage." not in html,
@@ -203,6 +204,7 @@ def main() -> None:
         "runtime_dependency_on_prod": False,
         "prod_endpoint_present": False,
         "external_webhooks_enabled_by_default": False,
+        "direct_supabase_client_in_ui": False,
         "direct_local_storage_in_ui": False,
     }, ensure_ascii=False))
 
