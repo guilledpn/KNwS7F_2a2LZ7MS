@@ -1,0 +1,93 @@
+name: Restore and validate PROD PWA
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/restore-prod-pwa.yml
+      - tools/restore_prod_pwa.py
+      - tools/validate_prod_pwa.py
+
+permissions:
+  contents: write
+
+concurrency:
+  group: restore-prod-pwa
+  cancel-in-progress: false
+
+jobs:
+  restore-prod-pwa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact main state
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify starting environment
+        run: |
+          grep -q 'https://lijibbhpyyptodneafdd.supabase.co' index.html
+          if grep -q 'https://xcujixexjbuqqzlbomgw.supabase.co' index.html; then
+            echo 'PROD contiene endpoint DEV' >&2
+            exit 1
+          fi
+
+      - name: Apply deterministic PROD PWA patch
+        run: python tools/restore_prod_pwa.py
+
+      - name: Validate PROD HTML JS manifest icons and isolation
+        run: python tools/validate_prod_pwa.py
+
+      - name: Rebuild DEV in workspace to detect metadata leakage
+        run: |
+          python tools/build_dev_snapshot.py
+          python tools/enhance_dev_pwa_identity.py
+          python tools/validate_dev_snapshot.py
+          python tools/validate_dev_pwa_identity.py
+          python tools/validate_prod_pwa.py
+
+      - name: Verify rebuilt DEV remains independent
+        run: |
+          test "$(grep -c '<link rel="manifest"' dev/index.html)" -eq 1
+          test "$(grep -c 'id="dev-service-worker-registration"' dev/index.html)" -eq 1
+          test "$(grep -c 'id="prod-service-worker-registration"' dev/index.html || true)" -eq 0
+          grep -q 'https://xcujixexjbuqqzlbomgw.supabase.co' dev/index.html
+          if grep -q 'https://lijibbhpyyptodneafdd.supabase.co' dev/index.html; then
+            echo 'DEV contiene endpoint PROD' >&2
+            exit 1
+          fi
+
+      - name: Keep published DEV unchanged in this PROD patch
+        run: git restore --worktree --staged dev/
+
+      - name: Enforce minimal allowed diff
+        run: |
+          git diff --check
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(index\.html|manifest\.webmanifest|sw\.js|icons/icon-192\.png|icons/icon-512\.png|tools/build_dev_snapshot\.py)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo 'El parche intentó modificar archivos no autorizados:' >&2
+            printf '%s\n' "$unexpected" >&2
+            exit 1
+          fi
+          for required in index.html manifest.webmanifest sw.js icons/icon-192.png icons/icon-512.png tools/build_dev_snapshot.py; do
+            printf '%s\n' "$changed" | grep -qx "$required" || {
+              echo "Falta cambio esperado: $required" >&2
+              exit 1
+            }
+          done
+
+      - name: Commit protected PROD patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html manifest.webmanifest sw.js icons/icon-192.png icons/icon-512.png tools/build_dev_snapshot.py
+          git commit -m 'prod: restore installable PWA shell [skip ci]'
+          git push origin HEAD:main
