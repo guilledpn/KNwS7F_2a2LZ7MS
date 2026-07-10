@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/runner/work/KNwS7F_2a2LZ7MS/KNwS7F_2a2LZ7MS/tools/build_dev_snapshot.py", line 390, in <module>
-    build()
-  File "/home/runner/work/KNwS7F_2a2LZ7MS/KNwS7F_2a2LZ7MS/tools/build_dev_snapshot.py", line 272, in build
-    raise RuntimeError(f"Snapshot inseguro: contiene {label}")
-RuntimeError: Snapshot inseguro: contiene endpoint PROD
