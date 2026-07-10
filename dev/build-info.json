@@ -1,0 +1,9 @@
+{
+  "environment": "DEV",
+  "source_commit": "4f6b088d3c2f",
+  "built_at_utc": "2026-07-10T05:21:35+00:00",
+  "supabase_project": "crm-ffvv-dev",
+  "supabase_ref": "xcujixexjbuqqzlbomgw",
+  "runtime_dependency_on_prod": false,
+  "external_webhooks_enabled_by_default": false
+}

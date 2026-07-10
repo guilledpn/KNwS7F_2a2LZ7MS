@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "APP LLAMADOS DEV",
+  "short_name": "LLAMADOS DEV",
+  "description": "Ambiente de desarrollo no productivo de APP LLAMADOS",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#f59e0b",
+  "lang": "es-CL",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
