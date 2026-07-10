@@ -1,0 +1,8 @@
+# Local environment files for Vite/React migration
+.env
+.env.local
+.env.*.local
+
+# Build output
+node_modules/
+dist/
