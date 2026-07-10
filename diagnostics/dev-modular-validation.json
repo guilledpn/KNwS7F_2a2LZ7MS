@@ -2,8 +2,9 @@
   "status": "PASS",
   "environment": "DEV",
   "architecture": "modular-foundation",
-  "validated_commit": "27c38e0ceb4fccc4bddcc3d7a81e6d10b5130176",
-  "validated_at_utc": "2026-07-10T06:25:09Z",
+  "assigned_source_status": true,
+  "validated_commit": "494b413ca4cf67c711401112735cd1a576f08590",
+  "validated_at_utc": "2026-07-10T20:16:59Z",
   "published": false,
   "prod_modified": false
 }
