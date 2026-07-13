@@ -11,6 +11,14 @@
   namespace.errors.installGlobalHandlers();
   namespace.pwa.register();
 
+  if (!document.querySelector('script[data-crm-stats-metrics-patch]')) {
+    const patch = document.createElement('script');
+    patch.src = './assets/app/features/stats-metrics-patch.js';
+    patch.dataset.crmStatsMetricsPatch = 'LCD-20260713-01';
+    patch.async = true;
+    document.head.appendChild(patch);
+  }
+
   Object.defineProperty(namespace, 'ready', {
     value: true,
     enumerable: true,
