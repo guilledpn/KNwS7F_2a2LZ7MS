@@ -1,7 +1,8 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
-Estado: pendiente de revisión  
-LCD: LCD-20260713-01
+Estado: Vigente  
+Último LCD aprobado: LCD-20260713-01  
+Aprobación: Pull Request #9
 
 ## Propósito
 
