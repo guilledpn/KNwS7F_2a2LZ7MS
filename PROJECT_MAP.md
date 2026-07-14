@@ -1,7 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
-Estado: pendiente de revisión  
-LCD: LCD-20260713-01
+Estado: Vigente  
+Último LCD aprobado: LCD-20260713-01  
+Lote en revisión: LCD-20260713-02
 
 ## Propósito
 
@@ -79,6 +80,15 @@ Mantendrá:
 
 No se mantendrán dos copias editables del mismo documento canónico.
 
+## Documentos actuales de arquitectura de transición
+
+- `docs/architecture/current-repository-inventory.md`
+- `docs/architecture/product-environment-deployment-matrix.md`
+- `docs/architecture/target-monorepo-structure.md`
+- `docs/architecture/reversible-monorepo-migration-plan.md`
+
+Los cuatro documentos pertenecen al LCD-20260713-02 y deben aprobarse antes de mover archivos productivos.
+
 ## Estructura objetivo tentativa
 
 ```text
@@ -101,13 +111,38 @@ KNwS7F_2a2LZ7MS/
 
 Esta estructura es un destino. No se moverán archivos productivos hasta completar inventario, pruebas y plan de transición.
 
+## Estado actual de la transición
+
+### Completado
+
+- decisión de monorepo;
+- separación conceptual Legacy/Next;
+- adopción de Docs-as-Code;
+- programa de aprendizaje;
+- primer flujo Issue → rama → commits → PR → review → merge.
+
+### En revisión
+
+- inventario técnico del repositorio;
+- matriz Producto × Ambiente × Despliegue;
+- estructura objetivo detallada;
+- plan reversible de migración.
+
+### No iniciado
+
+- movimientos físicos de carpetas;
+- pruebas de caracterización del legacy;
+- esqueleto de CRM Patrimonial Next;
+- cambios en GitHub Pages;
+- desacoplamiento de `main` y PROD.
+
 ## Flujo de trabajo
 
 Issue → Rama → Commits → Pull Request → Pruebas → Revisión → Merge → Release → Despliegue.
 
-## Primer lote
+## Lotes relevantes
 
-LCD-20260713-01:
+### LCD-20260713-01 · Aprobado
 
 - establecer gobernanza del monorepo;
 - crear reglas para agentes;
@@ -115,3 +150,11 @@ LCD-20260713-01:
 - registrar ADR principales;
 - crear programa de aprendizaje;
 - no mover ni alterar todavía la aplicación productiva.
+
+### LCD-20260713-02 · En revisión
+
+- inventariar el repositorio actual;
+- separar producto, ambiente, versión y despliegue;
+- diseñar la estructura objetivo;
+- preparar una migración reversible;
+- actualizar evidencias de aprendizaje.
