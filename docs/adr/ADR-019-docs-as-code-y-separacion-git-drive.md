@@ -1,9 +1,10 @@
 # ADR-019 · Docs-as-Code y separación Git/Drive
 
 - Fecha: 2026-07-13
-- Estado: Pendiente de revisión
+- Estado: Aprobado
 - LCD: LCD-20260713-01
 - Issue: #7
+- Aprobación: Pull Request #9
 
 ## Contexto
 
