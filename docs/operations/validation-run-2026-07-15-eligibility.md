@@ -3,7 +3,7 @@
 - Fecha: 2026-07-15
 - Estado: Pendiente de revisión
 - LCD: LCD-20260715-01
-- ADR: ADR-020
+- ADR: ADR-020 y su enmienda
 - Issue: #12
 - Proyecto Supabase: `crm-ffvv-dev`
 - Rama: `fix/lcd-20260715-01-unify-eligibility-policy`
@@ -14,9 +14,10 @@
 - no se utilizaron secretos privados;
 - no se ejecutó backfill con datos reales;
 - los fixtures fueron ficticios y se revirtieron;
-- la migración no reconstruyó la cola automáticamente.
+- las migraciones de política no modificaron hechos al aplicarse;
+- cada rebuild fue explícito y auditado.
 
-## Estado previo de DEV
+## Estado base de DEV
 
 ```json
 {
@@ -31,7 +32,7 @@
 }
 ```
 
-Calidad de estado mensual:
+Calidad de estado mensual por fila:
 
 ```json
 {
@@ -40,25 +41,28 @@ Calidad de estado mensual:
 }
 ```
 
-## Migración
-
-Migración aplicada en DEV:
+## Migraciones aplicadas en DEV
 
 ```text
 20260715054526 · unify_contact_eligibility_policy
+20260715…       · bound_eligibility_to_evaluation_period
+20260715…       · refine_last_valid_status_and_manual_contacts
 ```
 
-La migración:
+Las migraciones:
 
-- conservó las cinco RPC previas con sufijo legacy;
-- revocó acceso API a las copias legacy;
-- conservó las firmas públicas existentes;
-- creó un helper interno no ejecutable por `anon` ni `authenticated`;
-- no modificó filas al aplicarse.
+- conservaron las cinco RPC previas con sufijo legacy;
+- revocaron acceso API a las copias legacy;
+- conservaron las firmas públicas existentes;
+- crearon un helper interno no ejecutable por `anon` ni `authenticated`;
+- limitaron la historia al período evaluado;
+- cambiaron la búsqueda desde “última aparición” a “último estado corporativo válido”;
+- reconocieron como gestionable al contacto sin ninguna aparición corporativa;
+- mantuvieron fail-closed para contactos corporativos que nunca poseen un estado válido.
 
-## Prueba transaccional de política
+## Pruebas transaccionales
 
-Resultado:
+### Política canónica base
 
 ```json
 {
@@ -69,24 +73,7 @@ Resultado:
 }
 ```
 
-Casos aprobados:
-
-- asignado vigente;
-- vigente no asignado aunque figure `No Gestionado`;
-- histórico con última aparición `No Gestionado`;
-- histórico con última aparición `Gestionado`;
-- aparición más reciente sin estado válido;
-- contacto nunca observado;
-- conflicto en el último período con precedencia conservadora `Gestionado`;
-- preservación de estado, ingreso, comentarios y recordatorio durante rebuild;
-- ocultamiento por sincronización de lote;
-- coherencia de `get_contacts_v2`.
-
-No quedaron residuos de fixtures en contactos, campañas, staging, apariciones ni cola.
-
-## Prueba transaccional de carga asignada
-
-Resultado:
+### Carga asignada
 
 ```json
 {
@@ -100,21 +87,43 @@ Resultado:
 }
 ```
 
-## Comparación de la proyección real
-
-Antes del rebuild canónico:
+### Frontera temporal
 
 ```json
 {
-  "canonical_manageable": 14,
-  "canonical_assigned": 13,
-  "visible_queue": 14,
-  "visible_queue_not_canonical": 0,
-  "canonical_missing_from_visible_queue": 0
+  "status": "PASS",
+  "validation": "eligibility_temporal_boundary",
+  "future_appearance_ignored_for_prior_period": true,
+  "fixtures_rolled_back": true,
+  "prod_accessed": false
 }
 ```
 
-Distribución:
+### Último estado válido y contacto manual
+
+```json
+{
+  "status": "PASS",
+  "validation": "last_valid_status_and_manual_contacts",
+  "newer_invalid_status_ignored": true,
+  "manual_contact_gestionable": true,
+  "observed_without_valid_status_fail_closed": true,
+  "fixtures_rolled_back": true,
+  "prod_accessed": false
+}
+```
+
+Este último fixture comprobó:
+
+- mayo `No Gestionado` + junio sin estado + ausencia en julio → gestionable por mayo;
+- aparición corporativa sin ningún estado válido → no gestionable;
+- contacto sin apariciones → gestionable como `manual_contact`;
+- rebuild de un contacto manual con `cms_id` y `campaign_id` nulos;
+- rollback completo sin residuos.
+
+## Proyección real de DEV después del refinamiento
+
+Distribución canónica:
 
 ```json
 {
@@ -122,53 +131,56 @@ Distribución:
   "active_unassigned": 100,
   "latest_no_gestionado": 1,
   "latest_gestionado": 1,
-  "latest_status_missing": 49
+  "latest_status_missing": 49,
+  "manual_contact": 0
 }
 ```
-
-La proyección existente ya coincidía con la política para los datos ficticios actuales.
-
-## Rebuild real de DEV
 
 Resultado:
 
 ```json
 {
-  "ok": true,
-  "rule": "canonical_monthly_eligibility_v1",
-  "period": "2026-07",
-  "visible_total_rows": 14,
-  "visible_assigned_rows": 13,
-  "visible_rule_rows": 1,
-  "valid_status_rows": 4,
-  "missing_or_invalid_status_rows": 439,
-  "missing_status_behavior": "fail_closed"
-}
-```
-
-Hash de hechos de usuario en `work_queue` antes y después:
-
-```text
-bab5ab249ee465c40f284486fcacde7a
-```
-
-El hash incluye estado de gestión, ingreso, comentarios, recordatorio y fecha de creación. Permaneció idéntico.
-
-## Consulta pública después del rebuild
-
-```json
-{
-  "api_ok": true,
-  "api_source": "get_contacts_v2_canonical_monthly_eligibility",
-  "api_rule": "canonical_monthly_eligibility_v1",
-  "api_base_total": 14,
-  "api_result_total": 14,
-  "api_rows": 14,
+  "canonical_manageable": 14,
+  "visible_queue": 14,
+  "visible_queue_not_canonical": 0,
+  "canonical_missing_from_visible_queue": 0,
   "active_unassigned_leaks": 0
 }
 ```
 
-Recuentos de hechos después de la validación:
+El dataset ficticio actual no contiene contactos manuales, pero el caso fue validado mediante fixture.
+
+## Rebuild real de DEV
+
+La cola fue reconstruida después del refinamiento. Los resultados anteriores y posteriores fueron idénticos:
+
+- 14 gestionables;
+- 13 asignados;
+- 1 por último estado válido `No Gestionado`;
+- 0 contactos visibles fuera de la política;
+- 0 contactos canónicos ausentes de la cola.
+
+Hash de hechos de usuario calculado con estado, ingreso, comentarios y recordatorios antes y después del rebuild:
+
+```text
+130db7bdc57febfa05e9cf475490cce2
+```
+
+El hash permaneció idéntico.
+
+## Interpretación de la deuda de datos
+
+Las 439 filas sin estado válido ya no bloquean necesariamente al contacto si existe un estado corporativo válido anterior.
+
+La política distingue:
+
+- fila reciente inválida + estado válido anterior → utiliza el estado anterior;
+- apariciones corporativas sin ningún estado válido → fail-closed;
+- ausencia total de apariciones → contacto manual gestionable.
+
+El backfill sigue siendo necesario para recuperar hechos corporativos faltantes y evitar clasificaciones incompletas, pero no debe confundirse con una reimportación completa.
+
+## Recuentos preservados
 
 ```json
 {
@@ -185,14 +197,13 @@ Recuentos de hechos después de la validación:
 
 No apareció un hallazgo nuevo que bloquee este cambio.
 
-Hallazgos relacionados:
+Hallazgos relacionados y preexistentes:
 
-- las RPC públicas son `SECURITY DEFINER` ejecutables por usuarios autenticados; esto es intencional en la arquitectura legacy actual;
-- el helper interno no quedó expuesto;
-- `norm_campaign_key` conserva un `search_path` mutable preexistente;
-- existen índices/FK con oportunidades de optimización preexistentes.
+- RPC públicas `SECURITY DEFINER` ejecutables por usuarios autenticados;
+- `norm_campaign_key` con `search_path` mutable;
+- índices/FK con oportunidades de optimización.
 
-Referencias de remediación:
+Referencias:
 
 - https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable
 - https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
@@ -201,16 +212,19 @@ Referencias de remediación:
 ## Resultado actual
 
 ```text
-Migración DEV                     PASS
-Permisos y firmas                PASS
-Fixtures política                PASS
-Fixture carga asignada           PASS
-Rebuild DEV                      PASS
-Preservación hechos del usuario  PASS
-Backfill real                    NO EJECUTADO
-PROD                             NO ACCEDIDO
-Suite local del repositorio      PENDIENTE
-Smoke test visual DEV            PENDIENTE
+Migraciones DEV                  PASS
+Permisos y firmas               PASS
+Fixtures política               PASS
+Fixture carga asignada          PASS
+Frontera temporal               PASS
+Último estado válido            PASS
+Contacto manual                 PASS
+Rebuild DEV                     PASS
+Preservación hechos usuario     PASS
+Backfill real                   NO EJECUTADO
+PROD                            NO ACCEDIDO
+Suite local repositorio         PENDIENTE
+Smoke test visual DEV           PENDIENTE
 ```
 
 No corresponde promover a STAGING ni PROD hasta completar la suite local, el smoke test DEV, la revisión del PR y la validación de las fuentes reales.
