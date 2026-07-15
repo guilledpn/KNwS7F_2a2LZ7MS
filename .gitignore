@@ -39,6 +39,11 @@ desktop.ini
 local-data/
 downloads/
 
+# Generated backfill artifacts contain normalized personal identifiers.
+*.backfill.sql
+*.backfill.json
+backfill-output/
+
 # Test and local diagnostic output
 coverage/
 test-results/

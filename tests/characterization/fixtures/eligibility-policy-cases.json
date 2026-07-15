@@ -4,65 +4,109 @@
     "description": "Asignado propio en el período activo",
     "assigned_current": true,
     "appears_active": true,
-    "last_monthly_status": "Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "Gestionado",
     "managed_by_me": false,
-    "available_by_age": false,
-    "expected_canonical": true,
-    "expected_owner_aware": true
+    "expected_gestionable": true,
+    "expected_reason": "assigned_current"
   },
   {
     "id": "active-unassigned-no-history",
-    "description": "Aparece en campaña activa, no está asignado y no registra gestión operativa",
+    "description": "Aparece en campaña activa, no está asignado y figura No Gestionado",
     "assigned_current": false,
     "appears_active": true,
-    "last_monthly_status": "No Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "No Gestionado",
     "managed_by_me": false,
-    "available_by_age": true,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "active_unassigned"
   },
   {
     "id": "historical-no-gestionado",
-    "description": "No aparece en campaña activa y su última aparición fue No Gestionado",
+    "description": "No aparece en campaña activa y su último estado corporativo válido fue No Gestionado",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "No Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "No Gestionado",
     "managed_by_me": false,
-    "available_by_age": true,
-    "expected_canonical": true,
-    "expected_owner_aware": true
+    "expected_gestionable": true,
+    "expected_reason": "latest_no_gestionado"
   },
   {
-    "id": "historical-gestionado-without-operational-state",
-    "description": "No aparece en campaña activa y su última aparición fue Gestionado, pero no tiene bloqueo operativo",
+    "id": "historical-gestionado",
+    "description": "No aparece en campaña activa y su último estado corporativo válido fue Gestionado",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "Gestionado",
     "managed_by_me": false,
-    "available_by_age": true,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
   },
   {
     "id": "active-unassigned-managed-by-me",
-    "description": "Aparece en campaña activa sin asignación, pero tiene gestión propia",
+    "description": "Aparece en campaña activa sin asignación, aunque existe gestión propia",
     "assigned_current": false,
     "appears_active": true,
-    "last_monthly_status": "Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "Gestionado",
     "managed_by_me": true,
-    "available_by_age": false,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "active_unassigned"
   },
   {
-    "id": "historical-gestionado-blocked-by-age",
-    "description": "Última aparición Gestionado y además existe bloqueo operativo reciente",
+    "id": "historical-gestionado-managed-by-me",
+    "description": "Último estado corporativo válido Gestionado y existe gestión propia",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "Gestionado",
+    "has_corporate_appearance": true,
+    "last_valid_status": "Gestionado",
+    "managed_by_me": true,
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
+  },
+  {
+    "id": "newer-invalid-older-no-gestionado",
+    "description": "Una aparición posterior sin estado no oculta el último estado válido No Gestionado",
+    "assigned_current": false,
+    "appears_active": false,
+    "has_corporate_appearance": true,
+    "last_valid_status": "No Gestionado",
     "managed_by_me": false,
-    "available_by_age": false,
-    "expected_canonical": false,
-    "expected_owner_aware": false
+    "expected_gestionable": true,
+    "expected_reason": "latest_no_gestionado"
+  },
+  {
+    "id": "observed-without-valid-status",
+    "description": "Apareció en campañas, pero nunca registra un estado corporativo válido",
+    "assigned_current": false,
+    "appears_active": false,
+    "has_corporate_appearance": true,
+    "last_valid_status": null,
+    "managed_by_me": false,
+    "expected_gestionable": false,
+    "expected_reason": "latest_status_missing"
+  },
+  {
+    "id": "manual-contact",
+    "description": "No registra apariciones corporativas y, por tanto, fue creado manualmente",
+    "assigned_current": false,
+    "appears_active": false,
+    "has_corporate_appearance": false,
+    "last_valid_status": null,
+    "managed_by_me": false,
+    "expected_gestionable": true,
+    "expected_reason": "manual_contact"
+  },
+  {
+    "id": "same-period-conflict-conservative",
+    "description": "Dos estados válidos del último período discrepan y la resolución conservadora es Gestionado",
+    "assigned_current": false,
+    "appears_active": false,
+    "has_corporate_appearance": true,
+    "last_valid_status": "Gestionado",
+    "managed_by_me": false,
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
   }
 ]
