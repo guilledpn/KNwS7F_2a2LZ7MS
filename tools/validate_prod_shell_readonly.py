@@ -7,6 +7,7 @@ without applying a historical restoration patch or requiring network access.
 """
 from __future__ import annotations
 
+import ast
 import json
 import re
 import shutil
@@ -79,6 +80,51 @@ def extract_single_constant(source: str, name: str) -> str:
     return matches[0]
 
 
+def validate_dev_builder_sanitizer(source: str) -> None:
+    """Verify executable sanitizers instead of relying on historical comments."""
+    try:
+        tree = ast.parse(source, filename=str(BUILDER))
+    except SyntaxError as error:
+        raise RuntimeError(f"El generador DEV no compila: {error}") from error
+
+    re_sub_patterns: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        function = node.func
+        is_re_sub = (
+            isinstance(function, ast.Attribute)
+            and function.attr == "sub"
+            and isinstance(function.value, ast.Name)
+            and function.value.id == "re"
+        )
+        if not is_re_sub or not node.args:
+            continue
+        pattern = node.args[0]
+        if isinstance(pattern, ast.Constant) and isinstance(pattern.value, str):
+            re_sub_patterns.append(pattern.value)
+
+    removes_prod_metadata = any(
+        "PROD_PWA_METADATA_START" in pattern
+        and "PROD_PWA_METADATA_END" in pattern
+        for pattern in re_sub_patterns
+    )
+    removes_prod_registration = any(
+        "prod-service-worker-registration" in pattern
+        and "</script>" in pattern
+        for pattern in re_sub_patterns
+    )
+
+    require(
+        removes_prod_metadata,
+        "El generador DEV no contiene una sanitización ejecutable del bloque PWA PROD",
+    )
+    require(
+        removes_prod_registration,
+        "El generador DEV no contiene una sanitización ejecutable del registro SW PROD",
+    )
+
+
 def main() -> None:
     for path in (INDEX, MANIFEST, SW, BUILDER):
         require(path.exists(), f"Falta {path.relative_to(ROOT)}")
@@ -132,8 +178,7 @@ def main() -> None:
     require("self.addEventListener('fetch'" in sw, "SW sin fetch")
     require(DEV_URL not in sw, "Service worker PROD contiene endpoint DEV")
 
-    require("Strip PROD-only install metadata" in builder, "El generador DEV no elimina metadatos PROD")
-    require("prod-service-worker-registration" in builder, "El generador DEV no elimina el registro SW PROD")
+    validate_dev_builder_sanitizer(builder)
 
     forbidden = (
         "service" + "_role",
