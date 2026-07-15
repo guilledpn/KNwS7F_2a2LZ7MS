@@ -7,11 +7,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "characterization" / "fixtures" / "eligibility-policy-cases.json"
 MIGRATION = ROOT / "supabase" / "migrations" / "20260715_unify_contact_eligibility_policy.sql"
-TEMPORAL_BOUNDARY = (
+REFINEMENT = (
     ROOT
     / "supabase"
     / "migrations"
-    / "20260715_bound_eligibility_to_evaluation_period.sql"
+    / "20260715_refine_last_valid_status_and_manual_contacts.sql"
 )
 
 
@@ -22,25 +22,25 @@ def canonical_monthly_policy(case: dict[str, object]) -> tuple[bool, str]:
         return True, "assigned_current"
     if bool(case["appears_active"]):
         return False, "active_unassigned"
-    if not bool(case["latest_observed"]):
-        return False, "never_observed"
 
-    status = case["latest_monthly_status"]
+    status = case["last_valid_status"]
     if status == "No Gestionado":
         return True, "latest_no_gestionado"
     if status == "Gestionado":
         return False, "latest_gestionado"
+    if not bool(case["has_corporate_appearance"]):
+        return True, "manual_contact"
     return False, "latest_status_missing"
 
 
 class EligibilityPolicyTests(unittest.TestCase):
-    """Protect ADR-020 and the unified implementation contract."""
+    """Protect ADR-020 and its domain refinement."""
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.cases = json.loads(FIXTURE.read_text(encoding="utf-8"))
         cls.migration = MIGRATION.read_text(encoding="utf-8")
-        cls.temporal_boundary = TEMPORAL_BOUNDARY.read_text(encoding="utf-8")
+        cls.refinement = REFINEMENT.read_text(encoding="utf-8")
 
     def test_fixture_expectations_match_canonical_policy(self) -> None:
         for case in self.cases:
@@ -67,13 +67,25 @@ class EligibilityPolicyTests(unittest.TestCase):
             all(not canonical_monthly_policy(case)[0] for case in managed_by_me)
         )
 
-    def test_missing_latest_status_fails_closed(self) -> None:
+    def test_newer_invalid_appearance_does_not_hide_last_valid_status(self) -> None:
         case = next(
             case
             for case in self.cases
-            if case["id"] == "historical-latest-status-missing"
+            if case["id"] == "newer-invalid-older-no-gestionado"
+        )
+        self.assertEqual((True, "latest_no_gestionado"), canonical_monthly_policy(case))
+
+    def test_observed_contact_without_any_valid_status_fails_closed(self) -> None:
+        case = next(
+            case
+            for case in self.cases
+            if case["id"] == "observed-without-valid-status"
         )
         self.assertEqual((False, "latest_status_missing"), canonical_monthly_policy(case))
+
+    def test_manual_contact_is_gestionable(self) -> None:
+        case = next(case for case in self.cases if case["id"] == "manual-contact")
+        self.assertEqual((True, "manual_contact"), canonical_monthly_policy(case))
 
     def test_all_runtime_paths_use_the_same_database_policy(self) -> None:
         helper_call = "public.contact_eligibility_for_period"
@@ -88,10 +100,14 @@ class EligibilityPolicyTests(unittest.TestCase):
             section = self.migration[start : next_function if next_function >= 0 else None]
             self.assertIn(helper_call, section, function_name)
 
-    def test_history_is_bounded_to_the_evaluated_period(self) -> None:
-        normalized = " ".join(self.temporal_boundary.split())
+    def test_refinement_uses_last_valid_status_with_temporal_boundary(self) -> None:
+        normalized = " ".join(self.refinement.split())
         self.assertIn("cms.period <= p_period", normalized)
-        self.assertIn("max(cms.period)", normalized)
+        self.assertIn("valid_status_rows", normalized)
+        self.assertIn("latest_valid_period", normalized)
+        self.assertIn("latest_valid_status", normalized)
+        self.assertIn("manual_contact", normalized)
+        self.assertIn("latest_status_missing", normalized)
 
     def test_assigned_import_does_not_create_operational_management(self) -> None:
         marker = "create function public.process_assigned_load"
