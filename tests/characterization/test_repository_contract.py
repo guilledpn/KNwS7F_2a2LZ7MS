@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import importlib.util
+import stat
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -119,6 +122,33 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("begin private key", prod_validator)
         self.assertIn("service_role", dev_validator)
         self.assertIn("private key", dev_validator)
+
+    def test_temporary_workspace_permissions_are_normalized(self) -> None:
+        runner_path = ROOT / "tools" / "run_legacy_safety_checks.py"
+        spec = importlib.util.spec_from_file_location("legacy_safety_runner", runner_path)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+
+        runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runner)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "repo"
+            config_dir = workspace / "dev" / "assets" / "app" / "config"
+            config_dir.mkdir(parents=True)
+            environment_file = config_dir / "environment.js"
+            environment_file.write_text("const appEnv = 'DEV';", encoding="utf-8")
+
+            config_dir.chmod(config_dir.stat().st_mode & ~stat.S_IWUSR)
+            environment_file.chmod(environment_file.stat().st_mode & ~stat.S_IWUSR)
+
+            runner.normalize_workspace_permissions(workspace)
+
+            self.assertTrue(config_dir.stat().st_mode & stat.S_IWUSR)
+            self.assertTrue(environment_file.stat().st_mode & stat.S_IWUSR)
+
+        runner_source = self.read("tools/run_legacy_safety_checks.py")
+        self.assertIn("normalize_workspace_permissions(workspace)", runner_source)
 
 
 if __name__ == "__main__":
