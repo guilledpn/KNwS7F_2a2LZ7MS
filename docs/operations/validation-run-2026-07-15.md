@@ -162,6 +162,8 @@ La validación confirmó además:
 - ningún archivo productivo modificado;
 - ningún workflow activado por la ejecución local.
 
+Después del commit validado `cdfddae` se agregaron únicamente los commits documentales `b9091ca` y `1d25ca4`, destinados a registrar esta evidencia y revisar el smoke test. No modifican herramientas, pruebas, runtime, workflows ni componentes productivos.
+
 ## Conclusión
 
 El sublote técnico de red mínima de seguridad cumple su contrato local y puede avanzar a revisión del Pull Request.
