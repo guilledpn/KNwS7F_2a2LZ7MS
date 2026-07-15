@@ -1,18 +1,29 @@
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "characterization" / "fixtures" / "eligibility-policy-cases.json"
-MIGRATION = ROOT / "supabase" / "migrations" / "20260715_unify_contact_eligibility_policy.sql"
-REFINEMENT = (
+MIGRATIONS = [
     ROOT
     / "supabase"
     / "migrations"
-    / "20260715_refine_last_valid_status_and_manual_contacts.sql"
-)
+    / "20260715054526_unify_contact_eligibility_policy.sql",
+    ROOT
+    / "supabase"
+    / "migrations"
+    / "20260715060415_bound_eligibility_to_evaluation_period.sql",
+    ROOT
+    / "supabase"
+    / "migrations"
+    / "20260715063727_refine_last_valid_status_and_manual_contacts.sql",
+]
+MIGRATION = MIGRATIONS[0]
+TEMPORAL_BOUNDARY = MIGRATIONS[1]
+REFINEMENT = MIGRATIONS[2]
 
 
 def canonical_monthly_policy(case: dict[str, object]) -> tuple[bool, str]:
@@ -40,6 +51,7 @@ class EligibilityPolicyTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.cases = json.loads(FIXTURE.read_text(encoding="utf-8"))
         cls.migration = MIGRATION.read_text(encoding="utf-8")
+        cls.temporal_boundary = TEMPORAL_BOUNDARY.read_text(encoding="utf-8")
         cls.refinement = REFINEMENT.read_text(encoding="utf-8")
 
     def test_fixture_expectations_match_canonical_policy(self) -> None:
@@ -87,6 +99,16 @@ class EligibilityPolicyTests(unittest.TestCase):
         case = next(case for case in self.cases if case["id"] == "manual-contact")
         self.assertEqual((True, "manual_contact"), canonical_monthly_policy(case))
 
+    def test_migration_versions_are_unique_increasing_and_match_dev_history(self) -> None:
+        versions = [path.name.split("_", 1)[0] for path in MIGRATIONS]
+        self.assertEqual(versions, sorted(versions))
+        self.assertEqual(len(versions), len(set(versions)))
+        self.assertTrue(all(re.fullmatch(r"\d{14}", version) for version in versions))
+        self.assertEqual(
+            ["20260715054526", "20260715060415", "20260715063727"],
+            versions,
+        )
+
     def test_all_runtime_paths_use_the_same_database_policy(self) -> None:
         helper_call = "public.contact_eligibility_for_period"
         for function_name in (
@@ -99,6 +121,11 @@ class EligibilityPolicyTests(unittest.TestCase):
             next_function = self.migration.find("\ncreate function public.", start + len(marker))
             section = self.migration[start : next_function if next_function >= 0 else None]
             self.assertIn(helper_call, section, function_name)
+
+    def test_temporal_boundary_is_versioned_before_domain_refinement(self) -> None:
+        normalized = " ".join(self.temporal_boundary.split())
+        self.assertIn("cms.period <= p_period", normalized)
+        self.assertIn("max(cms.period)", normalized)
 
     def test_refinement_uses_last_valid_status_with_temporal_boundary(self) -> None:
         normalized = " ".join(self.refinement.split())
