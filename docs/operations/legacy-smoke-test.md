@@ -1,7 +1,7 @@
 # Smoke test repetible · APP LLAMADOS Legacy
 
 - Fecha: 2026-07-14
-- Estado: Pendiente de revisión
+- Estado: Revisado técnicamente · pendiente de aprobación del PR
 - LCD: LCD-20260714-02
 - Issue: #16
 
@@ -27,6 +27,13 @@ Un **smoke test** es una verificación breve y amplia. No demuestra que todo el 
 - ningún secreto privado copiado en terminal, issue o captura;
 - para PROD, autorización expresa si alguna prueba pudiera escribir.
 
+## Aplicabilidad
+
+- La sección A es obligatoria para cambios en herramientas, pruebas, estructura del repositorio o componentes Legacy protegidos por la suite.
+- Las secciones B, C y D se ejecutan cuando el cambio afecta runtime, publicación, interfaz, PWA, backend o comportamiento funcional.
+- Un cambio exclusivamente documental o de red de seguridad puede declarar esas secciones como `NO APLICA`, siempre que el diff confirme que no modifica componentes ejecutables del producto.
+- `NO APLICA` debe justificarse; no equivale a omitir una prueba necesaria.
+
 ## Registro de ejecución
 
 ```text
@@ -36,7 +43,7 @@ Rama:
 Commit:
 Ambiente:
 URL:
-Resultado general: PASS / FAIL / BLOQUEADO
+Resultado general: PASS / FAIL / BLOQUEADO / NO APLICA
 Incidencias relacionadas:
 ```
 
@@ -50,11 +57,12 @@ python tools/run_legacy_safety_checks.py
 
 Resultado esperado:
 
-```text
-PASS: repository characterization
-PASS: PROD validation
-PASS: isolated DEV build and validation
-```
+- la suite de caracterización termina en `OK`;
+- cada validador ejecutado informa `PASS`;
+- el runner emite un resultado final con `"status": "PASS"`;
+- el resultado final declara `"prod_modified": false`;
+- el workspace de construcción DEV es `temporary`;
+- `network_required` y `prod_data_accessed` son `false`.
 
 Si falta Node.js, el resultado debe clasificarse como `BLOQUEADO`, no como `PASS`.
 
@@ -68,7 +76,7 @@ Si falta Node.js, el resultado debe clasificarse como `BLOQUEADO`, no como `PASS
 - [ ] No aparece identidad visual de PROD.
 - [ ] La consola no informa que DEV contiene el endpoint PROD.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B2. Autenticación
 
@@ -79,7 +87,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 
 No utilizar credenciales PROD.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B3. Contactos y búsqueda
 
@@ -89,7 +97,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] Buscar por RUT ficticio devuelve coincidencias.
 - [ ] Limpiar búsqueda restaura la lista.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B4. Detalle del contacto
 
@@ -98,7 +106,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] Navegar al contacto anterior/siguiente funciona.
 - [ ] Cerrar detalle vuelve a la lista.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B5. Registro de gestión en DEV
 
@@ -113,7 +121,7 @@ Usar exclusivamente un contacto ficticio reservado para pruebas.
 
 Registrar el identificador ficticio utilizado para poder limpiar o revertir.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B6. Teléfono activo
 
@@ -122,7 +130,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] Cambiar de teléfono actualiza la selección.
 - [ ] No se ejecuta una llamada real durante la prueba.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B7. Recordatorio e integración externa
 
@@ -131,7 +139,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] Las integraciones externas están deshabilitadas por defecto.
 - [ ] No se envía una tarea real sin configurar deliberadamente un webhook ficticio.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B8. Stats
 
@@ -141,7 +149,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] El informe diario carga.
 - [ ] Copiar reporte funciona.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B9. Importar y Ajustes
 
@@ -151,7 +159,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] Los campos de integraciones externas no contienen secretos privados.
 - [ ] No se carga ningún Excel real en este smoke test.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ### B10. PWA
 
@@ -160,7 +168,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] La identidad instalada de DEV es distinguible de PROD.
 - [ ] Una recarga mantiene la aplicación operativa.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ## C. Smoke test visual no destructivo en PROD
 
@@ -176,7 +184,7 @@ Ejecutar sólo cuando el cambio podría afectar publicación o shell PWA.
 
 No cambiar estados, comentarios, recordatorios, teléfono activo ni datos de contacto.
 
-Resultado: `PASS / FAIL / BLOQUEADO`
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
 
 ## D. Revisión móvil y escritorio
 
@@ -193,6 +201,8 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 - [ ] No aparecen scrolls horizontales inesperados.
 - [ ] Los diálogos y paneles son accesibles.
 
+Resultado: `PASS / FAIL / BLOQUEADO / NO APLICA`
+
 ## E. Clasificación de resultados
 
 | Clasificación | Significado |
@@ -202,6 +212,7 @@ Resultado: `PASS / FAIL / BLOQUEADO`
 | FAIL · Bug conocido | El fallo ya existía y está trazado en un Issue. |
 | BLOQUEADO | No pudo probarse por falta de herramienta, credencial o dato ficticio. |
 | LIMITACIÓN | La prueba no cubre suficientemente el riesgo. |
+| NO APLICA | El alcance revisado no afecta la capacidad cubierta por esa prueba. |
 
 Nunca convertir un `BLOQUEADO` en `PASS` por ausencia de evidencia.
 
@@ -218,8 +229,15 @@ Nunca convertir un `BLOQUEADO` en `PASS` por ausencia de evidencia.
 El cambio puede avanzar cuando:
 
 - los controles automatizados pasan;
-- los pasos DEV relevantes pasan;
+- los pasos DEV relevantes pasan o se justifican como `NO APLICA`;
 - los pasos PROD no destructivos pasan cuando correspondan;
 - no quedan fallas sin clasificar;
 - existe rollback claro;
 - el resultado queda asociado al PR o Issue.
+
+## H. Aplicación al PR #18
+
+- Sección A: `PASS` en Windows, PowerShell y Python 3.13 sobre el commit `cdfddae`.
+- Secciones B, C y D: `NO APLICA` para la aprobación de este PR, porque el diff no modifica runtime, archivos productivos, `dev/`, workflows, Supabase ni comportamiento funcional.
+- Evidencia detallada: `docs/operations/validation-run-2026-07-15.md`.
+- El smoke test visual completo deberá ejecutarse en futuros cambios que afecten runtime, publicación o comportamiento observable.
