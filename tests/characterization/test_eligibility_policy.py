@@ -7,6 +7,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "characterization" / "fixtures" / "eligibility-policy-cases.json"
 MIGRATION = ROOT / "supabase" / "migrations" / "20260715_unify_contact_eligibility_policy.sql"
+TEMPORAL_BOUNDARY = (
+    ROOT
+    / "supabase"
+    / "migrations"
+    / "20260715_bound_eligibility_to_evaluation_period.sql"
+)
 
 
 def canonical_monthly_policy(case: dict[str, object]) -> tuple[bool, str]:
@@ -34,6 +40,7 @@ class EligibilityPolicyTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.cases = json.loads(FIXTURE.read_text(encoding="utf-8"))
         cls.migration = MIGRATION.read_text(encoding="utf-8")
+        cls.temporal_boundary = TEMPORAL_BOUNDARY.read_text(encoding="utf-8")
 
     def test_fixture_expectations_match_canonical_policy(self) -> None:
         for case in self.cases:
@@ -81,10 +88,17 @@ class EligibilityPolicyTests(unittest.TestCase):
             section = self.migration[start : next_function if next_function >= 0 else None]
             self.assertIn(helper_call, section, function_name)
 
+    def test_history_is_bounded_to_the_evaluated_period(self) -> None:
+        normalized = " ".join(self.temporal_boundary.split())
+        self.assertIn("cms.period <= p_period", normalized)
+        self.assertIn("max(cms.period)", normalized)
+
     def test_assigned_import_does_not_create_operational_management(self) -> None:
         marker = "create function public.process_assigned_load"
         start = self.migration.index(marker)
-        section = self.migration[start : self.migration.index("\ncreate function public.get_contacts_v2", start)]
+        section = self.migration[
+            start : self.migration.index("\ncreate function public.get_contacts_v2", start)
+        ]
         self.assertIn("'operational_state_mutations', 0", section)
         self.assertNotIn("insert into public.contact_operational_state", section.lower())
         self.assertNotIn("update public.contact_operational_state", section.lower())
