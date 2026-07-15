@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -45,6 +46,12 @@ def run(command: list[str], *, cwd: Path, label: str) -> None:
         raise SystemExit(f"FAIL: {label} returned {result.returncode}")
 
 
+def normalize_workspace_permissions(workspace: Path) -> None:
+    """Make the temporary copy writable without changing the source checkout."""
+    for path in (workspace, *workspace.rglob("*")):
+        path.chmod(path.stat().st_mode | stat.S_IWUSR)
+
+
 def copy_repository_to_temp(destination: Path) -> Path:
     workspace = destination / "repo"
 
@@ -52,6 +59,7 @@ def copy_repository_to_temp(destination: Path) -> Path:
         return {name for name in names if name in EXCLUDED_COPY_NAMES}
 
     shutil.copytree(ROOT, workspace, ignore=ignore)
+    normalize_workspace_permissions(workspace)
     return workspace
 
 
