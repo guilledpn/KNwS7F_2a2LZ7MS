@@ -20,6 +20,7 @@ Los diagramas complementan la documentación escrita. No reemplazan el Modelo de
 - [`as-is-app-llamados.md`](./as-is-app-llamados.md): estado actual verificado del legacy, sus despliegues y acoplamientos.
 - [`to-be-crm-patrimonial-next.md`](./to-be-crm-patrimonial-next.md): arquitectura objetivo con dominio, aplicación, puertos y adaptadores.
 - [`migration-legacy-to-next.md`](./migration-legacy-to-next.md): mapa de etapas y posición actual de la transición.
+- [`applied-case-agenda.md`](./applied-case-agenda.md): caso paralelo conceptual y aplicado para registrar `Agenda` y programar seguimiento.
 
 ## Convención visual
 
@@ -28,6 +29,30 @@ Los diagramas complementan la documentación escrita. No reemplazan el Modelo de
 - **TRANSICIÓN** representa secuencia, controles, coexistencia y rollback.
 - El código Mermaid es la fuente canónica.
 - SVG y PNG, cuando existan, son artefactos derivados.
+
+## Pareja conceptual y aplicada
+
+Cuando una vista conceptual sea importante para comprender el proyecto, debe acompañarse con uno o más casos aplicados.
+
+```text
+vista conceptual
++
+caso aplicado AS-IS verificado
++
+caso aplicado TO-BE candidato
++
+explicación de diferencias
+```
+
+Reglas:
+
+- la vista conceptual explica responsabilidades, fronteras y dependencias;
+- el caso aplicado muestra qué ocurre en una operación reconocible del CRM;
+- el AS-IS aplicado debe basarse en código, datos, RPC, workflows o comportamiento observado;
+- el TO-BE aplicado debe marcar expresamente los conceptos todavía candidatos;
+- un ejemplo futuro no constituye por sí solo una decisión del Modelo del Dominio;
+- cuando el dominio sea aprobado, el ejemplo debe actualizarse para representar esa decisión;
+- una misma operación puede tener varios diagramas complementarios: estructura, secuencia, datos y despliegue.
 
 ## Tipos de diagrama
 
@@ -38,6 +63,7 @@ Cada diagrama debe declarar qué representa antes del bloque Mermaid.
 | Capas o arquitectura | Responsabilidades y dirección de dependencias | No necesariamente orden temporal de ejecución |
 | Mapa de módulos | Fronteras internas de conocimiento y responsabilidad | No una cadena obligatoria de procesos |
 | Flujo operativo | Secuencia de pasos de una operación concreta | No la estructura completa del sistema |
+| Secuencia aplicada | Participantes y llamadas de un caso concreto | No que todas las reglas del dominio estén aprobadas |
 | Despliegue | Productos, artefactos, ambientes e infraestructura | No las reglas del negocio |
 | Migración | Etapas, coexistencia, controles y rollback | No que todas las etapas estén implementadas |
 
@@ -59,7 +85,8 @@ Cada vista debe incluir:
 4. leyenda de términos técnicos no evidentes;
 5. explicación inmediatamente posterior;
 6. advertencia sobre lo que el diagrama no representa;
-7. estado de certeza: verificado, inferido, candidato o pendiente.
+7. estado de certeza: verificado, inferido, candidato o pendiente;
+8. vínculo a un caso aplicado cuando ayude a comprender el concepto.
 
 Un mapa estructural no debe dibujarse como una secuencia lineal si eso puede interpretarse como un proceso.
 
@@ -72,4 +99,6 @@ Un diagrama debe actualizarse cuando cambie alguno de estos elementos:
 - mecanismo de despliegue;
 - dependencia arquitectónica;
 - etapa de migración;
-- concepto o frontera del dominio representada.
+- concepto o frontera del dominio representada;
+- comportamiento real del caso aplicado;
+- decisión aprobada que reemplace un supuesto candidato.
