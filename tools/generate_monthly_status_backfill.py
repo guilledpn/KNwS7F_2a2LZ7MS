@@ -99,8 +99,10 @@ def normalize_status(value: object) -> str:
 
 
 def normalize_campaign_key(value: object) -> str:
-    text = str(value or "").lower()
-    return re.sub(r"[^a-z0-9áéíóúñ]+", "-", text) or "sin-campana"
+    """Mirror dev/index.html slug() exactly for campaign_key matching."""
+    text = strip_accents(str(value or "")).lower()
+    normalized = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return normalized or "sin-campana"
 
 
 def validate_period(value: str) -> str:
