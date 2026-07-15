@@ -1,0 +1,50 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+*.secrets
+
+# Python local artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Node local artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and operating systems
+.vscode/*.local.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and downloaded working data
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+~$*
+local-data/
+downloads/
+
+# Test and local diagnostic output
+coverage/
+test-results/
+.tmp/
+
+# Intentionally NOT ignored because they are currently versioned project artifacts:
+# dev/
+# diagnostics/
+# releases/

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "assigned-active",
+    "description": "Asignado propio en el período activo",
+    "assigned_current": true,
+    "appears_active": true,
+    "last_monthly_status": "Gestionado",
+    "managed_by_me": false,
+    "available_by_age": false,
+    "expected_canonical": true,
+    "expected_owner_aware": true
+  },
+  {
+    "id": "active-unassigned-no-history",
+    "description": "Aparece en campaña activa, no está asignado y no registra gestión operativa",
+    "assigned_current": false,
+    "appears_active": true,
+    "last_monthly_status": "No Gestionado",
+    "managed_by_me": false,
+    "available_by_age": true,
+    "expected_canonical": false,
+    "expected_owner_aware": true
+  },
+  {
+    "id": "historical-no-gestionado",
+    "description": "No aparece en campaña activa y su última aparición fue No Gestionado",
+    "assigned_current": false,
+    "appears_active": false,
+    "last_monthly_status": "No Gestionado",
+    "managed_by_me": false,
+    "available_by_age": true,
+    "expected_canonical": true,
+    "expected_owner_aware": true
+  },
+  {
+    "id": "historical-gestionado-without-operational-state",
+    "description": "No aparece en campaña activa y su última aparición fue Gestionado, pero no tiene bloqueo operativo",
+    "assigned_current": false,
+    "appears_active": false,
+    "last_monthly_status": "Gestionado",
+    "managed_by_me": false,
+    "available_by_age": true,
+    "expected_canonical": false,
+    "expected_owner_aware": true
+  },
+  {
+    "id": "active-unassigned-managed-by-me",
+    "description": "Aparece en campaña activa sin asignación, pero tiene gestión propia",
+    "assigned_current": false,
+    "appears_active": true,
+    "last_monthly_status": "Gestionado",
+    "managed_by_me": true,
+    "available_by_age": false,
+    "expected_canonical": false,
+    "expected_owner_aware": true
+  },
+  {
+    "id": "historical-gestionado-blocked-by-age",
+    "description": "Última aparición Gestionado y además existe bloqueo operativo reciente",
+    "assigned_current": false,
+    "appears_active": false,
+    "last_monthly_status": "Gestionado",
+    "managed_by_me": false,
+    "available_by_age": false,
+    "expected_canonical": false,
+    "expected_owner_aware": false
+  }
+]
