@@ -1,8 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260713-01  
-Lote en revisión: LCD-20260713-02
+Último LCD aprobado: LCD-20260713-02  
+Lote en revisión: LCD-20260714-01
 
 ## Propósito
 
@@ -80,14 +80,14 @@ Mantendrá:
 
 No se mantendrán dos copias editables del mismo documento canónico.
 
-## Documentos actuales de arquitectura de transición
+## Documentos aprobados de arquitectura de transición
 
 - `docs/architecture/current-repository-inventory.md`
 - `docs/architecture/product-environment-deployment-matrix.md`
 - `docs/architecture/target-monorepo-structure.md`
 - `docs/architecture/reversible-monorepo-migration-plan.md`
 
-Los cuatro documentos pertenecen al LCD-20260713-02 y deben aprobarse antes de mover archivos productivos.
+Los cuatro documentos pertenecen al LCD-20260713-02 y fueron aprobados mediante el Pull Request #11.
 
 ## Estructura objetivo tentativa
 
@@ -119,14 +119,18 @@ Esta estructura es un destino. No se moverán archivos productivos hasta complet
 - separación conceptual Legacy/Next;
 - adopción de Docs-as-Code;
 - programa de aprendizaje;
-- primer flujo Issue → rama → commits → PR → review → merge.
-
-### En revisión
-
+- primer flujo Issue → rama → commits → PR → review → merge;
 - inventario técnico del repositorio;
 - matriz Producto × Ambiente × Despliegue;
 - estructura objetivo detallada;
-- plan reversible de migración.
+- plan reversible de migración;
+- Etapa 0: documentar y congelar supuestos.
+
+### En revisión
+
+- cierre documental posterior al merge del LCD-20260713-02;
+- checkpoint de cierre y reanudación de sesiones;
+- alcance inicial de la Etapa 1: proteger el comportamiento actual.
 
 ### No iniciado
 
@@ -151,10 +155,19 @@ Issue → Rama → Commits → Pull Request → Pruebas → Revisión → Merge 
 - crear programa de aprendizaje;
 - no mover ni alterar todavía la aplicación productiva.
 
-### LCD-20260713-02 · En revisión
+### LCD-20260713-02 · Aprobado
 
 - inventariar el repositorio actual;
 - separar producto, ambiente, versión y despliegue;
 - diseñar la estructura objetivo;
 - preparar una migración reversible;
 - actualizar evidencias de aprendizaje.
+
+Aprobación: Pull Request #11, fusionado en `main` el 2026-07-14.
+
+### LCD-20260714-01 · En revisión
+
+- cerrar formalmente la Etapa 0;
+- registrar checkpoint de sesión;
+- preparar la Etapa 1 sin mover archivos productivos;
+- actualizar trazabilidad y evidencias de aprendizaje.
