@@ -117,7 +117,9 @@ Aprobada mediante Pull Request #18. Issue #16 cerrado.
 - `docs/architecture/contact-eligibility-policy.md`
 - `docs/operations/monthly-status-backfill.md`
 - `docs/operations/validation-run-2026-07-15-eligibility.md`
-- `supabase/migrations/20260715_unify_contact_eligibility_policy.sql`
+- `supabase/migrations/20260715054526_unify_contact_eligibility_policy.sql`
+- `supabase/migrations/20260715060415_bound_eligibility_to_evaluation_period.sql`
+- `supabase/migrations/20260715063727_refine_last_valid_status_and_manual_contacts.sql`
 - `supabase/rollback/20260715_unify_contact_eligibility_policy.sql`
 - `supabase/tests/20260715_contact_eligibility_policy.sql`
 - `tools/generate_monthly_status_backfill.py`

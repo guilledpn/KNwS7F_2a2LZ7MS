@@ -82,7 +82,7 @@ class BackfillGeneratorTests(unittest.TestCase):
             )
             self.assertEqual(1, len(rows))
             self.assertEqual("12345678K", rows[0].rut_norm)
-            self.assertEqual("campaña-abril", rows[0].campaign_key)
+            self.assertEqual("campana-abril", rows[0].campaign_key)
             self.assertEqual("No Gestionado", rows[0].estado_origen)
 
             sql = backfill.render_sql(rows, [backfill.SourceSpec("2026-04", source)])
@@ -97,7 +97,7 @@ class BackfillGeneratorTests(unittest.TestCase):
         base = backfill.BackfillRow(
             rut_norm="12345678K",
             period="2026-04",
-            campaign_key="campaña-abril",
+            campaign_key="campana-abril",
             estado_origen="No Gestionado",
             source_name="a.xlsx",
             source_sha256="a" * 64,
@@ -115,12 +115,17 @@ class BackfillGeneratorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Conflicto de estado"):
             backfill.validate_rows([base, conflict])
 
-    def test_campaign_normalization_matches_database_contract(self) -> None:
-        self.assertEqual(
-            "oportunidades-de-negocio-abril-2026",
-            backfill.normalize_campaign_key("Oportunidades de Negocio - Abril 2026"),
-        )
-        self.assertEqual("sin-campana", backfill.normalize_campaign_key(""))
+    def test_campaign_normalization_matches_app_slug_contract(self) -> None:
+        cases = {
+            "Campaña Abril": "campana-abril",
+            "  Oportunidades de Negocio - Abril 2026  ": "oportunidades-de-negocio-abril-2026",
+            "CAMPAÑA   ÁÉÍÓÚ Ñ": "campana-aeiou-n",
+            "---": "sin-campana",
+            "": "sin-campana",
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(expected, backfill.normalize_campaign_key(raw))
 
 
 if __name__ == "__main__":
