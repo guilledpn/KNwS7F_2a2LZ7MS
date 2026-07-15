@@ -29,6 +29,40 @@ Los diagramas complementan la documentación escrita. No reemplazan el Modelo de
 - El código Mermaid es la fuente canónica.
 - SVG y PNG, cuando existan, son artefactos derivados.
 
+## Tipos de diagrama
+
+Cada diagrama debe declarar qué representa antes del bloque Mermaid.
+
+| Tipo | Qué representa | Qué no debe inferirse |
+|---|---|---|
+| Capas o arquitectura | Responsabilidades y dirección de dependencias | No necesariamente orden temporal de ejecución |
+| Mapa de módulos | Fronteras internas de conocimiento y responsabilidad | No una cadena obligatoria de procesos |
+| Flujo operativo | Secuencia de pasos de una operación concreta | No la estructura completa del sistema |
+| Despliegue | Productos, artefactos, ambientes e infraestructura | No las reglas del negocio |
+| Migración | Etapas, coexistencia, controles y rollback | No que todas las etapas estén implementadas |
+
+## Significado de flechas y contenedores
+
+- Flecha continua: uso, invocación, dependencia o secuencia según la leyenda local.
+- Flecha discontinua con `implementa`: una tecnología satisface un contrato interno.
+- Flecha discontinua con `estado`, `nota` o `control`: relación explicativa, no flujo de negocio.
+- Contenedor: frontera o agrupación conceptual; no implica por sí solo una base de datos, proceso o despliegue separado.
+- Ausencia de flecha: no significa que dos elementos jamás se relacionen; puede significar que la relación aún no fue validada.
+
+## Reglas de claridad
+
+Cada vista debe incluir:
+
+1. propósito;
+2. tipo de diagrama;
+3. punto desde el cual debe leerse;
+4. leyenda de términos técnicos no evidentes;
+5. explicación inmediatamente posterior;
+6. advertencia sobre lo que el diagrama no representa;
+7. estado de certeza: verificado, inferido, candidato o pendiente.
+
+Un mapa estructural no debe dibujarse como una secuencia lineal si eso puede interpretarse como un proceso.
+
 ## Regla de actualización
 
 Un diagrama debe actualizarse cuando cambie alguno de estos elementos:
