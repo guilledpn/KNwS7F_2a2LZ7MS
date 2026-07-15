@@ -82,17 +82,25 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("# releases/", ignore)
         self.assertNotIn("\ndev/\n", f"\n{ignore}\n")
 
-    def test_critical_files_do_not_contain_private_secret_markers(self) -> None:
+    def test_runtime_and_configuration_do_not_contain_private_secret_markers(self) -> None:
+        # Security validators are intentionally excluded from this scan because they
+        # contain the forbidden signatures as detection rules. Scanning a detector
+        # for its own signature would create a self-referential false positive.
         files = [
             "index.html",
             "manifest.webmanifest",
             "sw.js",
             "src/dev/config/environment.js",
-            "tools/validate_prod_pwa.py",
-            "tools/validate_dev_snapshot.py",
+            "src/dev/core/errors.js",
+            "src/dev/core/storage.js",
+            "src/dev/core/supabase-client.js",
+            "src/dev/core/auth.js",
+            "src/dev/core/pwa.js",
+            "src/dev/app.js",
+            "tools/build_dev_snapshot.py",
         ]
         forbidden = (
-            "begin private key",
+            "-----begin private key-----",
             "jwt_secret=",
             "jwt secret:",
             "service_role=",
@@ -102,6 +110,15 @@ class RepositoryContractTests(unittest.TestCase):
             text = self.read(relative_path).lower()
             for marker in forbidden:
                 self.assertNotIn(marker, text, f"Forbidden marker in {relative_path}: {marker}")
+
+    def test_security_validators_retain_sensitive_material_guards(self) -> None:
+        prod_validator = self.read("tools/validate_prod_pwa.py").lower()
+        dev_validator = self.read("tools/validate_dev_snapshot.py").lower()
+
+        self.assertIn("service_role", prod_validator)
+        self.assertIn("begin private key", prod_validator)
+        self.assertIn("service_role", dev_validator)
+        self.assertIn("private key", dev_validator)
 
 
 if __name__ == "__main__":
