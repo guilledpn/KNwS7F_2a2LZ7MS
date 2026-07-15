@@ -1,9 +1,11 @@
 # Plan reversible de migración al monorepo
 
 - Fecha: 2026-07-13
-- Estado: Pendiente de revisión
-- LCD: LCD-20260713-02
+- Estado: Vigente
+- LCD de origen: LCD-20260713-02
+- Actualización: LCD-20260714-01
 - Issue: #10
+- Aprobación: Pull Request #11
 
 ## Propósito
 
@@ -60,7 +62,7 @@ Revertir el merge documental si la decisión no representa lo aprobado.
 
 ### Estado
 
-En ejecución mediante LCD-20260713-02.
+Completada y aprobada mediante LCD-20260713-02 y Pull Request #11.
 
 ## Etapa 1 · Proteger el comportamiento actual
 
@@ -94,6 +96,10 @@ Las pruebas deben pasar sin cambiar comportamiento funcional.
 ### Rollback
 
 Eliminar únicamente las pruebas o configuraciones agregadas mediante revert del PR.
+
+### Estado
+
+En preparación documental mediante LCD-20260714-01. No se han movido archivos productivos ni implementado pruebas todavía.
 
 ## Etapa 2 · Clasificar fuente y artefacto
 
@@ -356,13 +362,6 @@ La migración se detiene inmediatamente si:
 - cambia una regla de negocio no documentada;
 - aparece una inconsistencia entre repositorio, RDP y operación real.
 
-## Próxima decisión después de este LCD
+## Próxima decisión
 
-Aprobar o corregir:
-
-1. inventario actual;
-2. estructura objetivo;
-3. orden de migración;
-4. primera etapa técnica a ejecutar.
-
-Ningún movimiento físico se realizará por efecto de aprobar este documento.
+Aprobar o corregir el alcance inicial de la Etapa 1. Ningún movimiento físico se realizará por efecto de aprobar esta actualización.
