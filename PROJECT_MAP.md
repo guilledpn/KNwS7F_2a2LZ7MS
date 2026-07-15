@@ -1,8 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260713-02  
-Lote en revisión: LCD-20260714-01
+Último LCD aprobado: LCD-20260714-01  
+Lote en revisión: LCD-20260714-02
 
 ## Propósito
 
@@ -82,12 +82,24 @@ No se mantendrán dos copias editables del mismo documento canónico.
 
 ## Documentos aprobados de arquitectura de transición
 
+### Inventario y plan
+
 - `docs/architecture/current-repository-inventory.md`
 - `docs/architecture/product-environment-deployment-matrix.md`
 - `docs/architecture/target-monorepo-structure.md`
 - `docs/architecture/reversible-monorepo-migration-plan.md`
 
-Los cuatro documentos pertenecen al LCD-20260713-02 y fueron aprobados mediante el Pull Request #11.
+Aprobados mediante Pull Request #11.
+
+### Mapas visuales
+
+- `docs/architecture/diagrams/README.md`
+- `docs/architecture/diagrams/as-is-app-llamados.md`
+- `docs/architecture/diagrams/to-be-crm-patrimonial-next.md`
+- `docs/architecture/diagrams/migration-legacy-to-next.md`
+- `docs/architecture/diagrams/applied-case-agenda.md`
+
+Aprobados mediante Pull Request #17.
 
 ## Estructura objetivo tentativa
 
@@ -119,26 +131,34 @@ Esta estructura es un destino. No se moverán archivos productivos hasta complet
 - separación conceptual Legacy/Next;
 - adopción de Docs-as-Code;
 - programa de aprendizaje;
-- primer flujo Issue → rama → commits → PR → review → merge;
+- flujo Issue → rama → commits → PR → review → merge;
 - inventario técnico del repositorio;
 - matriz Producto × Ambiente × Despliegue;
 - estructura objetivo detallada;
 - plan reversible de migración;
-- Etapa 0: documentar y congelar supuestos.
-
-### En revisión
-
-- cierre documental posterior al merge del LCD-20260713-02;
+- Etapa 0: documentar y congelar supuestos;
 - checkpoint de cierre y reanudación de sesiones;
-- alcance inicial de la Etapa 1: proteger el comportamiento actual.
+- mapas AS-IS, TO-BE y TRANSICIÓN;
+- primer caso visual aplicado: `Agenda`.
+
+### En curso · Etapa 1A
+
+- inventario de superficie productiva crítica;
+- smoke test repetible;
+- pruebas de caracterización del repositorio y ambientes;
+- runner local en workspace temporal;
+- auditoría de `.gitignore`, secretos y workflows;
+- caracterización de la divergencia de gestionabilidad;
+- Issue #12 separado para corregir la política canónica.
 
 ### No iniciado
 
 - movimientos físicos de carpetas;
-- pruebas de caracterización del legacy;
+- modificación de workflows productivos;
 - esqueleto de CRM Patrimonial Next;
 - cambios en GitHub Pages;
-- desacoplamiento de `main` y PROD.
+- desacoplamiento de `main` y PROD;
+- implementación del fix de gestionabilidad.
 
 ## Flujo de trabajo
 
@@ -163,11 +183,23 @@ Issue → Rama → Commits → Pull Request → Pruebas → Revisión → Merge 
 - preparar una migración reversible;
 - actualizar evidencias de aprendizaje.
 
-Aprobación: Pull Request #11, fusionado en `main` el 2026-07-14.
+Aprobación: Pull Request #11.
 
-### LCD-20260714-01 · En revisión
+### LCD-20260714-01 · Aprobado
 
 - cerrar formalmente la Etapa 0;
 - registrar checkpoint de sesión;
 - preparar la Etapa 1 sin mover archivos productivos;
 - actualizar trazabilidad y evidencias de aprendizaje.
+
+Aprobación: Pull Request #15.
+
+### LCD-20260714-02 · En revisión
+
+- crear mapas arquitectónicos y casos aplicados;
+- inventariar la superficie crítica del legacy;
+- agregar smoke test y pruebas de caracterización;
+- auditar automatización, `.gitignore` y secretos;
+- preparar una red mínima de seguridad sin tocar PROD.
+
+Sublote visual aprobado mediante Pull Request #17. Sublote técnico en revisión dentro del Issue #16.
