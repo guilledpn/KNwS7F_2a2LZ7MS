@@ -1,8 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260714-01  
-Lote en revisión: LCD-20260714-02
+Último LCD aprobado: LCD-20260714-02  
+Lote en revisión: LCD-20260715-01
 
 ## Propósito
 
@@ -101,6 +101,29 @@ Aprobados mediante Pull Request #11.
 
 Aprobados mediante Pull Request #17.
 
+### Red mínima de seguridad Legacy
+
+- `docs/architecture/legacy-automation-security-audit.md`
+- `docs/architecture/prod-pwa-validator-drift.md`
+- `docs/operations/legacy-critical-surface.md`
+- `docs/operations/legacy-smoke-test.md`
+- `tests/characterization/`
+- `tools/run_legacy_safety_checks.py`
+
+Aprobada mediante Pull Request #18. Issue #16 cerrado.
+
+### Gestionabilidad canónica · En revisión
+
+- `docs/architecture/contact-eligibility-policy.md`
+- `docs/operations/monthly-status-backfill.md`
+- `docs/operations/validation-run-2026-07-15-eligibility.md`
+- `supabase/migrations/20260715_unify_contact_eligibility_policy.sql`
+- `supabase/rollback/20260715_unify_contact_eligibility_policy.sql`
+- `supabase/tests/20260715_contact_eligibility_policy.sql`
+- `tools/generate_monthly_status_backfill.py`
+
+Implementada y validada únicamente en DEV dentro del Issue #12.
+
 ## Estructura objetivo tentativa
 
 ```text
@@ -139,26 +162,29 @@ Esta estructura es un destino. No se moverán archivos productivos hasta complet
 - Etapa 0: documentar y congelar supuestos;
 - checkpoint de cierre y reanudación de sesiones;
 - mapas AS-IS, TO-BE y TRANSICIÓN;
-- primer caso visual aplicado: `Agenda`.
+- primer caso visual aplicado: `Agenda`;
+- Etapa 1A: red mínima de seguridad de APP LLAMADOS Legacy.
 
-### En curso · Etapa 1A
+### En curso · Issue #12
 
-- inventario de superficie productiva crítica;
-- smoke test repetible;
-- pruebas de caracterización del repositorio y ambientes;
-- runner local en workspace temporal;
-- auditoría de `.gitignore`, secretos y workflows;
-- caracterización de la divergencia de gestionabilidad;
-- Issue #12 separado para corregir la política canónica.
+- ADR-020 y LCD-20260715-01;
+- política canónica única de gestionabilidad;
+- migración y rollback versionados;
+- implementación aplicada sólo en DEV;
+- fixtures SQL y pruebas Python;
+- generador local de backfill dirigido;
+- validación de fuentes mensuales definitivas;
+- suite local y smoke test DEV pendientes.
 
 ### No iniciado
 
+- promoción de gestionabilidad a STAGING;
+- migración o backfill de gestionabilidad en PROD;
 - movimientos físicos de carpetas;
 - modificación de workflows productivos;
 - esqueleto de CRM Patrimonial Next;
 - cambios en GitHub Pages;
-- desacoplamiento de `main` y PROD;
-- implementación del fix de gestionabilidad.
+- desacoplamiento de `main` y PROD.
 
 ## Flujo de trabajo
 
@@ -194,12 +220,22 @@ Aprobación: Pull Request #11.
 
 Aprobación: Pull Request #15.
 
-### LCD-20260714-02 · En revisión
+### LCD-20260714-02 · Aprobado
 
 - crear mapas arquitectónicos y casos aplicados;
 - inventariar la superficie crítica del legacy;
 - agregar smoke test y pruebas de caracterización;
 - auditar automatización, `.gitignore` y secretos;
-- preparar una red mínima de seguridad sin tocar PROD.
+- crear una red mínima de seguridad sin tocar PROD.
 
-Sublote visual aprobado mediante Pull Request #17. Sublote técnico en revisión dentro del Issue #16.
+Aprobaciones: Pull Requests #17 y #18. Issue #16 cerrado.
+
+### LCD-20260715-01 · En revisión
+
+- unificar la política canónica de gestionabilidad;
+- excluir vigentes no asignados;
+- preservar asignaciones propias y hechos del usuario;
+- preparar backfill histórico exacto y trazable;
+- validar en DEV antes de STAGING o PROD.
+
+Issue rector: #12. PROD no ha sido consultado ni modificado.
