@@ -33,7 +33,7 @@ DEV_COMMANDS = [
     ["tools/validate_dev_snapshot.py"],
     ["tools/validate_dev_assigned_status.py"],
     ["tools/validate_dev_pwa_identity.py"],
-    ["tools/validate_prod_pwa.py"],
+    ["tools/validate_prod_shell_readonly.py"],
 ]
 
 
@@ -82,7 +82,7 @@ def main() -> None:
     )
 
     run(
-        [sys.executable, "tools/validate_prod_pwa.py"],
+        [sys.executable, "tools/validate_prod_shell_readonly.py"],
         cwd=ROOT,
         label="Read-only PROD shell validation",
     )
