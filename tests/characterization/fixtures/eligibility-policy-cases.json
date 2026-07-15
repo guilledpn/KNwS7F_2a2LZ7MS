@@ -4,65 +4,107 @@
     "description": "Asignado propio en el período activo",
     "assigned_current": true,
     "appears_active": true,
-    "last_monthly_status": "Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "Gestionado",
     "managed_by_me": false,
     "available_by_age": false,
-    "expected_canonical": true,
-    "expected_owner_aware": true
+    "expected_gestionable": true,
+    "expected_reason": "assigned_current"
   },
   {
     "id": "active-unassigned-no-history",
-    "description": "Aparece en campaña activa, no está asignado y no registra gestión operativa",
+    "description": "Aparece en campaña activa, no está asignado y figura No Gestionado",
     "assigned_current": false,
     "appears_active": true,
-    "last_monthly_status": "No Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "No Gestionado",
     "managed_by_me": false,
     "available_by_age": true,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "active_unassigned"
   },
   {
     "id": "historical-no-gestionado",
     "description": "No aparece en campaña activa y su última aparición fue No Gestionado",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "No Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "No Gestionado",
     "managed_by_me": false,
     "available_by_age": true,
-    "expected_canonical": true,
-    "expected_owner_aware": true
+    "expected_gestionable": true,
+    "expected_reason": "latest_no_gestionado"
   },
   {
-    "id": "historical-gestionado-without-operational-state",
-    "description": "No aparece en campaña activa y su última aparición fue Gestionado, pero no tiene bloqueo operativo",
+    "id": "historical-gestionado",
+    "description": "No aparece en campaña activa y su última aparición fue Gestionado",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "Gestionado",
     "managed_by_me": false,
     "available_by_age": true,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
   },
   {
     "id": "active-unassigned-managed-by-me",
-    "description": "Aparece en campaña activa sin asignación, pero tiene gestión propia",
+    "description": "Aparece en campaña activa sin asignación, aunque existe gestión propia",
     "assigned_current": false,
     "appears_active": true,
-    "last_monthly_status": "Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "Gestionado",
     "managed_by_me": true,
     "available_by_age": false,
-    "expected_canonical": false,
-    "expected_owner_aware": true
+    "expected_gestionable": false,
+    "expected_reason": "active_unassigned"
   },
   {
-    "id": "historical-gestionado-blocked-by-age",
-    "description": "Última aparición Gestionado y además existe bloqueo operativo reciente",
+    "id": "historical-gestionado-managed-by-me",
+    "description": "Última aparición Gestionado y existe gestión propia",
     "assigned_current": false,
     "appears_active": false,
-    "last_monthly_status": "Gestionado",
+    "latest_observed": true,
+    "latest_monthly_status": "Gestionado",
+    "managed_by_me": true,
+    "available_by_age": true,
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
+  },
+  {
+    "id": "historical-latest-status-missing",
+    "description": "La aparición más reciente no trae estado corporativo válido",
+    "assigned_current": false,
+    "appears_active": false,
+    "latest_observed": true,
+    "latest_monthly_status": null,
     "managed_by_me": false,
-    "available_by_age": false,
-    "expected_canonical": false,
-    "expected_owner_aware": false
+    "available_by_age": true,
+    "expected_gestionable": false,
+    "expected_reason": "latest_status_missing"
+  },
+  {
+    "id": "never-observed",
+    "description": "El contacto no registra apariciones corporativas",
+    "assigned_current": false,
+    "appears_active": false,
+    "latest_observed": false,
+    "latest_monthly_status": null,
+    "managed_by_me": false,
+    "available_by_age": true,
+    "expected_gestionable": false,
+    "expected_reason": "never_observed"
+  },
+  {
+    "id": "same-period-conflict-conservative",
+    "description": "Dos filas de la última aparición discrepan y la resolución conservadora es Gestionado",
+    "assigned_current": false,
+    "appears_active": false,
+    "latest_observed": true,
+    "latest_monthly_status": "Gestionado",
+    "managed_by_me": false,
+    "available_by_age": true,
+    "expected_gestionable": false,
+    "expected_reason": "latest_gestionado"
   }
 ]
