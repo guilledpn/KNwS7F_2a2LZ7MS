@@ -8,7 +8,7 @@
 
 ## Propósito
 
-Proteger contratos técnicos observados de APP LLAMADOS y las decisiones de dominio ya aprobadas.
+Proteger contratos técnicos observados de APP LLAMADOS y las decisiones de dominio ya documentadas.
 
 Las pruebas de caracterización no sustituyen pruebas funcionales completas. Un comportamiento conocido como incorrecto sólo puede dejar de caracterizarse cuando existe una decisión documentada, una implementación validada y rollback.
 
@@ -60,14 +60,17 @@ Protege:
 
 ### `test_eligibility_policy.py`
 
-Protege ADR-020:
+Protege ADR-020 y su enmienda:
 
-- asignación vigente como única excepción a la presencia activa;
+- asignación vigente como excepción explícita;
 - exclusión de vigentes no asignados;
-- última aparición `No Gestionado` como habilitación histórica;
-- última aparición `Gestionado` como exclusión preventiva;
-- comportamiento conservador ante estado faltante;
+- último **estado corporativo válido** `No Gestionado` como habilitación histórica;
+- último estado válido `Gestionado` como exclusión preventiva;
+- aparición posterior sin estado que no oculta un estado válido anterior;
+- contacto sin apariciones clasificado como `manual_contact` gestionable;
+- contacto corporativo sin ningún estado válido mantenido en fail-closed;
 - gestión propia sin efecto sobre la gestionabilidad;
+- límite temporal al período evaluado;
 - uso de una sola función canónica por consulta, rebuild y sincronización;
 - ausencia de mutaciones operativas en la carga asignada;
 - existencia de rollback exacto.
@@ -91,13 +94,13 @@ Contiene casos ficticios sin datos personales y las expectativas canónicas vige
 
 ## Pruebas SQL DEV
 
-La prueba integrada de base de datos está en:
-
 ```text
 supabase/tests/20260715_contact_eligibility_policy.sql
+supabase/tests/20260715_eligibility_temporal_boundary.sql
+supabase/tests/20260715_last_valid_status_and_manual_contacts.sql
 ```
 
-Debe ejecutarse sólo en DEV. Usa `BEGIN`, datos ficticios y `ROLLBACK`.
+Deben ejecutarse sólo en DEV. Usan `BEGIN`, datos ficticios y `ROLLBACK`.
 
 ## Interpretación de resultados
 
