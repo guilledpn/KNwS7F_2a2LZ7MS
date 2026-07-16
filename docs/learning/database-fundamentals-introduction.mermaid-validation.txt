@@ -1,0 +1,10 @@
+Mermaid validation
+Document: database-fundamentals-introduction.md
+Mermaid version: 11.16.0
+Mermaid blocks: 4
+PASS 1
+PASS 2
+PASS 3
+PASS 4
+Parsed successfully: 4
+Failed: 0

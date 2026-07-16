@@ -1,0 +1,6 @@
+File: docs/learning/database-architecture-and-learning-guide.md
+Validator: mermaid 11.16.0 parser with JSDOM
+Mermaid blocks: 23
+Parsed successfully: 23
+Failed: 0
+SHA-256 local source: 9576cbe03f6d65f769ba12968e5c6a56467d8044c680a0c1722c13ce899bdc83
