@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Muestra de ingresos · CRM FFVV</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f6f9ff;--surface:#fff;--low:#f1f6fe;--container:#e8f0fb;--high:#dfe8f5;--outline:#c8d2e1;--variant:#e1e8f2;--text:#1d1b20;--muted:#5f6773;--primary:#2563eb;--pc:#dbe6ff;--opc:#16336f;--ok:#1b7f56;--okbg:#d8f3e7;--danger:#b3261e;--shadow:0 1px 2px rgba(29,27,32,.08),0 2px 6px rgba(29,27,32,.04);--sans:'Roboto',system-ui,sans-serif;--mono:'Roboto Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}html,body{min-height:100%;background:var(--bg);font-family:var(--sans);color:var(--text)}button,input{font:inherit}.shell{max-width:520px;margin:auto;min-height:100dvh;padding:0 14px 40px}.top{position:sticky;top:0;z-index:5;background:rgba(246,249,255,.94);backdrop-filter:blur(12px);padding:16px 4px 12px}.toprow{display:flex;align-items:center;gap:10px}.title{font-size:22px;font-weight:700;letter-spacing:-.02em}.spacer{flex:1}.env{font:700 10px var(--mono);padding:6px 8px;border-radius:10px;background:var(--container);color:var(--muted)}.progress{margin-top:12px;height:7px;border-radius:4px;background:var(--high);overflow:hidden}.fill{height:100%;background:var(--primary);width:0}.sub{font-size:12px;color:var(--muted);margin-top:8px}.card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);margin:10px 0;padding:16px}.login{max-width:420px;margin:12vh auto 0}.label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:12px 4px 6px}.input{width:100%;height:50px;border:1px solid var(--variant);background:var(--low);border-radius:16px;padding:0 14px;font-size:16px;outline:none}.input:focus{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}.primary{width:100%;height:50px;border:0;border-radius:16px;background:var(--primary);color:#fff;font-weight:700;margin-top:14px;cursor:pointer}.secondary{height:40px;border:1px solid var(--outline);background:var(--surface);border-radius:14px;padding:0 12px;font-weight:600;color:var(--muted);cursor:pointer}.row{width:100%;min-height:78px;border:0;background:transparent;text-align:left;display:grid;grid-template-columns:44px 1fr 22px;align-items:center;gap:8px;padding:10px 6px;cursor:pointer}.row+.row{border-top:1px solid var(--variant)}.seq{width:36px;height:36px;border-radius:18px;background:var(--pc);color:var(--opc);display:grid;place-items:center;font:700 11px var(--mono)}.name{font-size:15px;font-weight:700;line-height:1.2}.rut{font:600 11.5px var(--mono);color:var(--muted);margin-top:6px}.chev{font-size:22px;color:#9aa3af}.empty{text-align:center;color:var(--muted);padding:48px 12px}.detail{display:none}.detail.on{display:block}.list.off{display:none}.back{height:40px;border:0;background:transparent;color:var(--primary);font-weight:700;cursor:pointer}.hero{padding:18px}.hero h2{font-size:22px;line-height:1.15}.meta{font:600 12px var(--mono);color:var(--muted);margin-top:8px}.contact{margin-top:14px;background:var(--low);border-radius:16px;padding:12px}.contactline{padding:7px 0}.contactline+.contactline{border-top:1px solid var(--variant)}.contactlabel{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted)}.contactvalue{font:600 13px var(--mono);margin-top:3px}.sectiontitle{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px}.choice{min-height:54px;border:1px solid var(--outline);border-radius:16px;background:var(--surface);padding:8px 10px;text-align:left;font-size:12.5px;font-weight:700;cursor:pointer}.choice.on{background:var(--pc);border-color:var(--primary);color:var(--opc)}.exactwrap{margin-top:10px;display:grid;grid-template-columns:1fr auto;gap:8px}.exactbtn{border:1px solid var(--outline);border-radius:16px;background:var(--surface);padding:0 14px;font-weight:700;cursor:pointer}.status{margin-top:10px;font-size:12px;color:var(--muted);min-height:18px}.saving{opacity:.6;pointer-events:none}.done{background:var(--okbg);color:var(--ok);border-radius:16px;padding:14px;text-align:center;font-weight:700}.err{color:var(--danger);font-size:12px;margin-top:10px}.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="login" class="login hidden">
+    <div class="card">
+      <div class="title">Muestra de ingresos</div>
+      <div class="sub">Usa la misma cuenta del CRM.</div>
+      <div class="label">Correo</div><input id="email" class="input" type="email" autocomplete="username">
+      <div class="label">Contraseña</div><input id="pass" class="input" type="password" autocomplete="current-password">
+      <button class="primary" onclick="login()">Entrar</button>
+      <div id="loginerr" class="err"></div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="top">
+      <div class="toprow"><div><div class="title">Muestra de ingresos</div><div class="sub" id="sampletitle"></div></div><div class="spacer"></div><span id="env" class="env"></span><button class="secondary" onclick="reload()">Actualizar</button></div>
+      <div class="progress"><div id="fill" class="fill"></div></div>
+      <div id="progressText" class="sub"></div>
+    </div>
+
+    <div id="listView" class="list"><div id="rows" class="card"></div></div>
+
+    <div id="detailView" class="detail">
+      <button class="back" onclick="closeDetail()">← Volver a la muestra</button>
+      <div class="card hero">
+        <h2 id="dname"></h2>
+        <div id="drut" class="meta"></div>
+        <div id="contact" class="contact"></div>
+      </div>
+      <div class="card">
+        <div class="sectiontitle">Ingreso estimado observado</div>
+        <div class="choices" id="choices">
+          <button class="choice" data-kind="none" data-value="0" onclick="choose(this)">Sin información</button>
+          <button class="choice" data-kind="range_0_1999999" data-value="10000001999999" onclick="choose(this)">$0 – $1.999.999</button>
+          <button class="choice" data-kind="range_2000000_2999999" data-value="20000002999999" onclick="choose(this)">$2.000.000 – $2.999.999</button>
+          <button class="choice" data-kind="range_3000000_3999999" data-value="30000003999999" onclick="choose(this)">$3.000.000 – $3.999.999</button>
+          <button class="choice" data-kind="range_4000000_plus" data-value="4000000" onclick="choose(this)">Más de $4.000.000</button>
+        </div>
+        <div class="label">Valor específico, cuando esté disponible</div>
+        <div class="exactwrap"><input id="exact" class="input" inputmode="numeric" placeholder="Ej. 2456987" oninput="exactChanged()"><button class="exactbtn" onclick="useExact()">Usar exacto</button></div>
+        <div id="captureStatus" class="status">Selecciona un rango, “Sin información” o ingresa un valor exacto.</div>
+        <button id="saveNext" class="primary" onclick="saveAndNext()">Guardar y siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+const qs=new URLSearchParams(location.search);
+const IS_DEV=qs.get('env')==='dev';
+const SAMPLE_KEY=qs.get('sample')||'RENTA_202607_V1';
+const CONFIG=IS_DEV
+ ? {url:'https://xcujixexjbuqqzlbomgw.supabase.co',key:'sb_publishable_eCchzuWGoCSl_Vnvyv_cYg_0A2CTDK8'}
+ : {url:'https://lijibbhpyyptodneafdd.supabase.co',key:'sb_publishable_V1zmg6OBVG5wzda9r0t9cg_VPT8xh55'};
+const sb=window.supabase.createClient(CONFIG.url,CONFIG.key);
+let sample=null,rows=[],currentIndex=-1,chosen=null,saving=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function formatRut(v){let s=String(v||'').replace(/[^0-9kK]/g,'').toUpperCase();return s.length>1?s.slice(0,-1)+'-'+s.slice(-1):s}
+function phone(v){let d=String(v||'').replace(/\D/g,'');if(!d)return'';if(!d.startsWith('56'))d='56'+d;return'+'+d}
+function setAuth(showLogin){$('login').classList.toggle('hidden',!showLogin);$('app').classList.toggle('hidden',showLogin)}
+async function boot(){const {data}=await sb.auth.getSession();if(data?.session){setAuth(false);$('env').textContent=IS_DEV?'DEV':'PROD';await reload()}else setAuth(true)}
+async function login(){const email=$('email').value.trim(),password=$('pass').value;const {error}=await sb.auth.signInWithPassword({email,password});if(error){$('loginerr').textContent=error.message;return}setAuth(false);$('env').textContent=IS_DEV?'DEV':'PROD';await reload()}
+async function reload(){closeDetail();$('rows').innerHTML='<div class="empty">Cargando muestra…</div>';const {data,error}=await sb.rpc('get_analysis_sample_v1',{p_sample_key:SAMPLE_KEY,p_pending_only:true,p_limit:200,p_offset:0});if(error){$('rows').innerHTML='<div class="empty">'+esc(error.message)+'</div>';return}if(!data?.ok){$('rows').innerHTML='<div class="empty">La muestra todavía no está disponible.</div>';return}sample=data;rows=data.rows||[];render()}
+function render(){const total=Number(sample.sample_total||0),done=Number(sample.sample_completed||0),pending=Number(sample.sample_pending||0);$('sampletitle').textContent=sample.title||SAMPLE_KEY;$('progressText').textContent=`${done} completados · ${pending} pendientes · ${total} total`;$('fill').style.width=(total?Math.round(done/total*100):0)+'%';if(!rows.length){$('rows').innerHTML='<div class="done">Muestra completada. No quedan contactos pendientes.</div>';return}$('rows').innerHTML=rows.map((r,i)=>`<button class="row" onclick="openDetail(${i})"><span class="seq">${r.sample_sequence}</span><span><span class="name">${esc(r.nombre||'Sin nombre')}</span><span class="rut">${esc(formatRut(r.rut||r.rut_norm||''))}</span></span><span class="chev">›</span></button>`).join('')}
+function openDetail(i){currentIndex=i;chosen=null;document.querySelectorAll('.choice').forEach(x=>x.classList.remove('on'));$('exact').value='';const r=rows[i];$('dname').textContent=r.nombre||'Sin nombre';$('drut').textContent=formatRut(r.rut||r.rut_norm||'');const lines=[];[r.telefono_1,r.telefono_2,r.telefono_3].filter(Boolean).forEach((v,n)=>lines.push(`<div class="contactline"><div class="contactlabel">Teléfono ${n+1}</div><div class="contactvalue"><a href="tel:${esc(phone(v))}">${esc(phone(v))}</a></div></div>`));if(r.email)lines.push(`<div class="contactline"><div class="contactlabel">Email</div><div class="contactvalue">${esc(r.email)}</div></div>`);$('contact').innerHTML=lines.join('')||'<div class="sub">Sin datos de contacto adicionales.</div>';$('captureStatus').textContent='Selecciona un rango, “Sin información” o ingresa un valor exacto.';$('listView').classList.add('off');$('detailView').classList.add('on');scrollTo(0,0)}
+function closeDetail(){$('detailView').classList.remove('on');$('listView').classList.remove('off');currentIndex=-1;chosen=null}
+function choose(btn){document.querySelectorAll('.choice').forEach(x=>x.classList.remove('on'));btn.classList.add('on');$('exact').value='';chosen={kind:btn.dataset.kind,value:Number(btn.dataset.value)};$('captureStatus').textContent=btn.textContent.trim()}
+function exactChanged(){if($('exact').value.replace(/\D/g,'')){document.querySelectorAll('.choice').forEach(x=>x.classList.remove('on'));chosen=null;$('captureStatus').textContent='Pulsa “Usar exacto” para confirmar el valor.'}}
+function useExact(){const d=$('exact').value.replace(/\D/g,'');const v=Number(d||0);if(!v){$('captureStatus').textContent='Ingresa un valor específico válido.';return}document.querySelectorAll('.choice').forEach(x=>x.classList.remove('on'));chosen={kind:'exact',value:v};$('captureStatus').textContent='$ '+v.toLocaleString('es-CL')+' exacto'}
+async function saveAndNext(){if(saving||currentIndex<0)return;if(!chosen){$('captureStatus').textContent='Falta seleccionar o confirmar el ingreso.';return}saving=true;$('detailView').classList.add('saving');const r=rows[currentIndex],ing=Number(chosen.value||0);try{const g=await sb.rpc('save_gestion_v2',{p_work_item_id:r.work_item_id,p_contact_id:r.contact_id,p_active_period:null,p_estado:r.estado_gestion||'Pendiente',p_ingreso:ing,p_comentarios:r.comentarios||''});if(g.error)throw g.error;const c=await sb.rpc('complete_analysis_sample_item_v1',{p_sample_item_id:r.sample_item_id,p_ingreso:ing});if(c.error)throw c.error;if(!c.data?.ok)throw new Error(c.data?.code||'No se pudo cerrar el ítem');const nextIndex=currentIndex;rows.splice(currentIndex,1);sample.sample_total=c.data.sample_total;sample.sample_completed=c.data.sample_completed;sample.sample_pending=c.data.sample_pending;render();closeDetail();if(rows.length){openDetail(Math.min(nextIndex,rows.length-1))}}catch(e){$('captureStatus').textContent='Error: '+(e.message||e)}finally{saving=false;$('detailView').classList.remove('saving')}}
+sb.auth.onAuthStateChange((_event,session)=>{if(!session)setAuth(true)});
+boot();
+</script>
+</body>
+</html>
