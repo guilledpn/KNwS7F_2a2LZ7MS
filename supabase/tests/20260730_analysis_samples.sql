@@ -1,4 +1,4 @@
--- Issue #22 · prueba transaccional de muestras de análisis.
+-- Issue #22/#24 · prueba transaccional de muestras de análisis.
 -- Ejecutar en un ambiente de prueba con permisos de propietario.
 
 begin;
@@ -16,6 +16,8 @@ declare
   v_before jsonb;
   v_completed jsonb;
   v_after jsonb;
+  v_corrected jsonb;
+  v_after_correction jsonb;
 begin
   select work_item_id, contact_id, cms_id, campaign_id
     into v_work_item_id, v_contact_id, v_cms_id, v_campaign_id
@@ -62,6 +64,20 @@ begin
   if v_after->>'status' <> 'completed'
      or (v_after->'rows'->0->>'sample_captured_income')::numeric <> 2575334 then
     raise exception 'Unexpected sample after completion: %', v_after;
+  end if;
+
+  -- Issue #24: una muestra ya completada debe permitir corregir una observación.
+  v_corrected := public.complete_analysis_sample_item_v1(v_item_id,3123456);
+  if coalesce((v_corrected->>'ok')::boolean,false) is not true
+     or (v_corrected->>'sample_completed')::integer <> 1
+     or (v_corrected->>'sample_pending')::integer <> 0 then
+    raise exception 'Unexpected correction response: %', v_corrected;
+  end if;
+
+  v_after_correction := public.get_analysis_sample_v1('TEST_ANALYSIS_SAMPLE_20260730',false,200,0);
+  if v_after_correction->>'status' <> 'completed'
+     or (v_after_correction->'rows'->0->>'sample_captured_income')::numeric <> 3123456 then
+    raise exception 'Correction was not preserved: %', v_after_correction;
   end if;
 end
 $test$;
