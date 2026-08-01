@@ -29,7 +29,8 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260714-02 | 2026-07-14 | Mapear arquitectura y crear red mínima de seguridad Legacy | Aprobado | Pull Requests #17 y #18 | — |
 | LCD-20260715-01 | 2026-07-15 | Unificar gestionabilidad, ejecutar backfill y promover a PROD | Promovido y validado técnicamente; revisión documental y smoke visual pendientes | ADR-020, Pull Requests #19 y #20, Registro Maestro de Drive | — |
 | LCD-20260716-01 | 2026-07-16 | Crear material educativo y diagnóstico de arquitectura de datos | Pendiente de revisión | Pull Request borrador #21 | — |
-| LCD-20260801-01 | 2026-08-01 | Reconciliar Drive y GitHub, corregir colisiones y fijar autoridad documental | Aprobado por autorización explícita del usuario; implementación documental trazada en Issue #28 | Issue #28 y Pull Request del lote | — |
+| LCD-20260801-01 | 2026-08-01 | Reconciliar Drive y GitHub, corregir colisiones y fijar autoridad documental | Aprobado por autorización explícita del usuario; implementación documental trazada en Issue #28 | Issue #28 y Pull Requests #29 y #30 | — |
+| LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | En elaboración · pendiente de revisión | Issue #31 y rama `docs/lcd-20260801-02-commercial-operational-models` | — |
 
 ## Próxima asignación
 
