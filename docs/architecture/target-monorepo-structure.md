@@ -1,9 +1,12 @@
 # Estructura objetivo del monorepo
 
 - Fecha: 2026-07-13
-- Estado: Pendiente de revisión
-- LCD: LCD-20260713-02
+- Estado: Aprobado como estructura destino
+- LCD canónico: LCD-20260713-04
+- Alias histórico en GitHub: LCD-20260713-02
 - Issue: #10
+- Aprobación: Pull Request #11
+- Reconciliación: LCD-20260801-01
 
 ## Propósito
 
@@ -13,12 +16,14 @@ Definir una estructura destino profesional que permita mantener APP LLAMADOS Leg
 
 1. La estructura debe representar productos y responsabilidades reales.
 2. APP LLAMADOS continúa operativa durante la transición.
-3. CRM Patrimonial Next nace aislado del legacy, aunque comparta repositorio.
+3. CRM Patrimonial Next nace aislado del Legacy, aunque comparta repositorio.
 4. No se crea un paquete compartido hasta demostrar reutilización real.
 5. Los artefactos generados no se confunden con código fuente.
 6. Los despliegues y los datos de cada ambiente permanecen separados.
 7. Las dependencias del nuevo producto apuntan hacia el dominio.
 8. Toda migración física se realiza por etapas reversibles.
+9. Cada documento posee una sola ubicación editable canónica.
+10. Los registros de LCD y ADR son únicos para todo el monorepo.
 
 ## Estructura destino propuesta
 
@@ -108,7 +113,7 @@ KNwS7F_2a2LZ7MS/
 
 Contiene productos ejecutables.
 
-- `apps/app-llamados/`: código fuente y pruebas de la aplicación legacy.
+- `apps/app-llamados/`: código fuente y pruebas de la aplicación Legacy.
 - `apps/crm-patrimonial/`: nueva generación con DDD y arquitectura hexagonal.
 
 ### `packages/`
@@ -117,15 +122,17 @@ Espacio reservado para código realmente compartido. Inicialmente sólo debe con
 
 ### `docs/`
 
-Contiene conocimiento versionable de ingeniería.
+Contiene conocimiento versionable propio del proyecto.
 
-- `governance/`: método de trabajo y control de cambios.
-- `domain/`: modelos y lenguaje del negocio.
+- `governance/`: método de trabajo, autoridad documental, registros LCD/ADR y control de cambios.
+- `domain/`: modelos y lenguaje del negocio cuando completen su migración validada.
 - `architecture/`: organización técnica y diagramas.
 - `adr/`: decisiones con contexto y consecuencias.
 - `operations/`: despliegue, incidentes, backups y recuperación.
 - `references/`: índices hacia fuentes externas de Drive.
 - `learning/`: matriz y bitácora de competencias.
+
+La autoridad actual de cada documento se consulta en `docs/governance/document-catalog.md`. La existencia de un archivo en `docs/` no lo vuelve canónico si su migración no ha sido aprobada.
 
 ### `supabase/`
 
@@ -166,7 +173,7 @@ Esta estructura no obliga a crear carpetas vacías ni clases sin necesidad. Se a
 
 ```mermaid
 flowchart LR
-    UI[Adaptadores de entrada] --> APP[Aplicación / casos de uso]
+    UI[Adaptadores de entrada] --> APP[Aplicación y casos de uso]
     APP --> DOMAIN[Dominio]
     INFRA[Adaptadores de salida] --> APP
     APP --> PORTS[Puertos definidos hacia adentro]
@@ -201,7 +208,8 @@ La raíz sólo dejará de cumplir esa función cuando otro mecanismo de desplieg
 - ramas: `tipo/descripcion-breve`;
 - commits: Conventional Commits;
 - contextos: nombres del lenguaje ubicuo en inglés técnico sólo cuando corresponda al código;
-- documentación de negocio: español como idioma principal.
+- documentación de negocio: español como idioma principal;
+- LCD y ADR: identificadores reservados en los registros canónicos antes de crear artefactos.
 
 ## Elementos que no deben crearse todavía
 
@@ -222,4 +230,9 @@ La raíz sólo dejará de cumplir esa función cuando otro mecanismo de desplieg
 - CRM Patrimonial tiene al menos una vertical hexagonal operativa;
 - los workflows no escriben inesperadamente en `main`;
 - existen pruebas y rollback para cada producto;
-- la documentación canónica está enlazada y sin duplicados editables.
+- la documentación canónica está enlazada y sin duplicados editables;
+- el validador documental impide colisiones de ADR y LCD.
+
+## Nota histórica
+
+Este documento fue aprobado originalmente en el Pull Request #11 bajo el identificador conflictivo `LCD-20260713-02`. La reconciliación conserva su contenido y aprobación, pero fija `LCD-20260713-04` como identidad canónica.
