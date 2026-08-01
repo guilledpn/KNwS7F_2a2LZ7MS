@@ -1,0 +1,37 @@
+name: Document governance
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "PROJECT_MAP.md"
+      - "docs/**"
+      - "tools/validate_document_governance.py"
+      - ".github/workflows/document-governance.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "AGENTS.md"
+      - "PROJECT_MAP.md"
+      - "docs/**"
+      - "tools/validate_document_governance.py"
+      - ".github/workflows/document-governance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Validate document governance
+        run: python tools/validate_document_governance.py
