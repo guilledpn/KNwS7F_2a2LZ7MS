@@ -1,9 +1,12 @@
 # Matriz Producto × Ambiente × Despliegue
 
 - Fecha: 2026-07-13
-- Estado: Pendiente de revisión
-- LCD: LCD-20260713-02
+- Estado: Aprobado
+- LCD canónico: LCD-20260713-04
+- Alias histórico en GitHub: LCD-20260713-02
 - Issue: #10
+- Aprobación: Pull Request #11
+- Reconciliación: LCD-20260801-01
 
 ## Propósito
 
@@ -25,7 +28,8 @@ Evitar confundir producto, ambiente, versión, código fuente y canal de desplie
 | APP LLAMADOS Legacy | PROD | Operativo | raíz del repositorio, principalmente `index.html` y archivos PWA | `/root` de `main` | Supabase PROD | GitHub Pages desde `main` y `/root` | Reales | Continuidad operativa prioritaria |
 | APP LLAMADOS Legacy | DEV | Operativo como laboratorio | `index.html` PROD + `src/dev/` + herramientas Python | `dev/` generado | Supabase DEV | Publicación bajo el repositorio; mecanismo exacto por confirmar | Ficticios | Tiene identidad y configuración propias |
 | APP LLAMADOS Legacy | STAGING | No demostrado | — | — | — | — | — | No asumir que existe hasta verificarlo |
-| CRM Patrimonial Next | DEV | No creado | futuro `apps/crm-patrimonial/` | futuro | futuro backend DEV | por diseñar | Ficticios | Actualmente en dominio y arquitectura |
+| CRM Patrimonial Next | Local | Laboratorio conceptual y de datos | esquemas experimentales locales | PostgreSQL local | PostgreSQL local | Docker y DBeaver | Ficticios | No es DEV remoto ni producto desplegado |
+| CRM Patrimonial Next | DEV | No creado como aplicación | futuro `apps/crm-patrimonial/` | futuro | futuro backend DEV | por diseñar | Ficticios | Actualmente en dominio y arquitectura |
 | CRM Patrimonial Next | STAGING | Futuro | — | — | — | por diseñar | Sanitizados | Sólo después de validar en DEV |
 | CRM Patrimonial Next | PROD | Futuro | — | — | — | por diseñar | Reales | No existe todavía como producto desplegado |
 
@@ -37,7 +41,7 @@ flowchart LR
     ROOT --> PAGES[GitHub Pages PROD]
     ROOT --> BUILDER[build_dev_snapshot.py]
     SRCDEV[src/dev] --> BUILDER
-    BUILDER --> DEVDIR[dev/ generado]
+    BUILDER --> DEVDIR[dev generado]
     PAGES --> PRODUI[APP LLAMADOS PROD]
     DEVDIR --> DEVUI[APP LLAMADOS DEV]
     PRODUI --> SBPROD[Supabase PROD]
@@ -49,9 +53,9 @@ flowchart LR
 ```mermaid
 flowchart TB
     MONO[Monorepo]
-    MONO --> LEGACY[apps/app-llamados]
-    MONO --> NEXT[apps/crm-patrimonial]
-    MONO --> SHARED[packages compartidos sólo si existe reutilización real]
+    MONO --> LEGACY[apps app-llamados]
+    MONO --> NEXT[apps crm-patrimonial]
+    MONO --> SHARED[packages compartidos sólo con reutilización real]
     MONO --> DOCS[docs]
     MONO --> DB[supabase]
     MONO --> TOOLS[tools]
@@ -69,12 +73,13 @@ flowchart TB
 
 1. Un nombre de carpeta no define por sí solo un ambiente.
 2. Una rama Git no es un ambiente.
-3. `main` no equivale a PROD, aunque actualmente alimente GitHub Pages.
+3. `main` no equivale conceptualmente a PROD, aunque actualmente alimente GitHub Pages.
 4. Cada producto debe declarar explícitamente qué backend utiliza.
 5. DEV no puede contener endpoints, credenciales o datos de PROD.
 6. STAGING sólo se declara existente cuando posee despliegue, configuración y proceso de promoción verificables.
 7. CRM Patrimonial Next no debe reutilizar silenciosamente `dev/` como si fuera su aplicación inicial.
 8. Las versiones de Legacy y Next evolucionan de forma independiente.
+9. El laboratorio local no se confunde con DEV, STAGING ni PROD.
 
 ## Nomenclatura propuesta
 
@@ -85,6 +90,7 @@ flowchart TB
 
 ### Ambientes
 
+- `local`
 - `dev`
 - `staging`
 - `prod`
@@ -93,6 +99,7 @@ flowchart TB
 
 - `app-llamados-dev`
 - `app-llamados-prod`
+- `crm-patrimonial-local`
 - `crm-patrimonial-dev`
 - `crm-patrimonial-staging`
 - `crm-patrimonial-prod`
@@ -120,3 +127,7 @@ flowchart TB
 - registrar proyectos Supabase por ambiente sin exponer secretos;
 - definir estrategia futura de despliegue para cada aplicación;
 - decidir cuándo desacoplar `main` de la publicación automática de PROD.
+
+## Nota histórica
+
+Este documento fue aprobado originalmente en el Pull Request #11 bajo el identificador conflictivo `LCD-20260713-02`. La reconciliación conserva el contenido y la aprobación, pero fija `LCD-20260713-04` como identidad canónica.
