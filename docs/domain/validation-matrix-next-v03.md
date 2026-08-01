@@ -34,7 +34,7 @@ No constituye todavía una especificación SQL.
 | MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor | Aparición sin Asignación e historial de cambios | Confundir Asignación con Relación Comercial | T-V03-006 |
 | MV-07 | Orden de origen | TOTAL y ASIGNADOS tienen órdenes independientes | Posiciones distintas para la misma Persona | Que una carga sobrescriba el orden de la otra | T-V03-007 |
 | MV-08 | Relación Comercial | Es única y persistente para la Persona | Relación sin Oportunidad abierta | Crear otra Relación al cambiar de Asesor | T-V03-008 |
-| MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable vigente | Transferir responsabilidad conservando historia | Dos responsables vigentes sin autorización | T-V03-009 |
+| MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
 | MV-11 | Actividad | Es un hecho de una Persona realizado por un Asesor | Varias Actividades históricas | Actividad sin Persona o Asesor | T-V03-011 |
 | MV-12 | Tarea | Puede ser manual o nacer de una Actividad | Tarea sin Actividad previa | Vincular Actividad de otra Persona o Asesor | T-V03-012 |
@@ -218,6 +218,14 @@ Resultado esperado:
 **Cuando** se procesa nuevamente con el mismo hash  
 **Entonces** no se crean Personas, Apariciones, cambios ni incidencias duplicadas.
 
+### CV-16 · Relación temporalmente sin responsable
+
+**Dado** que una Relación Comercial existe y una transferencia quedó incompleta o existe una inconsistencia heredada  
+**Cuando** no hay responsable principal vigente  
+**Entonces** la Relación se conserva, no se inventa un Asesor y se genera una alerta o pendiente explícito de asignación.
+
+La ausencia de responsable no puede permanecer como situación silenciosa normal.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -229,6 +237,7 @@ Resultado esperado:
 - órdenes TOTAL y ASIGNADOS independientes;
 - Relación Comercial única;
 - responsabilidad de Asesor con historial;
+- responsable principal normalmente vigente y ausencia temporal sólo como excepción explícita y alertada;
 - responsabilidad simultánea sólo con autorización;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
