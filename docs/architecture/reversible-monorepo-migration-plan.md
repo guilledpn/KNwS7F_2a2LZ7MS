@@ -1,10 +1,11 @@
 # Plan reversible de migración al monorepo
 
-- Fecha: 2026-07-13
+- Fecha original: 2026-07-13
 - Estado: Vigente
-- LCD de origen: LCD-20260713-02
-- Actualización: LCD-20260714-01
-- Issue: #10
+- LCD de origen canónico: LCD-20260713-04
+- Alias histórico en GitHub: LCD-20260713-02
+- Actualizaciones: LCD-20260714-01, LCD-20260714-02 y LCD-20260801-01
+- Issue original: #10
 - Aprobación: Pull Request #11
 
 ## Propósito
@@ -24,6 +25,8 @@ Cada etapa debe cumplir:
 5. smoke test;
 6. rollback explícito;
 7. trazabilidad mediante Issue, rama, Pull Request y merge.
+
+Desde LCD-20260801-01, todo lote debe además reservar su LCD/ADR en los registros canónicos y comprobar que cada artefacto posee una sola ubicación editable canónica.
 
 ## Estado cero
 
@@ -53,7 +56,7 @@ Comprender estructura, despliegues y dependencias.
 ### Validación
 
 - Pull Request documental;
-- cero cambios en aplicación o workflows;
+- cero cambios en aplicación o workflows productivos;
 - cero cambios en Supabase.
 
 ### Rollback
@@ -62,7 +65,7 @@ Revertir el merge documental si la decisión no representa lo aprobado.
 
 ### Estado
 
-Completada y aprobada mediante LCD-20260713-02 y Pull Request #11.
+Completada mediante LCD-20260713-04 y Pull Request #11. El cierre formal quedó registrado en LCD-20260714-01 y Pull Request #15.
 
 ## Etapa 1 · Proteger el comportamiento actual
 
@@ -99,7 +102,7 @@ Eliminar únicamente las pruebas o configuraciones agregadas mediante revert del
 
 ### Estado
 
-En preparación documental mediante LCD-20260714-01. No se han movido archivos productivos ni implementado pruebas todavía.
+Etapa 1A completada mediante LCD-20260714-02 y Pull Request #18. Existe red mínima de caracterización, validador estructural de PROD de sólo lectura y runner de seguridad Legacy.
 
 ## Etapa 2 · Clasificar fuente y artefacto
 
@@ -118,6 +121,10 @@ Para cada archivo relevante, registrar:
 - consumidor;
 - ambiente;
 - posibilidad de regeneración.
+
+### Decisión documental incorporada
+
+ADR-023 y `docs/governance/document-catalog.md` clasifican la autoridad documental. Continúa pendiente clasificar exhaustivamente artefactos ejecutables, diagnósticos y releases.
 
 ### Decisión esperada
 
@@ -145,7 +152,7 @@ Introducir las nuevas fronteras sin alterar rutas productivas.
 - crear `packages/README.md`;
 - organizar documentación nueva;
 - agregar plantillas de Issues y Pull Requests;
-- mantener raíz, `dev/`, workflows y Supabase intactos.
+- mantener raíz, `dev/`, workflows productivos y Supabase intactos.
 
 ### Validación
 
@@ -161,7 +168,7 @@ Revertir el PR; las carpetas nuevas no son consumidas por producción.
 
 ### Objetivo
 
-Establecer una fuente propia del legacy sin dejar de publicar en la raíz.
+Establecer una fuente propia del Legacy sin dejar de publicar en la raíz.
 
 ### Estrategia
 
@@ -207,6 +214,10 @@ Separar validación, integración, release y despliegue.
 - proteger `main` cuando el flujo esté probado;
 - exigir checks antes de merge.
 
+### Avance
+
+El workflow `document-governance.yml` ya valida documentación con permisos `contents: read` y sin publicar ni confirmar cambios. No resuelve todavía los workflows históricos que pueden escribir artefactos.
+
 ### Validación
 
 - un PR documental no modifica artefactos;
@@ -221,7 +232,7 @@ Restaurar workflows anteriores desde el tag estable y revalidar PROD.
 
 ### Objetivo
 
-Construir la primera aplicación nueva sin acoplarla al legacy.
+Construir la primera aplicación nueva sin acoplarla al Legacy.
 
 ### Acciones
 
@@ -232,6 +243,10 @@ Construir la primera aplicación nueva sin acoplarla al legacy.
 - crear puertos y adaptadores mínimos;
 - no reutilizar tablas o reglas sólo por conveniencia.
 
+### Estado previo
+
+Existe un laboratorio PostgreSQL local y versiones experimentales del modelo físico. Es evidencia de aprendizaje y validación, no una aplicación Next ni un ambiente DEV remoto.
+
 ### Primera vertical candidata
 
 `EvaluarGestionabilidad`, porque:
@@ -240,14 +255,16 @@ Construir la primera aplicación nueva sin acoplarla al legacy.
 - conecta Persona, Campaña y Gestión Operativa;
 - permite pruebas de dominio;
 - no requiere perfil patrimonial sensible;
-- facilita comparar legacy y Next.
+- facilita comparar Legacy y Next.
+
+La vertical exacta debe revisarse después de cerrar el modelo conceptual mínimo; no se implementa sólo por figurar como candidata histórica.
 
 ### Validación
 
 - pruebas unitarias y de aplicación;
 - adaptador falso;
 - adaptador DEV;
-- comparación con casos conocidos del legacy.
+- comparación con casos conocidos del Legacy.
 
 ### Rollback
 
@@ -257,12 +274,12 @@ Eliminar el módulo experimental sin afectar APP LLAMADOS.
 
 ### Objetivo
 
-Transferir capacidades desde el legacy hacia Next de una en una.
+Transferir capacidades desde el Legacy hacia Next de una en una.
 
 ### Ciclo por capacidad
 
 1. seleccionar comportamiento;
-2. caracterizar legacy;
+2. caracterizar Legacy;
 3. modelar dominio;
 4. implementar en Next;
 5. ejecutar en paralelo;
@@ -283,9 +300,11 @@ Transferir capacidades desde el legacy hacia Next de una en una.
 8. perfil patrimonial;
 9. proyección y analítica.
 
+Este orden es tentativo y no gobierna el descubrimiento del dominio.
+
 ### Rollback
 
-Cada capacidad conserva temporalmente el camino legacy hasta superar un período definido de estabilidad.
+Cada capacidad conserva temporalmente el camino Legacy hasta superar un período definido de estabilidad.
 
 ## Etapa 8 · Desacoplar la raíz del producto
 
@@ -327,6 +346,14 @@ Volver al tag productivo anterior y restaurar configuración `main:/root`.
 
 ## Controles transversales
 
+### Gobernanza documental
+
+- reservar LCD y ADR antes de crear artefactos;
+- mantener registros únicos en GitHub;
+- actualizar el catálogo cuando cambia autoridad;
+- bloquear el merge si el validador detecta colisiones;
+- conservar Drive para fuentes y evidencia no aptas para Git.
+
 ### Seguridad
 
 - ningún secreto en Git;
@@ -360,8 +387,13 @@ La migración se detiene inmediatamente si:
 - una prueba de caracterización falla sin explicación;
 - el rollback no está disponible;
 - cambia una regla de negocio no documentada;
-- aparece una inconsistencia entre repositorio, RDP y operación real.
+- aparece una inconsistencia entre repositorio, documentos canónicos y operación real;
+- existe una colisión no resuelta de LCD o ADR.
 
 ## Próxima decisión
 
-Aprobar o corregir el alcance inicial de la Etapa 1. Ningún movimiento físico se realizará por efecto de aprobar esta actualización.
+Continuar el descubrimiento y validación del modelo conceptual de Next antes de crear su esqueleto ejecutable. Ningún movimiento físico se autoriza por esta actualización documental.
+
+## Nota histórica
+
+Este plan fue aprobado originalmente en el Pull Request #11 bajo el identificador conflictivo `LCD-20260713-02`. La reconciliación conserva su contenido y aprobación, pero fija `LCD-20260713-04` como lote de origen canónico.
