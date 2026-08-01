@@ -1,9 +1,12 @@
 # Inventario técnico actual del repositorio
 
 - Fecha: 2026-07-13
-- Estado: Pendiente de revisión
-- LCD: LCD-20260713-02
+- Estado: Aprobado
+- LCD canónico: LCD-20260713-04
+- Alias histórico en GitHub: LCD-20260713-02
 - Issue: #10
+- Aprobación: Pull Request #11
+- Reconciliación: LCD-20260801-01
 
 ## Propósito
 
@@ -180,6 +183,8 @@ Regla: el contenido de `supabase/` puede describir y transformar el esquema, per
 
 Debe evitarse una reorganización masiva hasta identificar qué archivos son canónicos, históricos, evidencias o artefactos generados.
 
+Desde LCD-20260801-01, la autoridad de cada documento se consulta en `docs/governance/document-catalog.md`, y los identificadores se reservan en los registros canónicos de GitHub.
+
 ### 7. Diagnósticos y releases
 
 | Carpeta | Interpretación actual | Estado |
@@ -203,6 +208,8 @@ Es una estrategia segura para preservar comportamiento durante la modularizació
 
 Los workflows actuales no sólo validan: también pueden crear commits automáticos en `main`. Esto fue útil para construir y proteger snapshots, pero debe revisarse al adoptar GitHub Flow y una rama principal protegida.
 
+El workflow `document-governance.yml`, incorporado después de este inventario, es de sólo lectura y no crea commits.
+
 ### H-04 · `main` es código integrado y canal de publicación
 
 Un merge documental puede activar workflows según sus filtros; un cambio productivo puede publicarse inmediatamente. Deben distinguirse integración, release y despliegue.
@@ -215,13 +222,14 @@ Un merge documental puede activar workflows según sus filtros; un cambio produc
 
 | Riesgo | Probabilidad | Impacto | Control inmediato |
 |---|---:|---:|---|
-| Mover archivos raíz y romper GitHub Pages | Alta | Crítico | No mover durante este LCD |
+| Mover archivos raíz y romper GitHub Pages | Alta | Crítico | No mover sin lote específico |
 | Confundir `dev/` generado con fuente canónica | Media | Alto | Documentar origen y build |
 | Workflows que escriben en `main` durante una reorganización | Media | Alto | Auditar triggers antes de mover |
 | Mezclar APP LLAMADOS Next con DEV legacy | Alta | Alto | Usar nombres de producto explícitos |
 | Duplicar fuentes entre raíz, `dev/` y `src/dev/` | Alta | Medio | Definir fuente y artefacto por archivo |
 | Conservar herramientas obsoletas indefinidamente | Media | Medio | Clasificar vigencia y consumidores |
 | Versionar accidentalmente secretos o datos | Baja, con alto impacto | Crítico | Mantener prohibiciones y auditar `.gitignore` |
+| Duplicar autoridad documental entre Drive y GitHub | Reducida por control automático | Alto | ADR-023, catálogo y validador documental |
 
 ## Información pendiente de verificar
 
@@ -238,3 +246,7 @@ Un merge documental puede activar workflows según sus filtros; un cambio produc
 ## Conclusión
 
 La estructura actual contiene mecanismos útiles de aislamiento y validación, pero está organizada alrededor de la publicación directa de APP LLAMADOS desde la raíz. La transición al monorepo debe preservar esa compatibilidad hasta que exista un despliegue alternativo probado.
+
+## Nota histórica
+
+Este documento fue aprobado originalmente en el Pull Request #11 bajo el identificador conflictivo `LCD-20260713-02`. La reconciliación conserva su contenido y aprobación, pero fija `LCD-20260713-04` como identidad canónica.
