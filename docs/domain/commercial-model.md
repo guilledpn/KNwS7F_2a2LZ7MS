@@ -183,7 +183,9 @@ Hecho temporal que indica qué Asesor es responsable de una Relación Comercial 
 
 Reglas:
 
-- una Relación tiene normalmente un solo Asesor responsable vigente;
+- una Relación Comercial normalmente debe tener un Asesor principal vigente;
+- puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita, nunca como situación silenciosa normal;
+- la ausencia temporal de responsable debe generar una alerta o pendiente de asignación y no autoriza a inventar un Asesor;
 - el cambio de Asesor termina una responsabilidad e inicia otra, sin crear otra Relación Comercial;
 - el historial de responsables debe conservarse;
 - una responsabilidad adicional simultánea requiere Autorización Excepcional;
@@ -246,7 +248,9 @@ Reglas:
 | Asesor → Tarea | 1 → 0..N |
 | Actividad → Tarea originada | 1 → 0..N |
 
-Las restricciones temporales, especialmente la unicidad del responsable vigente, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
+La cardinalidad histórica `0..N` permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
+
+Las restricciones temporales, especialmente la unicidad del responsable principal vigente y las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
 ## 6. Invariantes comerciales
 
@@ -257,11 +261,12 @@ Las restricciones temporales, especialmente la unicidad del responsable vigente,
 5. Aparición y Asignación son hechos diferentes.
 6. Resultado Corporativo y gestión propia son conocimientos diferentes.
 7. Una Persona tiene como máximo una Relación Comercial.
-8. Una Relación tiene normalmente un único responsable vigente.
-9. Dos responsables simultáneos requieren autorización trazable.
-10. Una autorización no crea una segunda Relación Comercial.
-11. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
-12. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
+8. Una Relación normalmente tiene un único responsable principal vigente.
+9. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
+10. Dos responsables simultáneos requieren autorización trazable.
+11. Una autorización no crea una segunda Relación Comercial.
+12. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
+13. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
 
 ## 7. Vistas derivadas
 
