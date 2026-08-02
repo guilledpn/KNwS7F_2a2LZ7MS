@@ -53,6 +53,30 @@ Contendrá los procesos y controles que incorporan, comparan y concilian informa
 
 El Modelo Operacional no redefine Persona, Campaña, Aparición, Asignación ni Relación Comercial. Sólo explica cómo los procesos observan o modifican esos hechos conforme a las reglas del Modelo Comercial.
 
+### Criterio de entrada para `next_v03`
+
+La aprobación del Modelo Comercial, el Modelo Operacional y la Matriz de Validación actuales es necesaria, pero no suficiente, para congelar el diseño físico de `next_v03`.
+
+Antes de diseñar el esquema físico debe aprobarse, mediante un LCD posterior, el modelo mínimo de desarrollo comercial que defina:
+
+- Caso Comercial;
+- Oportunidad;
+- Propuesta;
+- Pipeline;
+- límites de vinculación opcional de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+
+No es requisito definir todavía:
+
+- experiencia de usuario detallada;
+- nombres definitivos de todas las etapas;
+- probabilidades comerciales;
+- colores;
+- automatizaciones;
+- dashboards;
+- reglas particulares de cada producto.
+
+La hipótesis estructural de trabajo, pendiente de validación en ese LCD posterior, es que la Relación Comercial persiste, el Caso Comercial agrupa un desarrollo relacionado y la Oportunidad recorre el Pipeline.
+
 ## Invariantes principales
 
 1. Una Persona existe independientemente de campañas e importaciones.
@@ -65,6 +89,7 @@ El Modelo Operacional no redefine Persona, Campaña, Aparición, Asignación ni 
 8. La ausencia sólo se concilia entre cargas comparables del mismo período y campaña.
 9. El cambio de período no genera incidencias por Personas que no reaparecen.
 10. Los procesos registran cambios efectivos y linaje mínimo, no copias permanentes de cada fila idéntica.
+11. `next_v03` no se congela antes de definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline.
 
 ## Administrador
 
@@ -88,6 +113,7 @@ La representación física de esta autorización se resolverá durante el diseñ
 - Se reduce la tentación de almacenar observaciones negativas masivas.
 - Las reglas pueden transformarse en pruebas conceptuales y luego en restricciones SQL.
 - Los diagramas pueden organizarse por áreas sin inventar esquemas o microservicios.
+- El esquema físico no se congela antes de resolver los conceptos comerciales que determinan sus cardinalidades y fuentes de verdad.
 
 ## Costos y pendientes
 
@@ -95,7 +121,8 @@ La representación física de esta autorización se resolverá durante el diseñ
 - La identificación interna exacta de Campaña queda pendiente del diseño lógico.
 - El umbral técnico para bloquear archivos aparentemente incompletos no es una regla del dominio.
 - La estructura física del historial de datos de contacto queda pendiente.
-- La creación de `next_v03` no queda autorizada hasta aprobar los modelos y la matriz.
+- El LCD actual debe consolidarse y cerrarse antes de abrir el LCD del modelo mínimo de desarrollo comercial.
+- La creación de `next_v03` no queda autorizada hasta aprobar los modelos y la matriz actuales y, posteriormente, el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline.
 
 ## Alternativas descartadas
 
@@ -110,6 +137,10 @@ Descartado porque la separación documental no demuestra todavía una necesidad 
 ### Guardar una observación permanente por cada fila y por cada ausencia
 
 Descartado por volumen, ambigüedad semántica y falta de una necesidad de negocio que lo justifique.
+
+### Congelar `next_v03` antes de definir el desarrollo comercial mínimo
+
+Descartado porque obligaría a fijar cardinalidades y vínculos de Tareas y Actividades sin haber definido Caso Comercial, Oportunidad, Propuesta ni el propietario real del Pipeline.
 
 ## Documentos asociados
 
