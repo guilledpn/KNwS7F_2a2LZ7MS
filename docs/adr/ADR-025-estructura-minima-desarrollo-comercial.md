@@ -112,7 +112,7 @@ Una Cotización representa una configuración específica de una Oportunidad. La
 
 Reglas:
 
-- una Oportunidad puede tener una o varias Cotizaciones;
+- una Oportunidad puede existir antes de registrar su primera Cotización y posteriormente tener una o varias;
 - dos Cotizaciones pertenecen a la misma Oportunidad cuando son configuraciones mutuamente excluyentes de una única contratación potencial;
 - capital asegurado, prima, cobertura, régimen, aporte, costo, plazo u otra configuración distinta no crean por sí solos una nueva Oportunidad;
 - dos desarrollos constituyen Oportunidades distintas cuando representan contrataciones individualizables que podrían celebrarse y persistir simultáneamente;
@@ -146,7 +146,7 @@ Si ambas contrataciones pueden celebrarse y persistir simultáneamente, no son C
 Cardinalidad conceptual aprobada:
 
 ```text
-Oportunidad 1 ── 1..N Cotizaciones
+Oportunidad 1 ── 0..N Cotizaciones
 Cotización  1 ── 1 Oportunidad
 ```
 
