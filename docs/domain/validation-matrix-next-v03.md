@@ -58,6 +58,9 @@ No constituye todavía una especificación SQL.
 | MV-30 | Métricas derivadas | Llamada efectiva, agendamiento y seguimiento se derivan de hechos persistentes | Derivar llamada efectiva desde Tipo y Resultado y agendamiento desde Actividad más Tarea futura | Guardar `Agenda reunión`, `Volver a llamar` o `Información enviada` como etiquetas ambiguas que sustituyan hechos | T-V03-030 |
 | MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles de la misma Persona y Asesor | Una llamada real que completa dos Tareas sin duplicar la Actividad | Crear varias Actividades ficticias para una sola acción o completar Tareas incompatibles | T-V03-031 |
 | MV-32 | Reasignación de Tarea | El cambio de responsable es explícito y conserva historia | Reasignar una Tarea pendiente con Asesor anterior, nuevo, fecha y motivo | Reasignar automáticamente por transferencia de Relación o cambiar responsable silenciosamente | T-V03-032 |
+| MV-33 | Corrección y anulación de Actividad | Una Actividad histórica no se elimina ni sobrescribe silenciosamente | Corregir o anular conservando original, cambio, responsable, fecha y motivo | Borrar el registro o reemplazarlo sin trazabilidad | T-V03-033 |
+| MV-34 | Efectos de anulación | Una Actividad anulada queda fuera de métricas y no sostiene consecuencias por sí sola | Mantener trazabilidad y advertir consecuencias para revisión | Contarla, usarla para completar Tareas o eliminar automáticamente hechos posteriores | T-V03-034 |
+| MV-35 | Modificación de Tarea | Las Tareas Pendientes pueden cambiar con historial; las cerradas sólo se rectifican explícitamente | Modificar compromiso futuro conservando cambios sustantivos | Reescribir silenciosamente una Tarea Completada o Cancelada | T-V03-035 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -383,6 +386,34 @@ La Tarea puede:
 
 Una Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento.
 
+### CV-33 · Corrección de Actividad
+
+**Dado** que Guillermo registró una Llamada con resultado `Conversación efectiva`  
+**Y** luego advierte que el resultado correcto era `No contestó`  
+**Cuando** corrige la Actividad  
+**Entonces** se conservan el valor original, el valor corregido, la fecha, el responsable y el motivo.
+
+Para la operación y las métricas gobierna la versión corregida, sin borrar el antecedente original.
+
+### CV-34 · Anulación con consecuencias previas
+
+**Dado** que una Actividad fue registrada en la Persona equivocada  
+**Y** esa Actividad había completado una Tarea o ayudado a originar una Relación Comercial  
+**Cuando** se anula con motivo trazable  
+**Entonces** deja de contar para métricas y de sostener por sí sola esas consecuencias.
+
+La Actividad permanece auditable y las consecuencias quedan advertidas para revisión; no se eliminan automáticamente porque pueden haber sido confirmadas por otros hechos.
+
+### CV-35 · Modificación de Tarea según estado
+
+**Dado** que una Tarea está Pendiente  
+**Cuando** cambia su Tipo, objetivo, responsable o programación temporal  
+**Entonces** el cambio es válido y conserva la historia sustantiva del compromiso.
+
+**Dado** que una Tarea está Completada o Cancelada  
+**Cuando** se intenta reescribirla como si siguiera Pendiente  
+**Entonces** la operación se rechaza y cualquier rectificación debe registrarse explícitamente con responsable, fecha y motivo.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -423,6 +454,10 @@ Una Actividad de ejecución debe ser realizada por el Asesor responsable vigente
 - reprogramación y cancelación no constituyen Actividades;
 - reasignación de Tarea explícita y con historial;
 - transferencia de Relación Comercial sin reasignación automática de Tareas pendientes;
+- Actividad inmutable en forma silenciosa y corregible o anulable sólo con trazabilidad;
+- Actividad anulada excluida de métricas y de justificación de consecuencias;
+- consecuencias de una Actividad corregida o anulada sujetas a revisión, no a borrado automático;
+- cambios sustantivos de Tarea Pendiente con historial y rectificación explícita de Tareas cerradas;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
 - cambio de período sin incidencias masivas;
@@ -439,6 +474,9 @@ Una Actividad de ejecución debe ser realizada por el Asesor responsable vigente
 - experiencia asistida y simple para asociar opcionalmente varias Tareas a una Actividad;
 - representación física del historial de reprogramaciones;
 - representación física del historial de responsables de Tarea;
+- representación física de correcciones y anulaciones de Actividad;
+- revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
+- representación física de cambios significativos y rectificaciones de Tarea;
 - formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
