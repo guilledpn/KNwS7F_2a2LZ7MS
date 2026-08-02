@@ -312,8 +312,8 @@ Reglas:
 - una Actividad puede originar el nacimiento de una Relación Comercial cuando demuestra continuidad comercial propia;
 - una Actividad puede existir sin Tarea previa;
 - una Actividad puede originar cero, una o varias Tareas futuras;
-- una Actividad puede constituir la ejecución de una Tarea;
-- cuando ejecuta una Tarea, debe corresponder a la misma Persona y al mismo Asesor de la Tarea;
+- una Actividad puede constituir la ejecución de cero, una o varias Tareas compatibles;
+- cuando ejecuta una o varias Tareas, todas deben corresponder a la misma Persona y al Asesor responsable vigente de cada Tarea;
 - el Tipo realmente realizado se conserva aunque difiera del Tipo previsto; esa diferencia no modifica retroactivamente la Tarea;
 - una Actividad puede existir sin Caso u Oportunidad;
 - una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
@@ -324,7 +324,7 @@ Reglas:
 
 ### 4.12 Tarea
 
-Previsión de una Actividad futura pendiente de realización, asociada siempre a una Persona y a un Asesor responsable.
+Previsión de una Actividad futura pendiente de realización, asociada siempre a una Persona y a un Asesor responsable vigente.
 
 Toda Tarea debe conservar, al menos:
 
@@ -332,7 +332,7 @@ Toda Tarea debe conservar, al menos:
 - objetivo o descripción de lo que se pretende realizar;
 - estado;
 - Persona;
-- Asesor responsable.
+- Asesor responsable vigente.
 
 Puede conservar además:
 
@@ -354,10 +354,35 @@ Reglas:
 - los estados mínimos propios de la Tarea son Pendiente, Completada y Cancelada;
 - ejecutar una Tarea genera una Actividad vinculada y completa la Tarea, aunque el resultado no alcance el objetivo comercial;
 - una Tarea completada por ejecución tiene una única Actividad de ejecución;
+- una misma Actividad puede ejecutar y completar varias Tareas compatibles de la misma Persona y Asesor;
+- no deben duplicarse Actividades para representar artificialmente una única acción ocurrida;
 - si después de ejecutar se requiere otro intento o acción, se crea una nueva Tarea;
 - cancelar una Tarea no genera una Actividad, pero debe conservar fecha, responsable y motivo de cancelación;
 - reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
-- la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales.
+- la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales;
+- la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento.
+
+La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles debe presentarse como ayuda opcional y asistida sólo cuando aporte valor, no como una carga obligatoria en cada registro.
+
+#### 4.12.1 Reasignación de Tarea
+
+Cambio explícito del Asesor responsable de una Tarea pendiente.
+
+Debe conservar, al menos:
+
+- Asesor responsable anterior;
+- Asesor responsable nuevo;
+- fecha del cambio;
+- motivo.
+
+Reglas:
+
+- una Tarea pendiente puede reasignarse antes de su ejecución;
+- la reasignación no modifica retroactivamente quién fue responsable antes del cambio;
+- la transferencia de la Relación Comercial no reasigna automáticamente las Tareas pendientes;
+- las Tareas cuyo responsable ya no coincide con el responsable principal vigente de la Relación deben quedar visibles para resolución;
+- cada Tarea pendiente puede reasignarse, cancelarse o permanecer excepcionalmente con el Asesor anterior mediante una decisión explícita;
+- una Tarea nunca cambia de responsable silenciosamente.
 
 ## 5. Cardinalidades conceptuales
 
@@ -382,7 +407,8 @@ Reglas:
 | Actividad → Tareas originadas | 1 → 0..N |
 | Tarea → Actividad de origen | 1 → 0..1 |
 | Tarea → Actividad de ejecución | 1 → 0..1 |
-| Actividad → Tarea ejecutada | 1 → 0..1 |
+| Actividad → Tareas ejecutadas | 1 → 0..N |
+| Tarea → Asesores responsables históricos | 1 → 1..N |
 
 La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
@@ -390,7 +416,9 @@ La cardinalidad histórica `0..N` de Asignación permite conservar cambios y té
 
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
 
-La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. Una misma Actividad puede originar varias Tareas futuras, pero una Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
+La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. Una misma Actividad puede originar varias Tareas futuras y también ejecutar varias Tareas compatibles, pero cada Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
+
+El historial de responsables de una Tarea permite preservar los cambios explícitos de Asesor sin alterar retroactivamente los hechos previos. Su representación física se definirá en el diseño lógico.
 
 Las restricciones temporales y de consistencia se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
@@ -422,13 +450,18 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 24. El contexto de la Tarea es opcional; no existe una Nota de programación independiente.
 25. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
 26. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
-27. Una Tarea completada por ejecución tiene una única Actividad de ejecución.
-28. Una nueva tentativa posterior requiere una nueva Tarea.
-29. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
-30. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
-31. Reprogramar o cancelar una Tarea no constituye una Actividad.
-32. La creación de Tareas, Relaciones Comerciales u Oportunidades derivadas de una Actividad se registra como hechos independientes.
-33. Las métricas de llamada efectiva, agendamiento y seguimiento se derivan de Actividades, Resultados y Tareas, no de etiquetas que mezclen varios conocimientos.
+27. Cada Tarea completada por ejecución tiene una única Actividad de ejecución.
+28. Una Actividad puede ejecutar varias Tareas compatibles de la misma Persona y Asesor.
+29. No se duplican Actividades para representar una única acción real que resolvió varias Tareas.
+30. Una nueva tentativa posterior requiere una nueva Tarea.
+31. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
+32. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
+33. Reprogramar o cancelar una Tarea no constituye una Actividad.
+34. La creación de Tareas, Relaciones Comerciales u Oportunidades derivadas de una Actividad se registra como hechos independientes.
+35. Las métricas de llamada efectiva, agendamiento y seguimiento se derivan de Actividades, Resultados y Tareas, no de etiquetas que mezclen varios conocimientos.
+36. La reasignación de una Tarea pendiente es explícita y conserva Asesor anterior, Asesor nuevo, fecha y motivo.
+37. Transferir una Relación Comercial no reasigna automáticamente sus Tareas pendientes.
+38. La Actividad de ejecución pertenece al Asesor responsable vigente de la Tarea en el momento de ejecutarla.
 
 ## 7. Vistas y clasificaciones derivadas
 
@@ -463,7 +496,10 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - decidir la representación física de la Autorización Excepcional;
 - definir el catálogo inicial controlado de Tipos y Resultados de Actividad;
 - decidir la regla operativa exacta cuando el Tipo realizado difiere del Tipo previsto;
+- definir los criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
+- diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas a una Actividad;
 - definir la representación física del historial de reprogramaciones;
+- definir la representación física del historial de responsables de Tarea;
 - definir formato y límites de objetivo, contexto y nota de ejecución;
 - validar el historial individual de teléfonos y correos;
 - diseñar `next_v03` y probar estas invariantes con datos ficticios.
