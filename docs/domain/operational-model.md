@@ -57,6 +57,8 @@ Durante un mismo mes pueden existir varias cargas TOTAL sucesivas. Suelen incorp
 
 Archivo que informa qué Apariciones fueron asignadas a un Asesor y en qué orden operativo.
 
+Durante un mismo período pueden existir cargas ASIGNADOS sucesivas y comparables. Una carga posterior puede incorporar asignaciones nuevas, reiterar las vigentes o informar cambios que requieren conciliación.
+
 La carga ASIGNADOS no debe crear una segunda Persona ni duplicar una Aparición ya identificada. Su orden es independiente del orden TOTAL.
 
 Cuando no existe una coincidencia única con una Aparición, el proceso no debe adivinar: debe generar una incidencia de conciliación.
@@ -191,7 +193,7 @@ No basta comparar por RUT y mes.
 
 ## 11. Ausencia excepcional dentro del mismo período
 
-Cuando una Persona estaba presente en una carga anterior y no aparece en una carga posterior comparable del mismo período y Campaña:
+Cuando una Persona estaba presente en una carga TOTAL anterior y no aparece en una carga posterior comparable del mismo período y Campaña:
 
 - no se elimina automáticamente la Persona;
 - no se elimina automáticamente la Aparición;
@@ -215,14 +217,14 @@ Las resoluciones iniciales son:
 
 | Resolución | Consecuencia |
 |---|---|
-| Omisión de la fuente | Se conserva la Aparición |
+| Omisión de la fuente | Se conserva el hecho anterior |
 | Retiro confirmado | Se registra el término o retiro conservando historia |
-| Traslado confirmado | Se conserva la Aparición anterior y se registra la nueva correspondiente |
+| Traslado confirmado | Se conserva el antecedente anterior y se registra el nuevo correspondiente |
 | Archivo incompleto | Se rechaza o revierte la aplicación del archivo |
-| Sin explicación disponible | Se conserva la Aparición y la incidencia permanece abierta |
+| Sin explicación disponible | Se conserva el hecho y la incidencia permanece abierta |
 | Reaparición posterior | Se cierra automáticamente la incidencia conservando la trazabilidad |
 
-No se permite eliminar silenciosamente la Aparición ni resolver mediante texto libre sin una categoría registrada.
+No se permite eliminar silenciosamente la Aparición o la Asignación ni resolver mediante texto libre sin una categoría registrada.
 
 ## 13. Falta de una Campaña o segmento completo
 
@@ -255,7 +257,9 @@ Cuando se activa una Campaña del período siguiente:
 - es normal que miles de Personas del período anterior no reaparezcan;
 - no se generan incidencias por esas ausencias;
 - las Personas y sus Apariciones anteriores conservan historia;
-- la ausencia en el nuevo período significa falta de observación, no Gestionado, No Gestionado, retiro ni eliminación.
+- la ausencia en el nuevo período significa falta de observación, no Gestionado, No Gestionado, retiro ni eliminación;
+- las Asignaciones del período anterior dejan de estar operativamente vigentes sin generar incidencias individuales por quienes no reaparecen;
+- el término de una Asignación no termina una Relación Comercial ni una Responsabilidad del Asesor existente.
 
 La Campaña anterior permanece activa hasta que se cargan los primeros contactos válidos del período siguiente, conforme al modelo de negocio vigente.
 
@@ -282,6 +286,23 @@ La fila de ASIGNADOS puede constituir evidencia corporativa suficiente para mant
 
 Si la Persona aparece en más de una Campaña compatible y la fila no permite decidir cuál corresponde, la carga no debe adivinar. Se registra una incidencia y la Asignación queda pendiente de aplicación.
 
+### 15.4 Ausencia en una carga ASIGNADOS posterior comparable
+
+Cuando una Persona estaba presente en una carga ASIGNADOS anterior y no aparece en una carga posterior del mismo período, Campaña y alcance comparable:
+
+- no se elimina la Asignación histórica;
+- no se registra automáticamente su término;
+- se genera una Incidencia de Conciliación;
+- si se confirma el retiro, se registra la fecha de término conservando historia;
+- si la carga perdió muchas filas o una sección completa, se trata primero como posible incompletitud de alcance;
+- si la Persona reaparece en una carga posterior, se cierra la incidencia sin crear una Asignación duplicada.
+
+La ausencia aislada es una observación operacional que requiere resolución; no demuestra por sí sola que la compañía haya terminado la Asignación.
+
+### 15.5 Unicidad vigente
+
+Una Aparición tiene normalmente como máximo una Asignación vigente. Si una carga informa simultáneamente dos Asesores para la misma Aparición, el proceso no debe aceptar ambas silenciosamente: debe bloquear o conciliar la inconsistencia antes de modificar el hecho vigente.
+
 ## 16. Datos de contacto
 
 La última observación válida informa los datos visibles vigentes.
@@ -298,8 +319,9 @@ Reglas iniciales:
 Una discrepancia corporativa nunca debe:
 
 - inventar una Actividad interna;
-- cambiar por sí sola una Relación Comercial;
+- crear o terminar por sí sola una Relación Comercial;
 - borrar una Oportunidad propia;
+- cambiar por sí sola la condición Lead o Cliente del Asesor;
 - atribuir al Asesor una gestión realizada fuera del CRM;
 - alterar estadísticas operativas como si hubiera existido trabajo interno.
 
@@ -338,7 +360,10 @@ flowchart TD
 7. La falta de una Campaña completa se trata antes como problema de alcance.
 8. Una carga ASIGNADOS no duplica Personas ni Apariciones.
 9. Una coincidencia ambigua nunca se resuelve por suposición.
-10. La información corporativa no crea automáticamente gestión interna.
+10. Una Aparición tiene normalmente como máximo una Asignación vigente.
+11. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación.
+12. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
+13. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
 
 ## 20. Pendientes para `next_v03`
 
