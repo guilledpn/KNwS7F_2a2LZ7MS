@@ -1,7 +1,7 @@
 # ADR-024 · Límites entre Modelo Comercial y Modelo Operacional de CRM Patrimonial Next
 
 - Fecha: 2026-08-01
-- Estado: Pendiente de revisión
+- Estado: Aprobado
 - LCD: LCD-20260801-02
 - Issue: #31
 

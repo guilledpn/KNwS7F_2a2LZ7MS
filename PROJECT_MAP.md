@@ -1,9 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260801-01  
-Lote en revisión: LCD-20260801-02  
-Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
+Último LCD aprobado: LCD-20260801-02  
+Lotes pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
 
 ## Propósito
 
@@ -43,14 +42,14 @@ Cada producto puede tener sus propios ambientes y versiones.
 - GitHub Flow con ramas breves y Pull Requests.
 - Conventional Commits y Semantic Versioning.
 
-## Decisión de dominio en revisión
+## Decisión de dominio aprobada
 
-ADR-024 propone separar:
+ADR-024 establece la separación entre:
 
 - Modelo Comercial: hechos, conceptos e invariantes del negocio;
 - Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
 
-La decisión y sus documentos permanecen pendientes de revisión bajo LCD-20260801-02.
+La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.
 
 ## Contextos de dominio candidatos
 
@@ -132,9 +131,9 @@ Aprobados mediante Pull Requests #17 y #18.
 
 El repositorio contiene cambios de julio de 2026 para muestras de análisis y separación entre edición de ficha y eventos de gestión. Esos cambios forman parte de la evolución del Legacy y deben incorporarse al futuro registro histórico detallado sin alterar el Modelo de Next.
 
-## Modelo de Next en revisión
+## Modelo de Next aprobado
 
-LCD-20260801-02 incorpora como borradores únicos y versionados:
+LCD-20260801-02 incorporó como documentos canónicos, únicos y versionados:
 
 - `docs/domain/commercial-model.md`;
 - `docs/domain/operational-model.md`;
@@ -158,13 +157,11 @@ Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, R
 - registros únicos de LCD y ADR;
 - catálogo de autoridad documental;
 - laboratorio local PostgreSQL y experimentación conceptual de Next iniciados;
-- Matriz de Validación conceptual acordada en conversación y trasladada a documento pendiente de revisión.
+- Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados.
 
 ### En curso
 
-- revisión del Modelo Comercial mínimo;
-- revisión del Modelo Operacional mínimo;
-- revisión de ADR-024 y de la Matriz de Validación Next v03;
+- preparación del LCD para definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline;
 - revisión del material educativo del PR #21;
 - cierre documental y visual de LCD-20260715-01;
 - migración progresiva de documentos superiores de Drive a Markdown.
@@ -193,6 +190,6 @@ Issue → reserva de LCD/ADR → rama → documentación → diseño → impleme
 - `LCD-20260715-01`: gestionabilidad y backfill PROD; PR #19 y #20.
 - `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
 - `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
-- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31, pendiente de revisión.
+- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.
 
 El detalle autoritativo vive en `docs/governance/lcd-registry.md`.

@@ -1,7 +1,7 @@
 # Matriz de Validación del Modelo · CRM Patrimonial Next v03
 
 - Versión: 0.1
-- Estado: Pendiente de revisión
+- Estado: Aprobado
 - Fecha: 2026-08-01
 - LCD: LCD-20260801-02
 - ADR: ADR-024
