@@ -44,7 +44,7 @@ No constituye todavía una especificación SQL.
 | MV-16 | Ausencia intra-período | Sólo se analiza entre cargas comparables del mismo período y Campaña activa | Incidencia por ausencia individual excepcional | Eliminar automáticamente Persona o Aparición | T-V03-016 |
 | MV-17 | Cambio de período | Cada período crea sus propias Apariciones y termina la vigencia operativa de Asignaciones anteriores | Miles de ausencias normales entre meses | Generar incidencias por no reaparecer | T-V03-017 |
 | MV-18 | Alcance del archivo | Se valida antes de comparar Personas | Detectar una Campaña, segmento o bloque anómalo faltante | Generar miles de incidencias individuales | T-V03-018 |
-| MV-19 | Incidencia de Conciliación | Tiene tipo, estado y resoluciones limitadas | Mantenerla abierta hasta conocer el motivo | Resolver sin categoría ni trazabilidad | T-V03-019 |
+| MV-19 | Incidencia de Conciliación | Es un único concepto con alcance individual o de conjunto y conserva tipo, evidencia, estado, resolución y trazabilidad | Vincularla a filas, Personas, hechos o conjuntos según el problema | Resolver sin categoría, evidencia ni trazabilidad | T-V03-019 |
 | MV-20 | Reaparición | Puede cerrar una incidencia previa sin duplicar hechos | Cierre automático conservando historia | Crear otra Persona, Aparición o Asignación | T-V03-020 |
 | MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
 | MV-22 | Cliente del Asesor | Se deriva de una Relación con al menos un Producto Contratado vigente asociado al Asesor | Convertir la condición de Lead a Cliente sin cambiar la identidad de la Relación | Crear una segunda Relación al cerrar o emitir un negocio | T-V03-022 |
@@ -69,6 +69,7 @@ No constituye todavía una especificación SQL.
 | MV-41 | Equivalencia de fuentes | TOTAL y ASIGNADOS observan los mismos hechos comerciales básicos; ASIGNADOS agrega la Asignación | Procesar ASIGNADOS antes o después de TOTAL sin Apariciones incompletas | Tratar ASIGNADOS como una fuente dependiente o semánticamente distinta | T-V03-041 |
 | MV-42 | Orden propio de ASIGNADOS | La posición de ASIGNADOS pertenece a la lista reducida del Asesor | Conservar un orden propio del Asesor | Copiar el orden TOTAL o usarlo como sustituto | T-V03-042 |
 | MV-43 | Asignación ausente en Campaña activa | Una ausencia posterior comparable es una discrepancia y no un término cierto | Mantener visible la Asignación como pendiente de conciliación y excluirla temporalmente de la cola normal | Terminarla automáticamente o mantenerla como gestionable confirmada | T-V03-043 |
+| MV-44 | Agrupación de incidencias | Una anomalía común de archivo, Campaña, segmento o conjunto se representa primero mediante una incidencia de alcance | Una incidencia de alcance que agrupa miles de filas potencialmente afectadas | Crear incidencias individuales masivas por la misma causa mientras el problema de alcance siga abierto | T-V03-044 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -493,6 +494,14 @@ Ninguna posición sustituye ni deriva de la otra.
 **Dado** que la carga omite una cantidad masiva, una Campaña o una sección reconocible  
 **Entonces** se genera primero una incidencia de alcance y se evalúa bloquear o rechazar el archivo, sin crear miles de incidencias individuales.
 
+### CV-44 · Una incidencia de alcance agrupa la anomalía común
+
+**Dado** que una carga posterior omite 8.000 Personas pertenecientes a una misma Campaña o sección reconocible  
+**Cuando** la anomalía puede explicarse por un único problema de archivo o alcance  
+**Entonces** se crea una sola Incidencia de Conciliación de alcance y no 8.000 incidencias individuales.
+
+Mientras la incidencia de alcance permanezca abierta, no se generan incidencias individuales por la misma causa. Si después se confirma que el archivo era correcto y sólo algunas filas requieren revisión, se crean únicamente las incidencias individuales correspondientes.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -509,6 +518,9 @@ Ninguna posición sustituye ni deriva de la otra.
 - una Aparición tiene normalmente como máximo una Asignación vigente;
 - la ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación y no produce término automático;
 - la Asignación pendiente permanece visible, pero fuera de la cola normal de gestionables hasta confirmar continuidad;
+- existe un único concepto Incidencia de Conciliación con alcance individual o de conjunto;
+- toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas;
+- una incidencia de alcance agrupa anomalías comunes de archivo, Campaña, segmento o conjunto y evita incidencias individuales masivas por la misma causa mientras permanezca abierta;
 - las ausencias masivas o estructuradas se tratan primero como posible problema de alcance;
 - el cambio de período termina la vigencia operativa de Asignaciones anteriores sin incidencias individuales;
 - Relación Comercial única;
@@ -573,6 +585,7 @@ Ninguna posición sustituye ni deriva de la otra.
 - representación física de correcciones y anulaciones de Actividad;
 - revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
 - representación física de cambios significativos y rectificaciones de Tarea;
+- representación física de Incidencia de Conciliación y sus alcances;
 - representación física y UX de Asignaciones pendientes de conciliación;
 - formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
