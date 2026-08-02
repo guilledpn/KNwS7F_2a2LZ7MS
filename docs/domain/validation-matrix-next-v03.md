@@ -36,8 +36,8 @@ No constituye todavía una especificación SQL.
 | MV-08 | Relación Comercial | Es única, persistente y nace cuando existe continuidad comercial propia | Relación sin Oportunidad, nacida por agenda o seguimiento acordado | Crear otra Relación al cambiar de Asesor o esperar al cierre para crearla | T-V03-008 |
 | MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
-| MV-11 | Actividad | Es un hecho de una Persona realizado por un Asesor y puede existir antes de la Relación | Intentos, conversaciones sin continuidad y Actividades que originan una Relación | Actividad sin Persona o Asesor | T-V03-011 |
-| MV-12 | Tarea | Puede ser manual o nacer de una Actividad | Tarea sin Actividad previa | Vincular Actividad de otra Persona o Asesor | T-V03-012 |
+| MV-11 | Actividad | Es un hecho efectivamente ocurrido de una Persona realizado por un Asesor | Intentos, conversaciones sin continuidad, notas opcionales y Actividades que originan una Relación o ejecutan una Tarea | Actividad sin Persona, Asesor, Tipo, fecha efectiva o resultado estructurado | T-V03-011 |
+| MV-12 | Tarea | Es la previsión de una única Actividad futura, con Tipo y objetivo | Tarea manual sin Actividad previa y excepcionalmente sin fecha | Tarea sin Persona, Asesor, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
 | MV-13 | Importación | Cada archivo genera una ejecución idempotente | Reintentar el mismo archivo sin duplicar | Aplicar dos veces los mismos efectos | T-V03-013 |
 | MV-14 | Linaje | Los hechos indican creación, última observación y último cambio | Identificar qué carga creó o modificó | Guardar copias innecesarias de filas idénticas | T-V03-014 |
 | MV-15 | Datos de contacto | La observación válida más reciente gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
@@ -48,6 +48,11 @@ No constituye todavía una especificación SQL.
 | MV-20 | Reaparición | Puede cerrar una incidencia previa sin duplicar hechos | Cierre automático conservando historia | Crear otra Persona, Aparición o Asignación | T-V03-020 |
 | MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
 | MV-22 | Cliente del Asesor | Se deriva de una Relación con al menos un Producto Contratado vigente asociado al Asesor | Convertir la condición de Lead a Cliente sin cambiar la identidad de la Relación | Crear una segunda Relación al cerrar o emitir un negocio | T-V03-022 |
+| MV-23 | Tipo de Actividad | Es el catálogo común para acciones previstas y realizadas | Usar el mismo Tipo en Tarea y Actividad y conservar diferencias entre previsto y realizado | Crear una Categoría de Tarea paralela que duplique el Tipo | T-V03-023 |
+| MV-24 | Ejecución de Tarea | Ejecutar genera una Actividad vinculada y completa la Tarea aunque no logre el objetivo comercial | Completar mediante una única Actividad de ejecución y crear otra Tarea para un nuevo intento | Marcar ejecutada sin Actividad o vincular una Actividad de otra Persona o Asesor | T-V03-024 |
+| MV-25 | Programación temporal | Fecha prevista y fecha límite son opcionales, pero su ausencia o vencimiento son visibles | Tarea válida sin fecha, clasificada como Sin programar; Tarea vencida clasificada como Atrasada | Convertir Sin programar o Atrasada en estados que sustituyan Pendiente | T-V03-025 |
+| MV-26 | Texto y resultado | Objetivo, contexto y nota cumplen funciones diferentes | Objetivo obligatorio, contexto y nota de ejecución opcionales, resultado estructurado | Crear Nota de programación redundante o reemplazar el resultado por texto libre | T-V03-026 |
+| MV-27 | Reprogramación y cancelación | No constituyen Actividades | Reprogramar con trazabilidad y cancelar con motivo | Inflar estadísticas creando Actividades por cambios administrativos | T-V03-027 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -203,16 +208,16 @@ Resultado esperado:
 **Cuando** se intenta agregar otro sin autorización  
 **Entonces** la operación se rechaza.
 
-### CV-13 · Tarea manual
+### CV-13 · Tarea manual sin fecha
 
-**Dado** que existe una Persona y un Asesor  
-**Cuando** se crea una Tarea sin Actividad de origen  
-**Entonces** la Tarea es válida.
+**Dado** que existen una Persona, un Asesor y un Tipo de Actividad  
+**Cuando** se crea manualmente una Tarea con objetivo, pero sin Actividad de origen ni programación temporal  
+**Entonces** la Tarea es válida, permanece Pendiente y queda visiblemente clasificada como Sin programar.
 
 ### CV-14 · Tarea inconsistente
 
 **Dado** que una Actividad pertenece a Ana y Guillermo  
-**Cuando** se intenta usar como origen de una Tarea de Pedro o Carolina  
+**Cuando** se intenta usar como origen o ejecución de una Tarea de Pedro o Carolina  
 **Entonces** la operación se rechaza.
 
 ### CV-15 · Reintento del mismo archivo
@@ -281,6 +286,47 @@ Resultado esperado:
 - una resolución confirmada puede registrar el término;
 - una reaparición posterior cierra la incidencia sin duplicar la Asignación.
 
+### CV-23 · Ejecución sin lograr el objetivo
+
+**Dado** que existe una Tarea Pendiente de Tipo Llamada cuyo objetivo es solicitar documentos  
+**Cuando** Guillermo realiza la llamada y Ana no contesta  
+**Entonces** se crea una Actividad de ejecución con resultado `No contestó` y la Tarea queda Completada.
+
+Si se requiere volver a intentar, se crea una nueva Tarea; no se mantiene abierta la anterior ni se le agregan múltiples ejecuciones.
+
+### CV-24 · Completar sin Actividad
+
+**Dado** que existe una Tarea Pendiente  
+**Cuando** se intenta marcarla como ejecutada o Completada sin registrar una Actividad vinculada  
+**Entonces** la operación se rechaza.
+
+La cancelación constituye un flujo diferente y no requiere Actividad.
+
+### CV-25 · Cancelación y reprogramación
+
+**Dado** que existe una Tarea Pendiente  
+**Cuando** se reprograma  
+**Entonces** conserva trazabilidad del cambio y no se crea una Actividad.
+
+**Cuando** se cancela  
+**Entonces** conserva fecha, responsable y motivo de cancelación, sin crear una Actividad ni afectar estadísticas de gestión.
+
+### CV-26 · Objetivo, contexto y nota
+
+**Dado** que se programa una Tarea  
+**Entonces** debe registrar un objetivo y puede registrar contexto opcional, sin una Nota de programación separada.
+
+**Cuando** se ejecuta  
+**Entonces** la Actividad registra un resultado estructurado y puede añadir una nota de ejecución opcional; la nota no sustituye el resultado.
+
+### CV-27 · Tipo previsto y Tipo realizado
+
+**Dado** que una Tarea conserva un Tipo de Actividad previsto  
+**Cuando** su Actividad de ejecución registra el Tipo realmente realizado  
+**Entonces** ambos valores se conservan y la ejecución no sobrescribe retroactivamente el Tipo previsto.
+
+La regla operativa exacta para autorizar o advertir diferencias entre ambos queda pendiente del diseño lógico.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -303,17 +349,30 @@ Resultado esperado:
 - responsabilidad de Asesor con historial;
 - responsable principal normalmente vigente y ausencia temporal sólo como excepción explícita y alertada;
 - responsabilidad simultánea sólo con autorización;
+- Tarea como previsión de una única Actividad futura;
+- catálogo común de Tipos de Actividad para Tarea y Actividad;
+- Tarea con Tipo y objetivo obligatorios y contexto opcional;
+- ausencia de una Nota de programación separada;
+- programación temporal opcional, pero visible cuando falta o vence;
+- ejecución de Tarea mediante una única Actividad vinculada;
+- ejecución completa la Tarea aunque no alcance el objetivo comercial;
+- cada nuevo intento requiere una nueva Tarea;
+- resultado estructurado y nota libre de Actividad separados;
+- reprogramación y cancelación no constituyen Actividades;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
 - cambio de período sin incidencias masivas;
-- linaje mínimo e historial sólo ante cambios efectivos;
-- Tarea y Actividad coherentes por Persona y Asesor.
+- linaje mínimo e historial sólo ante cambios efectivos.
 
 ### Pendientes de diseño lógico o técnico
 
 - clave lógica exacta de Campaña;
 - forma física de la Autorización Excepcional;
 - reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
+- catálogo inicial de Tipos y Resultados de Actividad;
+- regla exacta cuando el Tipo realizado difiere del Tipo previsto;
+- representación física del historial de reprogramaciones;
+- formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
 - nombres de tablas y columnas;
