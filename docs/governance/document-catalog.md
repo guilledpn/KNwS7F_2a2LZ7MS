@@ -1,8 +1,8 @@
 # Catálogo de autoridad documental
 
 - Estado: Vigente
-- Fecha: 2026-08-01
-- LCD: LCD-20260801-01
+- Fecha: 2026-08-02
+- LCD: LCD-20260801-02
 
 Este catálogo indica dónde vive la única versión editable canónica de cada documento rector durante la migración progresiva a Docs-as-Code.
 
@@ -13,9 +13,9 @@ Este catálogo indica dónde vive la única versión editable canónica de cada 
 | Índice del Modelo del Dominio | 3 | Google Drive | Enmendado por LCD-20260801-01; pendiente de migración |
 | Diccionario del Dominio | 3 | Google Drive | Pendiente de migración |
 | APP LLAMADOS · Modelo de negocio | 3 | Google Drive | Pendiente de migración |
-| Modelo Comercial del CRM Patrimonial | 3 | GitHub `docs/domain/commercial-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |
-| Modelo Operacional del CRM Patrimonial | 3 | GitHub `docs/domain/operational-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |
-| Matriz de Validación Next v03 | 3 · Validación del modelo | GitHub `docs/domain/validation-matrix-next-v03.md` | Creada bajo LCD-20260801-02; pendiente de revisión |
+| Modelo Comercial del CRM Patrimonial | 3 | GitHub `docs/domain/commercial-model.md` | Aprobado mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |
+| Modelo Operacional del CRM Patrimonial | 3 | GitHub `docs/domain/operational-model.md` | Aprobado mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |
+| Matriz de Validación Next v03 | 3 · Validación del modelo | GitHub `docs/domain/validation-matrix-next-v03.md` | Aprobada mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |
 | Modelo de Productos y matriz Consorcio | 3 | Google Drive | LCD-20260712-01 pendiente de revisión |
 | Backlog y Roadmap | 4 | Google Drive | Pendiente de migración |
 | Bitácora ADR-001 a ADR-020 | 5 | Google Drive | Pendiente de migración íntegra |
