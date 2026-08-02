@@ -26,6 +26,7 @@ Incluye:
 - comparación entre cargas sucesivas del mismo período;
 - cambios de Resultado Corporativo;
 - Incidencias de Conciliación individuales y de alcance;
+- estados y aplicación controlada de Ejecuciones de Importación;
 - activación de una campaña posterior;
 - rechazo o bloqueo de archivos aparentemente incompletos.
 
@@ -95,7 +96,7 @@ Debe conservar, al menos:
 
 El archivo original permanece como fuente o evidencia en Google Drive cuando contiene datos personales o material no apto para GitHub.
 
-## 5. Estados mínimos de una ejecución
+## 5. Estados de una Ejecución de Importación
 
 Una Ejecución de Importación puede encontrarse en alguno de estos estados conceptuales:
 
@@ -106,7 +107,77 @@ Una Ejecución de Importación puede encontrarse en alguno de estos estados conc
 - Aplicada con incidencias;
 - Fallida.
 
-Los nombres físicos definitivos podrán variar, pero la diferencia entre rechazo previo, aplicación parcial controlada y fallo técnico debe preservarse.
+`Recibida` y `En validación` son estados transitorios. Los demás expresan el resultado final conocido de la ejecución.
+
+### 5.1 Recibida
+
+El archivo fue incorporado al proceso, pero todavía no se ha validado ni aplicado.
+
+No modifica hechos canónicos.
+
+### 5.2 En validación
+
+El sistema está evaluando estructura, contenido, alcance, comparabilidad e idempotencia.
+
+No modifica hechos canónicos de forma definitiva.
+
+### 5.3 Aplicada
+
+La carga superó las validaciones críticas y todos sus efectos válidos fueron incorporados o confirmados sin dejar incidencias abiertas.
+
+Una fila que reitera un hecho ya conocido puede no producir un cambio, pero igualmente constituye una observación válida dentro de una ejecución Aplicada.
+
+### 5.4 Aplicada con incidencias
+
+La carga es confiable en su estructura y alcance general, pero contiene anomalías individuales aisladas, identificables y separables.
+
+En este estado:
+
+- se aplican los hechos inequívocos;
+- los hechos dudosos no se inventan ni se aplican;
+- las anomalías quedan registradas mediante Incidencias de Conciliación;
+- cada efecto queda explícitamente aplicado o pendiente, nunca ambiguamente aplicado a medias.
+
+Este estado representa una aplicación parcial controlada. No puede utilizarse cuando la anomalía pone en duda la integridad del resto de la carga.
+
+### 5.5 Rechazada
+
+La carga no supera una validación crítica de estructura, contenido o alcance y, por ello, no puede considerarse confiable antes de aplicarla.
+
+Ejemplos:
+
+- faltan columnas esenciales;
+- el período o el tipo de carga no puede determinarse;
+- el archivo parece truncado;
+- falta una Campaña o sección completa;
+- existe una reducción masiva sospechosa;
+- hay contradicciones que comprometen el alcance general.
+
+Una Ejecución Rechazada no modifica hechos canónicos. Conserva el archivo, el motivo y la evidencia del rechazo.
+
+### 5.6 Fallida
+
+La carga era potencialmente procesable, pero un error técnico inesperado impidió completar la ejecución.
+
+Ejemplos:
+
+- interrupción de conexión;
+- error interno;
+- caída de infraestructura;
+- interrupción del proceso.
+
+Una Ejecución Fallida no debe dejar efectos canónicos parciales silenciosos. La aplicación final debe ser atómica o quedar sometida a una recuperación explícita antes de poder considerarse Aplicada o Aplicada con incidencias.
+
+### 5.7 Regla de decisión
+
+| Situación | Estado final esperado | Efectos canónicos |
+|---|---|---|
+| Carga válida sin incidencias abiertas | Aplicada | Se incorporan o confirman todos los efectos válidos |
+| Anomalías individuales aisladas y separables | Aplicada con incidencias | Se aplican sólo los efectos inequívocos; lo dudoso queda pendiente |
+| Falla crítica de estructura, contenido o alcance | Rechazada | No se aplica ningún efecto |
+| Error técnico durante el procesamiento | Fallida | No quedan efectos parciales silenciosos |
+
+Una Incidencia de Conciliación de alcance abierta bloquea normalmente la aplicación de la carga. Las incidencias individuales aisladas pueden permitir una aplicación parcial controlada cuando no ponen en duda el resto del archivo.
 
 ## 6. Validación previa
 
@@ -397,48 +468,60 @@ flowchart TD
     ARCHIVO[Archivo recibido]
     RUN[Ejecución de Importación]
     VALIDAR[Validar estructura y alcance]
-    RECHAZAR[Rechazar sin modificar hechos]
+    RECHAZAR[Rechazada sin modificar hechos]
     COMPARAR[Comparar con conocimiento vigente]
-    APLICAR[Aplicar incorporaciones y cambios]
+    APLICAR[Aplicar hechos inequívocos]
     INCIDENCIA[Crear incidencias controladas]
-    HECHOS[Actualizar hechos comerciales]
+    OK[Aplicada]
+    PARCIAL[Aplicada con incidencias]
+    FALLA[Fallida sin efectos parciales silenciosos]
 
     ARCHIVO --> RUN
     RUN --> VALIDAR
     VALIDAR -->|Falla crítica| RECHAZAR
     VALIDAR -->|Válido| COMPARAR
-    COMPARAR --> APLICAR
-    COMPARAR --> INCIDENCIA
-    APLICAR --> HECHOS
+    COMPARAR -->|Sin incidencias| APLICAR
+    COMPARAR -->|Anomalías individuales separables| INCIDENCIA
+    INCIDENCIA --> APLICAR
+    APLICAR -->|Todo válido| OK
+    APLICAR -->|Hechos dudosos pendientes| PARCIAL
+    RUN -. Error técnico .-> FALLA
 ```
 
 ## 19. Invariantes operacionales
 
 1. Un archivo rechazado no modifica hechos canónicos.
-2. El mismo archivo no aplica dos veces el mismo efecto.
-3. Una carga TOTAL sucesiva no duplica Apariciones existentes.
-4. Sólo los cambios efectivos generan historial de cambio.
-5. Las ausencias sólo se concilian dentro del mismo período, Campaña activa y alcance comparable.
-6. El cambio de período no genera incidencias masivas.
-7. La falta de una Campaña completa o una ausencia masiva estructurada se trata antes como problema de alcance.
-8. Existe un único concepto Incidencia de Conciliación con alcance individual o de conjunto.
-9. Una incidencia de alcance evita generar incidencias individuales masivas por la misma causa mientras permanezca abierta.
-10. Toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas.
-11. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
-12. ASIGNADOS agrega la pertenencia temporal al Asesor y no depende de una carga TOTAL previa.
-13. Las posiciones de TOTAL y ASIGNADOS pertenecen a listas distintas y no se sobrescriben entre sí.
-14. Una carga ASIGNADOS no duplica Personas ni Apariciones.
-15. Una coincidencia ambigua nunca se resuelve por suposición.
-16. Una Aparición tiene normalmente como máximo una Asignación vigente.
-17. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
-18. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
-19. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
-20. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
+2. Una ejecución fallida no deja efectos canónicos parciales silenciosos.
+3. El mismo archivo no aplica dos veces el mismo efecto.
+4. Una carga TOTAL sucesiva no duplica Apariciones existentes.
+5. Sólo los cambios efectivos generan historial de cambio.
+6. Las ausencias sólo se concilian dentro del mismo período, Campaña activa y alcance comparable.
+7. El cambio de período no genera incidencias masivas.
+8. La falta de una Campaña completa o una ausencia masiva estructurada se trata antes como problema de alcance.
+9. Existe un único concepto Incidencia de Conciliación con alcance individual o de conjunto.
+10. Una incidencia de alcance evita generar incidencias individuales masivas por la misma causa mientras permanezca abierta.
+11. Toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas.
+12. Una ejecución Aplicada no conserva incidencias abiertas.
+13. Una ejecución Aplicada con incidencias aplica sólo hechos inequívocos y mantiene separados los hechos dudosos.
+14. Aplicada con incidencias sólo procede ante anomalías individuales aisladas y separables que no comprometen el alcance general.
+15. Una Incidencia de Conciliación de alcance abierta bloquea normalmente la aplicación de la carga.
+16. Cada efecto de una ejecución queda aplicado o pendiente; nunca ambiguamente aplicado a medias.
+17. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
+18. ASIGNADOS agrega la pertenencia temporal al Asesor y no depende de una carga TOTAL previa.
+19. Las posiciones de TOTAL y ASIGNADOS pertenecen a listas distintas y no se sobrescriben entre sí.
+20. Una carga ASIGNADOS no duplica Personas ni Apariciones.
+21. Una coincidencia ambigua nunca se resuelve por suposición.
+22. Una Aparición tiene normalmente como máximo una Asignación vigente.
+23. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
+24. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
+25. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
+26. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
 
 ## 20. Pendientes para `next_v03`
 
 - clave lógica exacta de Campaña;
-- representación física de Ejecución de Importación;
+- representación física de Ejecución de Importación y sus estados;
+- mecanismo transaccional y de recuperación que garantice ausencia de efectos parciales silenciosos;
 - modelo mínimo de eventos de cambio;
 - representación física de Incidencia de Conciliación y sus alcances;
 - regla SQL de idempotencia;
