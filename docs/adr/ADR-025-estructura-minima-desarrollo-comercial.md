@@ -35,7 +35,7 @@ Persona
             └── Propuestas relacionadas
 ```
 
-Esta representación no fija todavía todas las cardinalidades ni la propiedad definitiva de Cotizaciones, Propuestas y Pipeline.
+Esta representación no fija todavía la propiedad definitiva de Cotizaciones, Propuestas y Pipeline.
 
 ## Decisiones aprobadas
 
@@ -81,26 +81,41 @@ Oportunidad: APV
 
 Aunque ambas Oportunidades se trabajen en una misma reunión, pertenecen a Casos distintos porque responden a objetivos diferentes.
 
-Cardinalidad conceptual aprobada para esta parte:
+### 2. Nacimiento, pertenencia y cardinalidad de la Oportunidad
+
+Una Oportunidad representa una contratación potencial individualizable de un producto concreto para la cual existe un desarrollo comercial real que seguir.
+
+Reglas:
+
+- una necesidad general, interés difuso o conversación exploratoria sin producto potencial concreto no crea todavía una Oportunidad;
+- la Oportunidad nace cuando se identifica un producto potencial concreto dentro de una Relación Comercial y existe una intención, necesidad o posibilidad comercial que justifica su seguimiento;
+- toda Oportunidad presupone una Relación Comercial existente;
+- toda Oportunidad pertenece exactamente a un Caso Comercial;
+- no existen Oportunidades sueltas fuera de un Caso Comercial;
+- cuando se identifica la primera Oportunidad de un objetivo, necesidad o proceso de decisión, nace o se identifica simultáneamente el Caso Comercial correspondiente;
+- un Caso Comercial contiene una o más Oportunidades;
+- una Persona puede mantener varios Casos y varias Oportunidades abiertas simultáneamente dentro de su única Relación Comercial;
+- la Oportunidad conserva el desarrollo comercial de un producto concreto; el Caso conserva el objetivo, necesidad o proceso de decisión que explica por qué esa Oportunidad existe y cómo se relaciona con otras;
+- la posibilidad de varias Oportunidades del mismo producto, y la distinción entre contrataciones distintas, alternativas y configuraciones, se resolverá en la siguiente decisión del lote;
+- el movimiento o reclasificación posterior de una Oportunidad entre Casos deberá conservar historia y se resolverá junto con los ciclos de vida.
+
+Cardinalidad conceptual aprobada:
 
 ```text
 Relación Comercial 1 ── 0..N Casos Comerciales
 Caso Comercial     1 ── 1..N Oportunidades
+Oportunidad        1 ── 1 Caso Comercial
 ```
-
-La cardinalidad inversa de Oportunidad hacia Caso Comercial y la posibilidad de mover o reclasificar una Oportunidad se resolverán en las siguientes decisiones del lote.
 
 ## Preguntas pendientes del lote
 
-1. Qué hecho exacto da origen a una Oportunidad y si toda Oportunidad debe pertenecer exactamente a un Caso Comercial.
-2. Si la Oportunidad representa siempre una contratación potencial individualizable por producto.
-3. Cómo distinguir contrataciones distintas, alternativas y configuraciones de una misma contratación.
-4. Si una Propuesta pertenece a una Oportunidad, a un Caso o puede presentar elementos de ambos.
-5. Cómo se relacionan Propuesta y Cotización y si ambas conservan versiones.
-6. Qué concepto recorre realmente el Pipeline.
-7. Qué estados son hechos persistentes y cuáles son vistas derivadas.
-8. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
-9. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+1. Cómo distinguir contrataciones distintas, alternativas y configuraciones de una misma contratación.
+2. Si una Propuesta pertenece a una Oportunidad, a un Caso o puede presentar elementos de ambos.
+3. Cómo se relacionan Propuesta y Cotización y si ambas conservan versiones.
+4. Qué concepto recorre realmente el Pipeline.
+5. Qué estados son hechos persistentes y cuáles son vistas derivadas.
+6. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
+7. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
 
 ## Límites del lote
 
@@ -121,8 +136,10 @@ No se decidirán todavía:
 - `next_v03` continúa bloqueado para diseño físico definitivo;
 - el Caso Comercial queda diferenciado de la Relación Comercial y de la Oportunidad;
 - una Relación puede persistir sin Caso y un Caso no puede persistir sin al menos una Oportunidad asociada;
+- toda Oportunidad pertenece exactamente a un Caso y no puede existir como elemento comercial suelto;
+- la primera Oportunidad concreta origina o identifica simultáneamente el Caso correspondiente;
 - el criterio de agrupación es semántico —objetivo, necesidad o proceso de decisión— y no meramente temporal ni técnico;
-- el Modelo Comercial y la Matriz de Validación deben incorporar esta decisión durante la consolidación del LCD;
+- el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
 
 ## Documentos asociados
