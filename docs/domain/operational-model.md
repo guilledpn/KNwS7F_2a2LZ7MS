@@ -25,7 +25,7 @@ Incluye:
 - linaje mínimo;
 - comparación entre cargas sucesivas del mismo período;
 - cambios de Resultado Corporativo;
-- conciliación de ausencias excepcionales;
+- Incidencias de Conciliación individuales y de alcance;
 - activación de una campaña posterior;
 - rechazo o bloqueo de archivos aparentemente incompletos.
 
@@ -202,27 +202,75 @@ Para ser comparables deben corresponder, al menos, a:
 
 No basta comparar por RUT y mes.
 
-## 11. Ausencia excepcional dentro del mismo período
+## 11. Incidencia de Conciliación
+
+Una Incidencia de Conciliación representa una discrepancia detectada durante la validación o comparación de una carga con el conocimiento anterior.
+
+Es un único concepto con dos alcances posibles:
+
+- individual;
+- de alcance o conjunto.
+
+Toda incidencia debe conservar, al menos:
+
+- tipo de discrepancia;
+- evidencia que la originó;
+- una o más Ejecuciones de Importación relacionadas;
+- estado;
+- resolución, cuando exista;
+- fecha y responsable de la resolución;
+- trazabilidad de sus cambios.
+
+### 11.1 Incidencia individual
+
+Se utiliza cuando la discrepancia afecta una fila, Persona, Aparición o Asignación concreta.
+
+Puede identificar, según corresponda:
+
+- fila o referencia de origen;
+- Persona;
+- Campaña;
+- Aparición;
+- Asignación;
+- ejecución anterior;
+- ejecución posterior.
+
+No todos esos vínculos son obligatorios simultáneamente. Una fila cuyo RUT no puede normalizarse, por ejemplo, todavía no puede vincularse a una Persona canónica.
 
 Cuando una Persona estaba presente en una carga TOTAL anterior y no aparece en una carga posterior comparable del mismo período y Campaña activa:
 
 - no se elimina automáticamente la Persona;
 - no se elimina automáticamente la Aparición;
 - no se inventa un nuevo Resultado Corporativo;
-- se genera una Incidencia de Conciliación.
+- se genera una Incidencia de Conciliación individual, salvo que la discrepancia forme parte de una anomalía de alcance mayor.
 
 La ausencia es sospechosa porque puede representar un retiro corporativo real, un archivo incompleto o un error durante la carga. No constituye por sí sola una instrucción inequívoca de eliminación.
 
-La incidencia individual debe conservar:
+### 11.2 Incidencia de alcance
 
-- Persona;
-- Campaña;
-- ejecución anterior;
-- ejecución posterior;
-- tipo de discrepancia;
-- estado;
-- resolución;
-- fecha y responsable de la resolución.
+Se utiliza cuando la discrepancia parece pertenecer al archivo completo, a una Campaña, a un segmento o a un conjunto estructurado de filas.
+
+Debe identificar, según corresponda:
+
+- Ejecución de Importación afectada;
+- ejecución o conocimiento utilizado para comparar;
+- alcance afectado: archivo completo, Campaña, segmento u otro conjunto reconocible;
+- cantidad o proporción afectada;
+- descripción de la anomalía.
+
+No necesita vincular individualmente a todas las Personas potencialmente afectadas.
+
+### 11.3 Regla de agrupación
+
+Cuando varias ausencias o anomalías pueden explicarse por una misma falla de alcance, se crea primero una única Incidencia de Conciliación de alcance.
+
+Mientras esa incidencia permanezca abierta:
+
+- no se generan incidencias individuales masivas por la misma causa;
+- la ejecución puede quedar bloqueada o pendiente de decisión;
+- las discrepancias individuales quedan subordinadas a la resolución del problema de conjunto.
+
+Si posteriormente se confirma que el archivo era correcto y sólo algunas filas requieren revisión particular, se crean únicamente las incidencias individuales que realmente correspondan.
 
 ## 12. Resoluciones permitidas
 
@@ -243,7 +291,7 @@ No se permite eliminar silenciosamente la Aparición o la Asignación ni resolve
 
 Si una carga posterior omite una Campaña, un segmento completo o una cantidad anómala y estructurada de filas presentes en la anterior, el sistema no debe generar miles de incidencias individuales.
 
-Debe generar primero una incidencia de alcance del archivo y evaluar el bloqueo de la ejecución.
+Debe generar primero una Incidencia de Conciliación de alcance y evaluar el bloqueo de la ejecución.
 
 Ejemplo:
 
@@ -306,7 +354,7 @@ Cuando una Aparición estaba asignada al Asesor en una carga ASIGNADOS anterior 
 - no se elimina la Asignación histórica;
 - no se registra automáticamente su término;
 - la vigencia actual queda pendiente de conciliación;
-- se genera una Incidencia de Conciliación;
+- se genera una Incidencia de Conciliación individual, salvo que la ausencia forme parte de una anomalía de alcance mayor;
 - la Aparición permanece visible, pero queda fuera de la cola normal de gestionables mientras no se confirme que continúa asignada al Asesor;
 - si se confirma el retiro, se registra la fecha de término conservando historia;
 - si la carga perdió muchas filas o una sección completa, se trata primero como posible incompletitud de alcance;
@@ -373,23 +421,26 @@ flowchart TD
 5. Las ausencias sólo se concilian dentro del mismo período, Campaña activa y alcance comparable.
 6. El cambio de período no genera incidencias masivas.
 7. La falta de una Campaña completa o una ausencia masiva estructurada se trata antes como problema de alcance.
-8. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
-9. ASIGNADOS agrega la pertenencia temporal al Asesor y no depende de una carga TOTAL previa.
-10. Las posiciones de TOTAL y ASIGNADOS pertenecen a listas distintas y no se sobrescriben entre sí.
-11. Una carga ASIGNADOS no duplica Personas ni Apariciones.
-12. Una coincidencia ambigua nunca se resuelve por suposición.
-13. Una Aparición tiene normalmente como máximo una Asignación vigente.
-14. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
-15. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
-16. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
-17. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
+8. Existe un único concepto Incidencia de Conciliación con alcance individual o de conjunto.
+9. Una incidencia de alcance evita generar incidencias individuales masivas por la misma causa mientras permanezca abierta.
+10. Toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas.
+11. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
+12. ASIGNADOS agrega la pertenencia temporal al Asesor y no depende de una carga TOTAL previa.
+13. Las posiciones de TOTAL y ASIGNADOS pertenecen a listas distintas y no se sobrescriben entre sí.
+14. Una carga ASIGNADOS no duplica Personas ni Apariciones.
+15. Una coincidencia ambigua nunca se resuelve por suposición.
+16. Una Aparición tiene normalmente como máximo una Asignación vigente.
+17. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
+18. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
+19. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
+20. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
 
 ## 20. Pendientes para `next_v03`
 
 - clave lógica exacta de Campaña;
 - representación física de Ejecución de Importación;
 - modelo mínimo de eventos de cambio;
-- estructura de Incidencia de Conciliación individual y de alcance;
+- representación física de Incidencia de Conciliación y sus alcances;
 - regla SQL de idempotencia;
 - validación de coherencia entre Tarea y Actividad;
 - historial de datos de contacto;
