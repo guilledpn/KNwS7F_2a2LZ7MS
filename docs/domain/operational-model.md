@@ -75,15 +75,21 @@ ASIGNADOS no depende de una carga TOTAL previa. Puede procesarse antes o despué
 
 La carga ASIGNADOS no debe crear una segunda Persona ni duplicar una Aparición ya identificada. Su posición no se hereda de TOTAL ni sobrescribe la posición propia de esa fuente.
 
-## 4. Ejecución de Importación
+## 4. Archivo de origen, Tipo de carga y Ejecución de Importación
+
+Deben distinguirse tres conceptos operacionales:
+
+- **Archivo de origen:** evidencia externa recibida desde la compañía;
+- **Tipo de carga:** interpretación operacional del archivo, inicialmente TOTAL o ASIGNADOS;
+- **Ejecución de Importación:** intento identificable de validar y procesar un archivo bajo un Tipo de carga y alcance determinados.
 
 Cada archivo procesado genera una Ejecución de Importación identificable.
 
 Debe conservar, al menos:
 
-- tipo de carga;
+- Tipo de carga;
 - período informado;
-- archivo original o referencia a su ubicación en Drive;
+- referencia al Archivo de origen en Google Drive;
 - nombre del archivo;
 - hash;
 - fecha y hora de recepción;
@@ -94,7 +100,7 @@ Debe conservar, al menos:
 - cantidad de filas rechazadas;
 - resumen de incidencias.
 
-El archivo original permanece como fuente o evidencia en Google Drive cuando contiene datos personales o material no apto para GitHub.
+El Archivo de origen con datos personales o sensibles conserva su única ubicación editable canónica en Google Drive. El CRM almacena su referencia, hash y metadatos de procesamiento; no mantiene una copia paralela presentada como fuente vigente.
 
 ## 5. Estados de una Ejecución de Importación
 
@@ -147,7 +153,7 @@ La carga no supera una validación crítica de estructura, contenido o alcance y
 Ejemplos:
 
 - faltan columnas esenciales;
-- el período o el tipo de carga no puede determinarse;
+- el período o el Tipo de carga no puede determinarse;
 - el archivo parece truncado;
 - falta una Campaña o sección completa;
 - existe una reducción masiva sospechosa;
@@ -191,7 +197,7 @@ Antes de aplicar una carga deben comprobarse, al menos:
 6. ausencia de duplicados ambiguos;
 7. alcance de campañas o segmentos incluidos;
 8. comparabilidad con la carga anterior cuando se busque detectar ausencias;
-9. coherencia del tipo de archivo;
+9. coherencia del Tipo de carga;
 10. hash e idempotencia.
 
 Un archivo que no supera validaciones críticas no modifica hechos canónicos.
@@ -268,7 +274,7 @@ Para ser comparables deben corresponder, al menos, a:
 
 - mismo período;
 - misma Campaña concreta o mismo alcance explícitamente equivalente;
-- mismo tipo de carga;
+- mismo Tipo de carga;
 - archivo validado como suficientemente completo.
 
 No basta comparar por RUT y mes.
@@ -289,7 +295,7 @@ Toda incidencia debe conservar, al menos:
 - una o más Ejecuciones de Importación relacionadas;
 - estado;
 - resolución, cuando exista;
-- fecha y responsable de la resolución;
+- fecha y actor o usuario de la resolución;
 - trazabilidad de sus cambios.
 
 ### 11.1 Incidencia individual
@@ -343,20 +349,34 @@ Mientras esa incidencia permanezca abierta:
 
 Si posteriormente se confirma que el archivo era correcto y sólo algunas filas requieren revisión particular, se crean únicamente las incidencias individuales que realmente correspondan.
 
-## 12. Resoluciones permitidas
+## 12. Resolución y cierre de incidencias
 
-Las resoluciones iniciales son:
+Una resolución humana debe expresar qué se determinó sobre la discrepancia. Una causa automática de cierre sólo informa que un hecho posterior eliminó la incertidumbre. No son equivalentes.
+
+### 12.1 Resoluciones humanas
 
 | Resolución | Consecuencia |
 |---|---|
-| Omisión de la fuente | Se conserva el hecho anterior |
-| Retiro confirmado | Se registra el término o retiro conservando historia |
-| Traslado confirmado | Se conserva el antecedente anterior y se registra el nuevo correspondiente |
-| Archivo incompleto | Se rechaza o revierte la aplicación del archivo |
-| Sin explicación disponible | Se conserva el hecho y la incidencia permanece abierta |
-| Reaparición posterior | Se cierra automáticamente la incidencia conservando la trazabilidad |
+| Omisión de la fuente | Se conserva el hecho anterior y se cierra la incidencia con la evidencia disponible |
+| Retiro corporativo confirmado en TOTAL | Se conserva la Persona, la Aparición histórica y el último Resultado Corporativo conocido; se registra que la compañía dejó de incluirla en esa Campaña activa |
+| Retiro de Asignación confirmado en ASIGNADOS | Termina la Asignación vigente al Asesor, conservando íntegramente su historial |
+| Traslado confirmado | Se conserva el antecedente anterior y se registra el nuevo hecho correspondiente, cuando la fuente lo permita |
+| Archivo incompleto detectado antes de aplicar | La ejecución se bloquea o rechaza sin modificar hechos canónicos |
+| Archivo incompleto detectado después de aplicar | Se corrige o compensa mediante una nueva acción trazable; no se borra ni reescribe silenciosamente la aplicación anterior |
 
-No se permite eliminar silenciosamente la Aparición o la Asignación ni resolver mediante texto libre sin una categoría registrada.
+`Sin explicación disponible` no constituye una resolución. La incidencia permanece abierta y conserva el último conocimiento válido sin inventar una conclusión.
+
+### 12.2 Cierre automático por reaparición
+
+La reaparición posterior en una carga comparable puede cerrar automáticamente una incidencia de ausencia:
+
+- confirma nuevamente el hecho observado;
+- no duplica Persona, Aparición ni Asignación;
+- conserva la incidencia y su cierre en la trazabilidad.
+
+La reaparición es una causa de cierre, no una resolución humana retroactiva sobre el motivo de la ausencia.
+
+No se permite eliminar silenciosamente una Aparición o una Asignación ni cerrar una incidencia mediante texto libre sin categoría y evidencia.
 
 ## 13. Falta de una Campaña o segmento completo
 
@@ -427,7 +447,7 @@ Cuando una Aparición estaba asignada al Asesor en una carga ASIGNADOS anterior 
 - la vigencia actual queda pendiente de conciliación;
 - se genera una Incidencia de Conciliación individual, salvo que la ausencia forme parte de una anomalía de alcance mayor;
 - la Aparición permanece visible, pero queda fuera de la cola normal de gestionables mientras no se confirme que continúa asignada al Asesor;
-- si se confirma el retiro, se registra la fecha de término conservando historia;
+- si se confirma el retiro, termina la Asignación vigente y se conserva su historial;
 - si la carga perdió muchas filas o una sección completa, se trata primero como posible incompletitud de alcance;
 - si la Persona reaparece en una carga posterior comparable, se cierra la incidencia sin crear una Asignación duplicada.
 
@@ -514,8 +534,13 @@ flowchart TD
 22. Una Aparición tiene normalmente como máximo una Asignación vigente.
 23. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
 24. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
-25. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
-26. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
+25. Un retiro confirmado en TOTAL no elimina ni termina la Aparición histórica ni reemplaza su último Resultado Corporativo conocido.
+26. Un retiro confirmado en ASIGNADOS termina la Asignación vigente y conserva su historial.
+27. `Sin explicación disponible` mantiene la incidencia abierta y no constituye una resolución.
+28. Una reaparición posterior puede cerrar automáticamente una incidencia sin duplicar hechos.
+29. Un problema descubierto después de aplicar se corrige o compensa con trazabilidad; no se borra silenciosamente la aplicación previa.
+30. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
+31. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
 
 ## 20. Pendientes para `next_v03`
 
@@ -525,7 +550,6 @@ flowchart TD
 - modelo mínimo de eventos de cambio;
 - representación física de Incidencia de Conciliación y sus alcances;
 - regla SQL de idempotencia;
-- validación de coherencia entre Tarea y Actividad;
 - historial de datos de contacto;
 - umbrales técnicos de bloqueo;
 - UX de revisión de Asignaciones pendientes de conciliación;
