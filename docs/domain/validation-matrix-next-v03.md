@@ -53,6 +53,9 @@ No constituye todavía una especificación SQL.
 | MV-25 | Programación temporal | Fecha prevista y fecha límite son opcionales, pero su ausencia o vencimiento son visibles | Tarea válida sin fecha, clasificada como Sin programar; Tarea vencida clasificada como Atrasada | Convertir Sin programar o Atrasada en estados que sustituyan Pendiente | T-V03-025 |
 | MV-26 | Texto y resultado | Objetivo, contexto y nota cumplen funciones diferentes | Objetivo obligatorio, contexto y nota de ejecución opcionales, resultado estructurado | Crear Nota de programación redundante o reemplazar el resultado por texto libre | T-V03-026 |
 | MV-27 | Reprogramación y cancelación | No constituyen Actividades | Reprogramar con trazabilidad y cancelar con motivo | Inflar estadísticas creando Actividades por cambios administrativos | T-V03-027 |
+| MV-28 | Compatibilidad Tipo–Resultado | Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles | Llamada + No contestó; Reunión + Realizada | Llamada + Propuesta preparada u otra combinación incoherente | T-V03-028 |
+| MV-29 | Consecuencias de Actividad | El Resultado describe lo ocurrido; los próximos pasos son hechos separados | Actividad que origina Tareas, Relación u Oportunidad trazables | Mezclar acción, resultado y consecuencia en una sola etiqueta | T-V03-029 |
+| MV-30 | Métricas derivadas | Llamada efectiva, agendamiento y seguimiento se derivan de hechos persistentes | Derivar llamada efectiva desde Tipo y Resultado y agendamiento desde Actividad más Tarea futura | Guardar `Agenda reunión`, `Volver a llamar` o `Información enviada` como etiquetas ambiguas que sustituyan hechos | T-V03-030 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -327,6 +330,30 @@ La cancelación constituye un flujo diferente y no requiere Actividad.
 
 La regla operativa exacta para autorizar o advertir diferencias entre ambos queda pendiente del diseño lógico.
 
+### CV-28 · Resultado incompatible con el Tipo
+
+**Dado** que se registra una Actividad de Tipo Llamada  
+**Cuando** se intenta asignar el resultado `Propuesta preparada`  
+**Entonces** la operación se rechaza por incompatibilidad entre Tipo y Resultado.
+
+### CV-29 · Agenda como consecuencia separada
+
+**Dado** que Guillermo realiza una Llamada a Ana  
+**Y** el resultado es `Conversación efectiva`  
+**Cuando** ambos acuerdan una reunión futura  
+**Entonces** se conserva la Actividad de Llamada, nace la Relación Comercial cuando corresponda y se crea una Tarea futura de Tipo Reunión.
+
+`Agenda reunión` no sustituye el Resultado de la Llamada ni la Tarea creada.
+
+### CV-30 · Volver a llamar como nueva Tarea
+
+**Dado** que Guillermo ejecuta una Tarea de Llamada  
+**Y** la Actividad resultante indica `No contestó`  
+**Cuando** decide realizar otro intento  
+**Entonces** la primera Tarea queda Completada y se crea otra Tarea de Tipo Llamada.
+
+`Volver a llamar` no se registra como Resultado de la primera Actividad.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -351,6 +378,8 @@ La regla operativa exacta para autorizar o advertir diferencias entre ambos qued
 - responsabilidad simultánea sólo con autorización;
 - Tarea como previsión de una única Actividad futura;
 - catálogo común de Tipos de Actividad para Tarea y Actividad;
+- cada Tipo de Actividad define los Resultados estructurados compatibles;
+- el Resultado describe lo ocurrido y no las consecuencias posteriores;
 - Tarea con Tipo y objetivo obligatorios y contexto opcional;
 - ausencia de una Nota de programación separada;
 - programación temporal opcional, pero visible cuando falta o vence;
@@ -358,6 +387,8 @@ La regla operativa exacta para autorizar o advertir diferencias entre ambos qued
 - ejecución completa la Tarea aunque no alcance el objetivo comercial;
 - cada nuevo intento requiere una nueva Tarea;
 - resultado estructurado y nota libre de Actividad separados;
+- creación de Tareas, Relaciones u Oportunidades como hechos separados de la Actividad que los origina;
+- llamada efectiva, agendamiento y seguimiento como métricas derivadas;
 - reprogramación y cancelación no constituyen Actividades;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
