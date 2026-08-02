@@ -320,7 +320,37 @@ Reglas:
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
 - un evento técnico de guardado no equivale por sí solo a una Actividad significativa;
 - la nota libre complementa, pero no sustituye, el resultado estructurado;
-- una consecuencia posterior, como crear una Tarea, una Relación Comercial o una Oportunidad, se registra separadamente y puede conservar referencia a la Actividad que la originó.
+- una consecuencia posterior, como crear una Tarea, una Relación Comercial o una Oportunidad, se registra separadamente y puede conservar referencia a la Actividad que la originó;
+- una Actividad registrada no puede eliminarse ni sobrescribirse silenciosamente;
+- una corrección o anulación debe conservar el contenido original y su trazabilidad.
+
+#### 4.11.1 Corrección y anulación de Actividad
+
+Una Actividad representa un hecho histórico. Cuando fue registrada con información errónea, debe corregirse o anularse mediante un hecho trazable, sin reemplazar silenciosamente el registro original.
+
+Toda corrección debe conservar, al menos:
+
+- contenido original;
+- contenido corregido;
+- fecha de corrección;
+- responsable de la corrección;
+- motivo.
+
+Toda anulación debe conservar, al menos:
+
+- Actividad anulada;
+- fecha de anulación;
+- responsable de la anulación;
+- motivo.
+
+Reglas:
+
+- para la operación y las métricas gobierna la versión corregida vigente;
+- una Actividad anulada permanece en la trazabilidad, pero no cuenta para métricas;
+- una Actividad anulada no puede justificar el nacimiento de una Relación Comercial ni completar Tareas;
+- la corrección o anulación no elimina automáticamente las Tareas, Relaciones Comerciales, Oportunidades u otras consecuencias previamente originadas;
+- las consecuencias potencialmente afectadas deben quedar advertidas para revisión, porque pueden haber sido confirmadas posteriormente por otros hechos;
+- una anulación no debe convertirse en una eliminación física silenciosa.
 
 ### 4.12 Tarea
 
@@ -360,7 +390,9 @@ Reglas:
 - cancelar una Tarea no genera una Actividad, pero debe conservar fecha, responsable y motivo de cancelación;
 - reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
 - la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales;
-- la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento.
+- la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento;
+- una Tarea Pendiente puede modificarse, pero los cambios que alteren el compromiso futuro deben conservar trazabilidad;
+- una Tarea Completada o Cancelada no puede reescribirse como si continuara Pendiente; cualquier rectificación posterior debe registrarse explícitamente.
 
 La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles debe presentarse como ayuda opcional y asistida sólo cuando aporte valor, no como una carga obligatoria en cada registro.
 
@@ -383,6 +415,19 @@ Reglas:
 - las Tareas cuyo responsable ya no coincide con el responsable principal vigente de la Relación deben quedar visibles para resolución;
 - cada Tarea pendiente puede reasignarse, cancelarse o permanecer excepcionalmente con el Asesor anterior mediante una decisión explícita;
 - una Tarea nunca cambia de responsable silenciosamente.
+
+#### 4.12.2 Modificación y rectificación de Tarea
+
+Una Tarea Pendiente representa un compromiso futuro todavía modificable. Debe conservarse historia cuando cambian elementos que alteran sustancialmente ese compromiso, entre ellos:
+
+- Asesor responsable;
+- Tipo de Actividad previsto;
+- objetivo;
+- fecha y hora prevista;
+- fecha límite;
+- cancelación.
+
+Los ajustes menores de redacción del contexto pueden tratarse como edición ordinaria cuando no alteran el compromiso. Una Tarea Completada o Cancelada conserva su estado histórico y no se modifica silenciosamente. Toda rectificación posterior debe registrar responsable, fecha, motivo y contenido corregido.
 
 ## 5. Cardinalidades conceptuales
 
@@ -408,7 +453,9 @@ Reglas:
 | Tarea → Actividad de origen | 1 → 0..1 |
 | Tarea → Actividad de ejecución | 1 → 0..1 |
 | Actividad → Tareas ejecutadas | 1 → 0..N |
+| Actividad → correcciones o anulaciones | 1 → 0..N |
 | Tarea → Asesores responsables históricos | 1 → 1..N |
+| Tarea → cambios significativos históricos | 1 → 0..N |
 
 La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
@@ -419,6 +466,8 @@ La cardinalidad histórica `0..N` de Responsabilidad permite representar una Rel
 La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. Una misma Actividad puede originar varias Tareas futuras y también ejecutar varias Tareas compatibles, pero cada Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
 
 El historial de responsables de una Tarea permite preservar los cambios explícitos de Asesor sin alterar retroactivamente los hechos previos. Su representación física se definirá en el diseño lógico.
+
+Las correcciones y anulaciones de Actividad, junto con los cambios significativos de Tarea, representan trazabilidad histórica. Su representación física se decidirá posteriormente sin perder el contenido original ni los motivos del cambio.
 
 Las restricciones temporales y de consistencia se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
@@ -462,6 +511,11 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 36. La reasignación de una Tarea pendiente es explícita y conserva Asesor anterior, Asesor nuevo, fecha y motivo.
 37. Transferir una Relación Comercial no reasigna automáticamente sus Tareas pendientes.
 38. La Actividad de ejecución pertenece al Asesor responsable vigente de la Tarea en el momento de ejecutarla.
+39. Una Actividad registrada no se elimina ni sobrescribe silenciosamente.
+40. Toda corrección o anulación de Actividad conserva original, cambio, responsable, fecha y motivo.
+41. Una Actividad anulada no cuenta para métricas, no justifica una Relación Comercial y no completa Tareas.
+42. Las consecuencias de una Actividad corregida o anulada se revisan y no se eliminan automáticamente.
+43. Los cambios sustantivos de una Tarea Pendiente conservan historia; una Tarea Completada o Cancelada sólo se rectifica explícitamente.
 
 ## 7. Vistas y clasificaciones derivadas
 
@@ -500,6 +554,9 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas a una Actividad;
 - definir la representación física del historial de reprogramaciones;
 - definir la representación física del historial de responsables de Tarea;
+- definir la representación física de correcciones y anulaciones de Actividad;
+- definir la revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
+- definir la representación física de cambios significativos y rectificaciones de Tarea;
 - definir formato y límites de objetivo, contexto y nota de ejecución;
 - validar el historial individual de teléfonos y correos;
 - diseñar `next_v03` y probar estas invariantes con datos ficticios.
