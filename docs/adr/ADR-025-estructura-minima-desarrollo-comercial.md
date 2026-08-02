@@ -196,6 +196,54 @@ Proyección manual vigente
 ≠ CNS efectivamente emitidos
 ```
 
+#### Consumo de la proyección por el avance real
+
+La proyección inicial se conserva como antecedente histórico de lo que el Asesor estimó para el Caso, pero no permanece sumándose íntegramente con los CNS sometidos o emitidos.
+
+Para representar la posición vigente del Pipeline, cada porción económica del negocio ocupa una sola condición operativa:
+
+```text
+Pendiente de sometimiento
+→ CNS todavía proyectados que no han sido sometidos
+
+Sometida pendiente de emisión
+→ CNS sometidos que todavía no han sido emitidos ni descartados
+
+Emitida
+→ CNS efectivamente emitidos
+```
+
+Reglas:
+
+- un mismo monto esperado no puede computarse simultáneamente en más de una condición del stock vigente;
+- cuando una porción avanza, deja de computarse en la condición anterior;
+- la proyección inicial permanece disponible para comparación histórica, pero no constituye un componente adicional del total vigente;
+- la proyección vigente puede revisarse con trazabilidad cuando la expectativa comercial cambie;
+- los valores reales pueden superar o quedar bajo la proyección; esa diferencia es información comercial y no debe forzarse artificialmente para conservar igualdad;
+- los reportes de flujo pueden mostrar CNS sometidos y emitidos durante un mismo período, porque representan hechos distintos, pero no deben sumarlos como si fueran producción adicional independiente;
+- la posición vigente y el flujo histórico responden preguntas diferentes y deben mantenerse separados.
+
+Ejemplo:
+
+```text
+Proyección inicial del Caso: 140 CNS
+
+Posición vigente:
+- pendiente de sometimiento: 100 CNS
+- sometida pendiente de emisión: 2 CNS
+- emitida: 38 CNS
+
+Total representado en la posición vigente: 140 CNS
+```
+
+Si la realidad posterior difiere de la estimación, pueden coexistir sin contradicción:
+
+```text
+Proyección inicial: 140 CNS
+Proyección vigente revisada: 138 CNS
+CNS emitidos reales: 138 CNS
+```
+
 La representación física de los componentes temporales de proyección y de los hechos reales de sometimiento y emisión se definirá durante el diseño lógico, no en este ADR.
 
 #### Criterio de seguridad antes del diseño físico
@@ -208,6 +256,8 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - separar y volver a unificar conserva historia;
 - la proyección manual no se duplica al aparecer el Caso en varias columnas;
 - la suma de distribuciones de proyección coincide con el total vigente del Caso;
+- un mismo monto esperado no se computa simultáneamente en más de una condición del stock vigente;
+- la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - proyección, sometimiento y emisión no se sobrescriben entre sí;
 - los totales por etapa y período pueden reconstruirse exclusivamente desde hechos canónicos.
 
@@ -219,7 +269,7 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 2. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
 3. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
 4. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
-5. Cómo representar lógicamente la proyección manual, sus divisiones temporales y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
+5. Cómo representar lógicamente la proyección manual, sus revisiones, sus divisiones temporales y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
 6. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
@@ -251,8 +301,9 @@ No se decidirán todavía:
 - las tarjetas del Kanban son vistas derivadas agrupadas por Caso y etapa, no entidades persistentes;
 - el flujo frecuente mantiene una sola tarjeta y un solo movimiento; la separación por Oportunidad es una acción secundaria explícita;
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
+- la proyección inicial se conserva como antecedente histórico, pero no se duplica con CNS sometidos o emitidos en la posición vigente;
 - proyección, sometimiento y emisión se conservan como conceptos distintos;
-- el diseño físico deberá probar las invariantes de movimiento, distribución y reconstrucción antes de crear tablas;
+- el diseño físico deberá probar las invariantes de movimiento, distribución, consumo y reconstrucción antes de crear tablas;
 - el futuro diseño lógico no podrá convertir heurísticas evolutivas en bloqueos irreversibles sin una decisión posterior explícita;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
