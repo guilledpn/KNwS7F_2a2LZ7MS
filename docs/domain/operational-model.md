@@ -41,27 +41,38 @@ No incluye todavía:
 
 ## 3. Fuentes corporativas iniciales
 
-### 3.1 Carga TOTAL
+TOTAL y ASIGNADOS poseen la misma estructura comercial básica y pueden observar los mismos hechos:
 
-Archivo que informa, para un período y alcance determinados:
-
-- Persona observada;
+- Persona;
+- datos de contacto;
 - Campaña corporativa;
 - Resultado Corporativo;
-- orden de origen;
-- datos de contacto informados por la fuente.
+- Aparición en Campaña.
+
+La diferencia operacional es que ASIGNADOS representa el subconjunto de Apariciones perteneciente temporalmente al Asesor y agrega ese vínculo de Asignación.
+
+Cada fuente puede conservar una posición propia dentro de la lista que representa. La posición de ASIGNADOS está acotada al Asesor y es independiente de cualquier posición informada por TOTAL.
+
+### 3.1 Carga TOTAL
+
+Archivo que observa el universo general informado para un período y alcance determinados.
 
 Durante un mismo mes pueden existir varias cargas TOTAL sucesivas. Suelen incorporar nuevas Personas y cambios de Resultado Corporativo o datos de contacto.
 
+La posición informada por TOTAL, cuando existe, pertenece únicamente a esa lista general.
+
 ### 3.2 Carga ASIGNADOS
 
-Archivo que informa qué Apariciones fueron asignadas a un Asesor y en qué orden operativo.
+Archivo que observa el subconjunto de Apariciones asignadas al Asesor dentro de Campañas activas.
 
-Durante un mismo período pueden existir cargas ASIGNADOS sucesivas y comparables. Una carga posterior puede incorporar asignaciones nuevas, reiterar las vigentes o informar cambios que requieren conciliación.
+Además de los hechos comunes, cada fila confirma:
 
-La carga ASIGNADOS no debe crear una segunda Persona ni duplicar una Aparición ya identificada. Su orden es independiente del orden TOTAL.
+- que la Aparición pertenece temporalmente al Asesor;
+- su posición propia dentro de la lista reducida del Asesor, cuando el archivo la representa.
 
-Cuando no existe una coincidencia única con una Aparición, el proceso no debe adivinar: debe generar una incidencia de conciliación.
+ASIGNADOS no depende de una carga TOTAL previa. Puede procesarse antes o después de TOTAL mediante la misma lógica base de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto, agregando además la Asignación.
+
+La carga ASIGNADOS no debe crear una segunda Persona ni duplicar una Aparición ya identificada. Su posición no se hereda de TOTAL ni sobrescribe la posición propia de esa fuente.
 
 ## 4. Ejecución de Importación
 
@@ -160,7 +171,7 @@ Se actualiza el resultado vigente y se conserva un evento de cambio con:
 
 ### 8.4 Cambio de datos de contacto
 
-La observación más reciente informa los datos visibles vigentes. La política física de historial individual de teléfonos y correos queda pendiente.
+La observación válida más reciente, provenga de TOTAL o ASIGNADOS, informa los datos visibles vigentes. La política física de historial individual de teléfonos y correos queda pendiente.
 
 ## 9. Linaje mínimo
 
@@ -193,14 +204,16 @@ No basta comparar por RUT y mes.
 
 ## 11. Ausencia excepcional dentro del mismo período
 
-Cuando una Persona estaba presente en una carga TOTAL anterior y no aparece en una carga posterior comparable del mismo período y Campaña:
+Cuando una Persona estaba presente en una carga TOTAL anterior y no aparece en una carga posterior comparable del mismo período y Campaña activa:
 
 - no se elimina automáticamente la Persona;
 - no se elimina automáticamente la Aparición;
 - no se inventa un nuevo Resultado Corporativo;
 - se genera una Incidencia de Conciliación.
 
-La incidencia debe conservar:
+La ausencia es sospechosa porque puede representar un retiro corporativo real, un archivo incompleto o un error durante la carga. No constituye por sí sola una instrucción inequívoca de eliminación.
+
+La incidencia individual debe conservar:
 
 - Persona;
 - Campaña;
@@ -228,9 +241,9 @@ No se permite eliminar silenciosamente la Aparición o la Asignación ni resolve
 
 ## 13. Falta de una Campaña o segmento completo
 
-Si una carga posterior omite una Campaña o un segmento completo presente en la anterior, el sistema no debe generar miles de incidencias individuales.
+Si una carga posterior omite una Campaña, un segmento completo o una cantidad anómala y estructurada de filas presentes en la anterior, el sistema no debe generar miles de incidencias individuales.
 
-Debe generar una incidencia de alcance del archivo y evaluar el bloqueo de la ejecución.
+Debe generar primero una incidencia de alcance del archivo y evaluar el bloqueo de la ejecución.
 
 Ejemplo:
 
@@ -267,45 +280,47 @@ La Campaña anterior permanece activa hasta que se cargan los primeros contactos
 
 Para cada fila válida:
 
-1. localizar la Persona por identidad canónica;
-2. localizar la Campaña del período y alcance informado;
-3. localizar una única Aparición compatible;
-4. crear o actualizar la Asignación;
-5. conservar el orden propio de ASIGNADOS;
-6. registrar linaje de creación, observación y cambio.
+1. localizar o crear la Persona por identidad canónica;
+2. localizar o crear la Campaña concreta informada;
+3. localizar o crear la Aparición correspondiente;
+4. comparar y aplicar el Resultado Corporativo observado;
+5. actualizar los datos de contacto visibles cuando la observación sea la más reciente;
+6. crear o actualizar la Asignación al Asesor;
+7. conservar la posición propia de ASIGNADOS cuando el archivo la represente;
+8. registrar linaje de creación, observación y cambio.
 
-### 15.1 Coincidencia única
+### 15.1 ASIGNADOS antes o después de TOTAL
 
-Se vincula la Asignación con la Aparición existente.
+Una fila ASIGNADOS válida constituye evidencia suficiente para crear o actualizar Persona, Campaña, Aparición, Resultado Corporativo, datos de contacto y Asignación.
 
-### 15.2 Asignado no presente en TOTAL
+No genera una Aparición incompleta ni una incidencia por el solo hecho de que TOTAL todavía no haya sido cargado. Cuando TOTAL llega posteriormente, vuelve a observar los mismos hechos sin duplicarlos y agrega las demás Apariciones del universo general.
 
-La fila de ASIGNADOS puede constituir evidencia corporativa suficiente para mantener visible la asignación, pero debe generar una incidencia de conciliación sobre la Aparición o el alcance faltante. No se descarta silenciosamente.
+### 15.2 Coincidencia ambigua
 
-### 15.3 Coincidencia ambigua
+Si la identidad de la Campaña no puede determinarse de manera única a partir de la fila, la carga no debe adivinar. Se registra una incidencia y la Asignación queda pendiente de aplicación.
 
-Si la Persona aparece en más de una Campaña compatible y la fila no permite decidir cuál corresponde, la carga no debe adivinar. Se registra una incidencia y la Asignación queda pendiente de aplicación.
+### 15.3 Ausencia en una carga ASIGNADOS posterior comparable
 
-### 15.4 Ausencia en una carga ASIGNADOS posterior comparable
-
-Cuando una Persona estaba presente en una carga ASIGNADOS anterior y no aparece en una carga posterior del mismo período, Campaña y alcance comparable:
+Cuando una Aparición estaba asignada al Asesor en una carga ASIGNADOS anterior y no aparece en una carga posterior del mismo período, Campaña activa y alcance comparable:
 
 - no se elimina la Asignación histórica;
 - no se registra automáticamente su término;
+- la vigencia actual queda pendiente de conciliación;
 - se genera una Incidencia de Conciliación;
+- la Aparición permanece visible, pero queda fuera de la cola normal de gestionables mientras no se confirme que continúa asignada al Asesor;
 - si se confirma el retiro, se registra la fecha de término conservando historia;
 - si la carga perdió muchas filas o una sección completa, se trata primero como posible incompletitud de alcance;
-- si la Persona reaparece en una carga posterior, se cierra la incidencia sin crear una Asignación duplicada.
+- si la Persona reaparece en una carga posterior comparable, se cierra la incidencia sin crear una Asignación duplicada.
 
-La ausencia aislada es una observación operacional que requiere resolución; no demuestra por sí sola que la compañía haya terminado la Asignación.
+La ausencia aislada es una discrepancia infrecuente que requiere resolución. Puede representar un retiro corporativo real o un error del archivo o de la carga; no demuestra por sí sola ninguno de ellos.
 
-### 15.5 Unicidad vigente
+### 15.4 Unicidad vigente
 
 Una Aparición tiene normalmente como máximo una Asignación vigente. Si una carga informa simultáneamente dos Asesores para la misma Aparición, el proceso no debe aceptar ambas silenciosamente: debe bloquear o conciliar la inconsistencia antes de modificar el hecho vigente.
 
 ## 16. Datos de contacto
 
-La última observación válida informa los datos visibles vigentes.
+La observación válida más reciente, provenga de TOTAL o ASIGNADOS, informa los datos visibles vigentes.
 
 Reglas iniciales:
 
@@ -355,24 +370,29 @@ flowchart TD
 2. El mismo archivo no aplica dos veces el mismo efecto.
 3. Una carga TOTAL sucesiva no duplica Apariciones existentes.
 4. Sólo los cambios efectivos generan historial de cambio.
-5. Las ausencias sólo se concilian dentro del mismo período y alcance comparable.
+5. Las ausencias sólo se concilian dentro del mismo período, Campaña activa y alcance comparable.
 6. El cambio de período no genera incidencias masivas.
-7. La falta de una Campaña completa se trata antes como problema de alcance.
-8. Una carga ASIGNADOS no duplica Personas ni Apariciones.
-9. Una coincidencia ambigua nunca se resuelve por suposición.
-10. Una Aparición tiene normalmente como máximo una Asignación vigente.
-11. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación.
-12. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
-13. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
+7. La falta de una Campaña completa o una ausencia masiva estructurada se trata antes como problema de alcance.
+8. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
+9. ASIGNADOS agrega la pertenencia temporal al Asesor y no depende de una carga TOTAL previa.
+10. Las posiciones de TOTAL y ASIGNADOS pertenecen a listas distintas y no se sobrescriben entre sí.
+11. Una carga ASIGNADOS no duplica Personas ni Apariciones.
+12. Una coincidencia ambigua nunca se resuelve por suposición.
+13. Una Aparición tiene normalmente como máximo una Asignación vigente.
+14. La ausencia en ASIGNADOS comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación.
+15. Una Asignación pendiente de conciliación permanece visible, pero no integra la cola normal de gestionables hasta confirmar su continuidad.
+16. El cambio de período termina la vigencia operativa de Asignaciones anteriores sin terminar Relaciones Comerciales ni Responsabilidades.
+17. La información corporativa no crea automáticamente gestión interna, Relación Comercial ni condición Lead o Cliente.
 
 ## 20. Pendientes para `next_v03`
 
 - clave lógica exacta de Campaña;
 - representación física de Ejecución de Importación;
 - modelo mínimo de eventos de cambio;
-- estructura de Incidencia de Conciliación;
+- estructura de Incidencia de Conciliación individual y de alcance;
 - regla SQL de idempotencia;
 - validación de coherencia entre Tarea y Actividad;
 - historial de datos de contacto;
 - umbrales técnicos de bloqueo;
+- UX de revisión de Asignaciones pendientes de conciliación;
 - pruebas con snapshots ficticios y archivos históricos sanitizados.
