@@ -77,9 +77,9 @@ flowchart LR
     TIPO --> RESACT
     RESACT --> ACTIVIDAD
     TIPO --> ACTIVIDAD
-    PERSONA --> ACTIVIDAD
+    PERSONA -->|participa| ACTIVIDAD
     ASESOR --> ACTIVIDAD
-    PERSONA --> TAREA
+    PERSONA -->|participa| TAREA
     ASESOR --> TAREA
     ACTIVIDAD -. puede originar .-> TAREA
     TAREA -. se ejecuta como .-> ACTIVIDAD
@@ -296,10 +296,11 @@ Reglas:
 
 ### 4.11 Actividad
 
-Hecho de interacción o gestión efectivamente ocurrido, asociado siempre a una Persona y realizado por un Asesor.
+Hecho de interacción o gestión efectivamente ocurrido, asociado siempre a una o varias Personas participantes y realizado por un único Asesor responsable.
 
 Debe poder conservar, al menos:
 
+- una o varias Personas participantes;
 - Tipo de Actividad realmente realizado;
 - fecha y hora efectiva;
 - Resultado de Actividad estructurado y compatible con el Tipo;
@@ -307,13 +308,19 @@ Debe poder conservar, al menos:
 
 Reglas:
 
-- una Persona puede tener cero o muchas Actividades;
-- una Actividad puede existir sin Relación Comercial, como un intento sin respuesta o una conversación sin continuidad;
-- una Actividad puede originar el nacimiento de una Relación Comercial cuando demuestra continuidad comercial propia;
+- una Persona puede participar en cero o muchas Actividades;
+- toda Actividad debe tener al menos una Persona participante;
+- una Actividad puede incluir una o varias Personas sin duplicarse por cada participante;
+- una única llamada, reunión u otra acción real se registra como una sola Actividad, aunque involucre a varias Personas;
+- la participación de una Persona no crea por sí sola una Relación Comercial;
+- una Actividad puede existir sin Relación Comercial para una o varias de sus Personas participantes;
+- una Actividad puede originar el nacimiento de una Relación Comercial sólo para las Personas cuya participación demuestra continuidad comercial propia;
+- las consecuencias comerciales se evalúan individualmente para cada Persona participante;
 - una Actividad puede existir sin Tarea previa;
 - una Actividad puede originar cero, una o varias Tareas futuras;
+- bajo la regla actual, las Personas de una Tarea originada deben estar comprendidas entre las Personas participantes de la Actividad de origen;
 - una Actividad puede constituir la ejecución de cero, una o varias Tareas compatibles;
-- cuando ejecuta una o varias Tareas, todas deben corresponder a la misma Persona y al Asesor responsable vigente de cada Tarea;
+- cuando ejecuta una o varias Tareas, todas sus Personas deben estar comprendidas entre las Personas participantes de la Actividad y el Asesor debe ser el responsable vigente de cada Tarea;
 - el Tipo realmente realizado se conserva aunque difiera del Tipo previsto; esa diferencia no modifica retroactivamente la Tarea;
 - una Actividad puede existir sin Caso u Oportunidad;
 - una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
@@ -350,18 +357,19 @@ Reglas:
 - una Actividad anulada no puede justificar el nacimiento de una Relación Comercial ni completar Tareas;
 - la corrección o anulación no elimina automáticamente las Tareas, Relaciones Comerciales, Oportunidades u otras consecuencias previamente originadas;
 - las consecuencias potencialmente afectadas deben quedar advertidas para revisión, porque pueden haber sido confirmadas posteriormente por otros hechos;
+- en una Actividad con varias Personas, la revisión de consecuencias se realiza individualmente para cada Persona afectada;
 - una anulación no debe convertirse en una eliminación física silenciosa.
 
 ### 4.12 Tarea
 
-Previsión de una Actividad futura pendiente de realización, asociada siempre a una Persona y a un Asesor responsable vigente.
+Previsión de una Actividad futura pendiente de realización, asociada siempre a una o varias Personas previstas y a un único Asesor responsable vigente.
 
 Toda Tarea debe conservar, al menos:
 
+- una o varias Personas previstas;
 - Tipo de Actividad previsto;
 - objetivo o descripción de lo que se pretende realizar;
 - estado;
-- Persona;
 - Asesor responsable vigente.
 
 Puede conservar además:
@@ -374,27 +382,34 @@ No existe una `Nota de programación` separada: el contexto concentra los antece
 
 Reglas:
 
+- toda Tarea debe incluir al menos una Persona prevista;
+- una Tarea puede prever una acción individual o grupal;
+- una única acción futura grupal se representa mediante una sola Tarea y no mediante copias por cada Persona;
+- una Tarea puede incluir Personas que todavía no poseen Relación Comercial;
+- crear una Tarea no crea por sí solo una Relación Comercial para ninguna de sus Personas;
 - una Tarea puede crearse manualmente sin Actividad previa;
 - una Tarea puede originarse en una Actividad;
-- cuando posee una Actividad de origen, ambas deben corresponder a la misma Persona y al mismo Asesor;
+- cuando posee una Actividad de origen, sus Personas deben estar comprendidas entre las Personas participantes de esa Actividad y el Asesor debe ser el mismo;
 - una Tarea representa exactamente una Actividad futura prevista;
 - la fecha prevista y la fecha límite no son obligatorias, pero la ausencia de programación temporal debe quedar visible e incentivarse su corrección;
 - una Tarea pendiente sin programación es `Sin programar` como condición derivada, no como estado almacenado;
 - una Tarea pendiente cuya fecha aplicable venció es `Atrasada` como condición derivada, no como estado almacenado;
 - los estados mínimos propios de la Tarea son Pendiente, Completada y Cancelada;
 - ejecutar una Tarea genera una Actividad vinculada y completa la Tarea, aunque el resultado no alcance el objetivo comercial;
+- la Actividad de ejecución debe incluir a todas las Personas previstas de la Tarea, aunque puede incluir además a otras Personas participantes;
 - una Tarea completada por ejecución tiene una única Actividad de ejecución;
-- una misma Actividad puede ejecutar y completar varias Tareas compatibles de la misma Persona y Asesor;
+- una misma Actividad puede ejecutar y completar varias Tareas compatibles cuando las Personas de cada Tarea están comprendidas entre sus participantes y el Asesor coincide;
 - no deben duplicarse Actividades para representar artificialmente una única acción ocurrida;
 - si después de ejecutar se requiere otro intento o acción, se crea una nueva Tarea;
 - cancelar una Tarea no genera una Actividad, pero debe conservar fecha, responsable y motivo de cancelación;
 - reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
 - la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales;
 - la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento;
+- las consecuencias comerciales de ejecutar una Tarea grupal se determinan individualmente para cada Persona;
 - una Tarea Pendiente puede modificarse, pero los cambios que alteren el compromiso futuro deben conservar trazabilidad;
 - una Tarea Completada o Cancelada no puede reescribirse como si continuara Pendiente; cualquier rectificación posterior debe registrarse explícitamente.
 
-La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles debe presentarse como ayuda opcional y asistida sólo cuando aporte valor, no como una carga obligatoria en cada registro.
+La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles o incorporar varias Personas debe presentarse de forma asistida, sin convertir el flujo habitual en una carga administrativa.
 
 #### 4.12.1 Reasignación de Tarea
 
@@ -412,7 +427,7 @@ Reglas:
 - una Tarea pendiente puede reasignarse antes de su ejecución;
 - la reasignación no modifica retroactivamente quién fue responsable antes del cambio;
 - la transferencia de la Relación Comercial no reasigna automáticamente las Tareas pendientes;
-- las Tareas cuyo responsable ya no coincide con el responsable principal vigente de la Relación deben quedar visibles para resolución;
+- las Tareas cuyo responsable ya no coincide con el responsable principal vigente de una o varias Relaciones involucradas deben quedar visibles para resolución;
 - cada Tarea pendiente puede reasignarse, cancelarse o permanecer excepcionalmente con el Asesor anterior mediante una decisión explícita;
 - una Tarea nunca cambia de responsable silenciosamente.
 
@@ -420,6 +435,7 @@ Reglas:
 
 Una Tarea Pendiente representa un compromiso futuro todavía modificable. Debe conservarse historia cuando cambian elementos que alteran sustancialmente ese compromiso, entre ellos:
 
+- Personas previstas;
 - Asesor responsable;
 - Tipo de Actividad previsto;
 - objetivo;
@@ -446,8 +462,10 @@ Los ajustes menores de redacción del contexto pueden tratarse como edición ord
 | Tipo de Actividad → Actividad | 1 → 0..N |
 | Resultado de Actividad → Actividad | 1 → 0..N |
 | Persona → Actividad | 1 → 0..N |
+| Actividad → Personas participantes | 1 → 1..N |
 | Asesor → Actividad | 1 → 0..N |
 | Persona → Tarea | 1 → 0..N |
+| Tarea → Personas previstas | 1 → 1..N |
 | Asesor → Tarea | 1 → 0..N |
 | Actividad → Tareas originadas | 1 → 0..N |
 | Tarea → Actividad de origen | 1 → 0..1 |
@@ -462,6 +480,8 @@ La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmen
 La cardinalidad histórica `0..N` de Asignación permite conservar cambios y términos. En operación normal, una Aparición tiene como máximo una Asignación vigente; la ausencia en una carga comparable no la termina sin conciliación.
 
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
+
+Actividad–Persona y Tarea–Persona son relaciones de muchos a muchos. Cada Actividad y cada Tarea deben incluir al menos una Persona, mientras una Persona puede participar en muchas de ellas. La representación física de esta participación se definirá durante el diseño lógico.
 
 La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. Una misma Actividad puede originar varias Tareas futuras y también ejecutar varias Tareas compatibles, pero cada Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
 
@@ -491,7 +511,7 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 16. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
 17. Dos responsables simultáneos requieren autorización trazable.
 18. Una autorización no crea una segunda Relación Comercial.
-19. Tarea y Actividad pertenecen siempre a una Persona y un Asesor.
+19. Toda Tarea y Actividad pertenece a una o varias Personas y a un único Asesor responsable.
 20. Tarea y Actividad utilizan el mismo catálogo de Tipos de Actividad.
 21. Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles.
 22. El Resultado de Actividad describe lo ocurrido y no incorpora consecuencias posteriores.
@@ -500,10 +520,10 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 25. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
 26. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
 27. Cada Tarea completada por ejecución tiene una única Actividad de ejecución.
-28. Una Actividad puede ejecutar varias Tareas compatibles de la misma Persona y Asesor.
-29. No se duplican Actividades para representar una única acción real que resolvió varias Tareas.
+28. Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas están comprendidas entre sus participantes y cuyo Asesor coincide.
+29. No se duplican Actividades para representar una única acción real que resolvió varias Tareas o involucró a varias Personas.
 30. Una nueva tentativa posterior requiere una nueva Tarea.
-31. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
+31. Una Tarea no puede originarse ni ejecutarse mediante una Actividad que omita alguna de sus Personas o pertenezca a otro Asesor.
 32. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
 33. Reprogramar o cancelar una Tarea no constituye una Actividad.
 34. La creación de Tareas, Relaciones Comerciales u Oportunidades derivadas de una Actividad se registra como hechos independientes.
@@ -516,6 +536,11 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 41. Una Actividad anulada no cuenta para métricas, no justifica una Relación Comercial y no completa Tareas.
 42. Las consecuencias de una Actividad corregida o anulada se revisan y no se eliminan automáticamente.
 43. Los cambios sustantivos de una Tarea Pendiente conservan historia; una Tarea Completada o Cancelada sólo se rectifica explícitamente.
+44. Toda Actividad y toda Tarea tiene al menos una Persona participante o prevista.
+45. Una interacción grupal real se registra como una única Actividad y una acción grupal futura como una única Tarea.
+46. La participación en una Actividad o Tarea no crea automáticamente una Relación Comercial.
+47. Las consecuencias comerciales de una Actividad o Tarea grupal se determinan individualmente para cada Persona.
+48. Una Tarea grupal puede incluir Personas sin Relación Comercial previa.
 
 ## 7. Vistas y clasificaciones derivadas
 
@@ -551,7 +576,10 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - definir el catálogo inicial controlado de Tipos y Resultados de Actividad;
 - decidir la regla operativa exacta cuando el Tipo realizado difiere del Tipo previsto;
 - definir los criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
-- diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas a una Actividad;
+- diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas o Personas a una Actividad;
+- definir la representación física de la relación muchos-a-muchos entre Personas, Actividades y Tareas;
+- decidir si una participación necesita atributos propios, como rol o condición de participante principal;
+- definir cómo se derivan las métricas por acción y por Persona en Actividades grupales;
 - definir la representación física del historial de reprogramaciones;
 - definir la representación física del historial de responsables de Tarea;
 - definir la representación física de correcciones y anulaciones de Actividad;
