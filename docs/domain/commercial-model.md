@@ -121,7 +121,10 @@ Reglas:
 - una Persona puede aparecer en varias Campañas del mismo período;
 - la misma Aparición no se duplica por cada archivo TOTAL sucesivo;
 - la Aparición no crea por sí sola una Relación Comercial;
-- una Aparición pertenece a una Persona y a una Campaña específica.
+- una Aparición pertenece a una Persona y a una Campaña específica;
+- una Aparición válida normalmente debe tener un único Resultado Corporativo vigente;
+- una Aparición sin resultado válido sólo puede conservarse como inconsistencia explícita y conciliable;
+- la falta de resultado no constituye un tercer estado y no puede gobernar silenciosamente la gestionabilidad.
 
 ### 4.5 Resultado Corporativo
 
@@ -132,7 +135,10 @@ Estado resumido informado por la compañía para una Aparición:
 
 Reglas:
 
-- cada Aparición posee como máximo un Resultado Corporativo vigente;
+- una Aparición válida tiene normalmente exactamente un Resultado Corporativo vigente;
+- la ausencia o invalidez del resultado sólo puede existir temporalmente como inconsistencia explícita, con incidencia de conciliación;
+- una Aparición sin resultado válido no se considera gestionable hasta corregir o validar el antecedente;
+- nunca se inventa un resultado ni se crea un tercer estado como `Desconocido`;
 - la ausencia de una Persona en un período no constituye un tercer estado;
 - Gestionado no informa el detalle real ni demuestra una relación propia;
 - el Resultado Corporativo no se convierte automáticamente en una Actividad interna;
@@ -248,9 +254,11 @@ Reglas:
 | Asesor → Tarea | 1 → 0..N |
 | Actividad → Tarea originada | 1 → 0..N |
 
-La cardinalidad histórica `0..N` permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
+La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
-Las restricciones temporales, especialmente la unicidad del responsable principal vigente y las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
+La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
+
+Las restricciones temporales, especialmente la unicidad del resultado vigente, la unicidad del responsable principal vigente y las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
 ## 6. Invariantes comerciales
 
@@ -258,15 +266,17 @@ Las restricciones temporales, especialmente la unicidad del responsable principa
 2. La Persona sobrevive a Campañas, Apariciones y Asignaciones.
 3. La misma Persona puede aparecer en varias Campañas del mismo período.
 4. La misma Aparición no se duplica por cargas sucesivas.
-5. Aparición y Asignación son hechos diferentes.
-6. Resultado Corporativo y gestión propia son conocimientos diferentes.
-7. Una Persona tiene como máximo una Relación Comercial.
-8. Una Relación normalmente tiene un único responsable principal vigente.
-9. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
-10. Dos responsables simultáneos requieren autorización trazable.
-11. Una autorización no crea una segunda Relación Comercial.
-12. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
-13. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
+5. Una Aparición válida normalmente tiene exactamente un Resultado Corporativo vigente.
+6. Una Aparición sin resultado válido es una inconsistencia explícita, conciliable y no gestionable; no constituye un tercer estado.
+7. Aparición y Asignación son hechos diferentes.
+8. Resultado Corporativo y gestión propia son conocimientos diferentes.
+9. Una Persona tiene como máximo una Relación Comercial.
+10. Una Relación normalmente tiene un único responsable principal vigente.
+11. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
+12. Dos responsables simultáneos requieren autorización trazable.
+13. Una autorización no crea una segunda Relación Comercial.
+14. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
+15. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
 
 ## 7. Vistas derivadas
 
