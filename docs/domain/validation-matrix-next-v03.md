@@ -31,21 +31,23 @@ No constituye todavía una especificación SQL.
 | MV-03 | Aparición | Vincula una Persona con una Campaña concreta | Persona en varias Campañas del mismo mes | Duplicar la misma Aparición por cada TOTAL | T-V03-003 |
 | MV-04 | Resultado Corporativo | Una Aparición válida tiene normalmente exactamente un resultado vigente; la ausencia sólo existe como inconsistencia explícita | Gestionado, No Gestionado o Aparición temporalmente incompleta con incidencia | Dos resultados vigentes, tercer estado inventado o ausencia silenciosa que gobierne gestionabilidad | T-V03-004 |
 | MV-05 | Historial de resultado | Sólo se registra ante un cambio efectivo | Conservar resultado anterior, nuevo, fecha y carga | Crear historial por repetir el mismo valor | T-V03-005 |
-| MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor | Aparición sin Asignación e historial de cambios | Confundir Asignación con Relación Comercial | T-V03-006 |
+| MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor y tiene normalmente una sola vigencia activa | Aparición sin Asignación, historial de cambios y conciliación ante ausencia comparable | Confundir Asignación con Relación Comercial o terminarla por una ausencia aislada | T-V03-006 |
 | MV-07 | Orden de origen | TOTAL y ASIGNADOS tienen órdenes independientes | Posiciones distintas para la misma Persona | Que una carga sobrescriba el orden de la otra | T-V03-007 |
-| MV-08 | Relación Comercial | Es única y persistente para la Persona | Relación sin Oportunidad abierta | Crear otra Relación al cambiar de Asesor | T-V03-008 |
+| MV-08 | Relación Comercial | Es única, persistente y nace cuando existe continuidad comercial propia | Relación sin Oportunidad, nacida por agenda o seguimiento acordado | Crear otra Relación al cambiar de Asesor o esperar al cierre para crearla | T-V03-008 |
 | MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
-| MV-11 | Actividad | Es un hecho de una Persona realizado por un Asesor | Varias Actividades históricas | Actividad sin Persona o Asesor | T-V03-011 |
+| MV-11 | Actividad | Es un hecho de una Persona realizado por un Asesor y puede existir antes de la Relación | Intentos, conversaciones sin continuidad y Actividades que originan una Relación | Actividad sin Persona o Asesor | T-V03-011 |
 | MV-12 | Tarea | Puede ser manual o nacer de una Actividad | Tarea sin Actividad previa | Vincular Actividad de otra Persona o Asesor | T-V03-012 |
 | MV-13 | Importación | Cada archivo genera una ejecución idempotente | Reintentar el mismo archivo sin duplicar | Aplicar dos veces los mismos efectos | T-V03-013 |
 | MV-14 | Linaje | Los hechos indican creación, última observación y último cambio | Identificar qué carga creó o modificó | Guardar copias innecesarias de filas idénticas | T-V03-014 |
 | MV-15 | Datos de contacto | La observación válida más reciente gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
 | MV-16 | Ausencia intra-período | Sólo se analiza entre cargas comparables del mismo período y Campaña | Incidencia por ausencia individual excepcional | Eliminar automáticamente Persona o Aparición | T-V03-016 |
-| MV-17 | Cambio de período | Cada período crea sus propias Apariciones | Miles de ausencias normales entre meses | Generar incidencias por no reaparecer | T-V03-017 |
+| MV-17 | Cambio de período | Cada período crea sus propias Apariciones y termina la vigencia operativa de Asignaciones anteriores | Miles de ausencias normales entre meses | Generar incidencias por no reaparecer | T-V03-017 |
 | MV-18 | Alcance del archivo | Se valida antes de comparar Personas | Detectar una Campaña completa faltante | Generar miles de incidencias individuales | T-V03-018 |
 | MV-19 | Incidencia de Conciliación | Tiene tipo, estado y resoluciones limitadas | Mantenerla abierta hasta conocer el motivo | Resolver sin categoría ni trazabilidad | T-V03-019 |
-| MV-20 | Reaparición | Puede cerrar una incidencia previa sin duplicar hechos | Cierre automático conservando historia | Crear otra Persona o Aparición | T-V03-020 |
+| MV-20 | Reaparición | Puede cerrar una incidencia previa sin duplicar hechos | Cierre automático conservando historia | Crear otra Persona, Aparición o Asignación | T-V03-020 |
+| MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
+| MV-22 | Cliente del Asesor | Se deriva de una Relación con al menos un Producto Contratado vigente asociado al Asesor | Convertir la condición de Lead a Cliente sin cambiar la identidad de la Relación | Crear una segunda Relación al cerrar o emitir un negocio | T-V03-022 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -157,7 +159,8 @@ Resultado esperado:
 
 - Julio conserva sus Apariciones;
 - Agosto crea su conjunto propio;
-- las Personas no observadas en agosto no generan incidencias.
+- las Personas no observadas en agosto no generan incidencias;
+- las Asignaciones de julio dejan de estar operativamente vigentes sin incidencias individuales.
 
 ### CV-08 · Asignado coincidente
 
@@ -234,6 +237,50 @@ La ausencia de responsable no puede permanecer como situación silenciosa normal
 
 El sistema no inventa `Gestionado`, `No Gestionado` ni un tercer estado como `Desconocido`.
 
+### CV-18 · Nacimiento de Relación por agenda
+
+**Dado** que Ana sólo existe como Persona asignada  
+**Cuando** conversa con Guillermo y acepta una reunión futura  
+**Entonces** la Actividad queda registrada, nace una única Relación Comercial y Ana puede clasificarse como Lead.
+
+No es necesario esperar una propuesta ni el cierre de un negocio.
+
+### CV-19 · Conversación sin continuidad
+
+**Dado** que Ana conversa con Guillermo  
+**Y** rechaza continuar, recibir información o agendar otro contacto  
+**Entonces** se registra la Actividad, pero no nace una Relación Comercial.
+
+### CV-20 · Lead sin Oportunidad
+
+**Dado** que existe una Relación Comercial por seguimiento acordado  
+**Y** todavía no se identifica un producto concreto  
+**Entonces** la Relación es válida y puede clasificarse como Lead sin Oportunidad.
+
+### CV-21 · Conversión a Cliente del Asesor
+
+**Dado** que Ana posee una Relación Comercial y una Oportunidad ganada  
+**Cuando** nace un Producto Contratado vigente asociado a Guillermo  
+**Entonces** Ana pasa a clasificarse como Cliente del Asesor sin crear otra Persona ni otra Relación Comercial.
+
+### CV-22 · Ausencia en ASIGNADOS comparable
+
+```text
+ASIGNADOS_01 agosto:
+Ana · Guillermo
+
+ASIGNADOS_02 agosto:
+Ana no aparece
+```
+
+Resultado esperado:
+
+- no se elimina la Asignación histórica;
+- no se registra término automático;
+- se genera una incidencia de conciliación;
+- una resolución confirmada puede registrar el término;
+- una reaparición posterior cierra la incidencia sin duplicar la Asignación.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -245,7 +292,14 @@ El sistema no inventa `Gestionado`, `No Gestionado` ni un tercer estado como `De
 - la falta de resultado es una inconsistencia explícita, conciliable y no gestionable, nunca un tercer estado;
 - Resultado Corporativo separado de la gestión propia;
 - órdenes TOTAL y ASIGNADOS independientes;
+- una Aparición tiene normalmente como máximo una Asignación vigente;
+- la ausencia en ASIGNADOS comparable genera conciliación y no término automático;
+- el cambio de período termina la vigencia operativa de Asignaciones anteriores sin incidencias individuales;
 - Relación Comercial única;
+- la Relación nace con continuidad comercial propia y no requiere propuesta ni cierre;
+- Lead es una condición de la Relación Comercial, no una entidad separada;
+- puede existir Lead sin Oportunidad;
+- Cliente del Asesor se deriva de un Producto Contratado vigente sin crear otra Relación;
 - responsabilidad de Asesor con historial;
 - responsable principal normalmente vigente y ausencia temporal sólo como excepción explícita y alertada;
 - responsabilidad simultánea sólo con autorización;
@@ -259,6 +313,7 @@ El sistema no inventa `Gestionado`, `No Gestionado` ni un tercer estado como `De
 
 - clave lógica exacta de Campaña;
 - forma física de la Autorización Excepcional;
+- reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
 - nombres de tablas y columnas;
