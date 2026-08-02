@@ -51,27 +51,6 @@ Reglas:
 - antes de identificar una Oportunidad puede existir una Relación Comercial o una condición Lead sin Oportunidad, pero todavía no existe un Caso;
 - el Caso organiza el desarrollo comercial propio y no reemplaza las Oportunidades formales que pueda exigir la compañía.
 
-Ejemplos:
-
-```text
-Objetivo: inversión de largo plazo
-Caso Comercial: estrategia de inversión de largo plazo
-Oportunidades:
-- APV
-- CUI
-- Fondo Mutuo
-```
-
-```text
-Objetivo 1: proteger económicamente a la familia
-Caso Comercial 1: protección familiar
-Oportunidad: Seguro de Vida
-
-Objetivo 2: mejorar la pensión futura
-Caso Comercial 2: ahorro previsional
-Oportunidad: APV
-```
-
 Cardinalidad conceptual aprobada:
 
 ```text
@@ -117,23 +96,6 @@ Reglas:
 - una diferencia impuesta por el CRM corporativo no redefine por sí sola el dominio propio;
 - una Cotización pertenece exactamente a una Oportunidad;
 - la Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió.
-
-Ejemplo de una Oportunidad con varias Cotizaciones:
-
-```text
-Oportunidad: contratar un Vida Ahorro Total
-Cotizaciones alternativas:
-- cobertura UF 1.000
-- cobertura UF 2.000
-- cobertura UF 3.000
-```
-
-Ejemplo de Oportunidades distintas del mismo producto:
-
-```text
-Oportunidad 1: seguro destinado a protección familiar
-Oportunidad 2: seguro independiente destinado a planificación sucesoria
-```
 
 Cardinalidad conceptual aprobada:
 
