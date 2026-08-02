@@ -24,6 +24,7 @@ Incluye:
 - Resultado Corporativo;
 - Asignación;
 - Relación Comercial;
+- condición Lead de la Relación Comercial;
 - Responsabilidad del Asesor;
 - Autorización Excepcional;
 - Actividad;
@@ -75,7 +76,7 @@ flowchart LR
     ACTIVIDAD -. puede originar .-> TAREA
 ```
 
-El diagrama representa relaciones conceptuales, no tablas ni cardinalidades físicas definitivas.
+El diagrama representa relaciones conceptuales, no tablas ni cardinalidades físicas definitivas. `Lead` y `Cliente del Asesor` son condiciones derivadas de la Relación Comercial, no entidades adicionales del diagrama.
 
 ## 4. Conceptos
 
@@ -151,37 +152,62 @@ Vínculo temporal entre una Aparición y un Asesor durante la vigencia operativa
 Reglas:
 
 - una Aparición puede no tener Asignación;
+- una Aparición tiene normalmente como máximo una Asignación vigente;
 - una Asignación no crea una Relación Comercial;
 - el orden de Asignación es independiente del orden informado por la carga TOTAL;
 - debe conservarse historial cuando cambia o termina;
 - una Asignación a otro Asesor puede bloquear la gestión salvo excepción autorizada;
-- una Asignación propia permanece visible durante la Campaña activa aunque el Resultado Corporativo sea Gestionado.
+- una Asignación propia permanece visible durante la Campaña activa aunque el Resultado Corporativo sea Gestionado;
+- la ausencia en una carga ASIGNADOS posterior del mismo período y alcance comparable no termina automáticamente la Asignación: genera conciliación;
+- sólo una resolución confirmada registra el término dentro del mismo período;
+- el cambio de período termina la vigencia operativa de las Asignaciones anteriores sin generar incidencias individuales por quienes no reaparecen.
 
 ### 4.7 Relación Comercial
 
-Vínculo persistente entre una Persona y el CRM comercial propio.
+Vínculo persistente de continuidad comercial propia entre una Persona y el CRM, bajo la responsabilidad de uno o más Asesores conforme a las reglas de este modelo.
 
-Puede nacer por:
+Nace cuando una interacción, incorporación autorizada o antecedente previo establece continuidad comercial propia. Esa continuidad puede quedar demostrada, entre otros hechos, por:
 
-- contacto efectivo que deja continuidad comercial;
-- incorporación manual autorizada;
-- relación previa conocida y registrada.
+- una reunión agendada;
+- un seguimiento acordado para una fecha posterior;
+- una solicitud o aceptación de información que requiere continuidad;
+- una necesidad concreta identificada para desarrollar;
+- una relación previa conocida y registrada;
+- una incorporación manual autorizada como referido o contacto propio.
 
 No nace por:
 
 - aparición en campaña;
 - asignación;
 - intento sin respuesta;
+- conversación sin interés ni siguiente paso;
 - estado corporativo Gestionado;
-- importación de un archivo.
+- importación de un archivo;
+- presentación de una propuesta, porque para entonces la Relación ya debe existir;
+- cierre de un negocio, porque el cierre cambia la condición comercial pero no crea la Relación.
 
 Reglas:
 
 - una Persona tiene como máximo una Relación Comercial persistente dentro del CRM;
 - la Relación puede existir sin oportunidades abiertas;
+- una Oportunidad presupone una Relación Comercial existente;
 - no se reemplaza cuando cambia el Asesor responsable;
 - no desaparece porque termine una Campaña;
-- su futura relación con Casos y Oportunidades se incorporará en versiones posteriores.
+- el cierre y posterior existencia de un Producto Contratado convierten a la Persona en Cliente del Asesor, sin crear otra Relación;
+- su futura relación detallada con Casos y Oportunidades se incorporará en versiones posteriores.
+
+#### 4.7.1 Lead y otras condiciones de la Relación
+
+`Lead` no es una Persona distinta ni una entidad paralela. Es una condición o clasificación de una Relación Comercial anterior a la existencia de un Producto Contratado.
+
+Inicialmente deben poder distinguirse, al menos, estas situaciones conceptuales:
+
+- Lead sin Oportunidad: existe continuidad comercial, pero todavía no se identifica un producto concreto;
+- Lead con Oportunidad: existe una necesidad o contratación potencial identificable;
+- Cliente del Asesor: existe al menos un Producto Contratado vigente asociado al Asesor;
+- Relación dormida o inactiva: la Relación persiste, pero no hay Oportunidad ni actividad vigente que requiera atención inmediata.
+
+Estas condiciones pueden derivarse de hechos persistentes y no deben convertirse prematuramente en una secuencia rígida de estados manuales. Una Persona puede avanzar, retroceder o reactivar su gestión sin perder la identidad de la Relación Comercial.
 
 ### 4.8 Responsabilidad del Asesor
 
@@ -219,6 +245,8 @@ Hecho de interacción o gestión asociado siempre a una Persona y realizado por 
 Reglas:
 
 - una Persona puede tener cero o muchas Actividades;
+- una Actividad puede existir sin Relación Comercial, como un intento sin respuesta o una conversación sin continuidad;
+- una Actividad puede originar el nacimiento de una Relación Comercial cuando demuestra continuidad comercial propia;
 - una Actividad puede existir sin Caso u Oportunidad;
 - una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
@@ -256,9 +284,11 @@ Reglas:
 
 La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
+La cardinalidad histórica `0..N` de Asignación permite conservar cambios y términos. En operación normal, una Aparición tiene como máximo una Asignación vigente; la ausencia en una carga comparable no la termina sin conciliación.
+
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
 
-Las restricciones temporales, especialmente la unicidad del resultado vigente, la unicidad del responsable principal vigente y las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
+Las restricciones temporales, especialmente la unicidad del resultado vigente, de la Asignación vigente, del responsable principal vigente y de las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
 ## 6. Invariantes comerciales
 
@@ -269,16 +299,21 @@ Las restricciones temporales, especialmente la unicidad del resultado vigente, l
 5. Una Aparición válida normalmente tiene exactamente un Resultado Corporativo vigente.
 6. Una Aparición sin resultado válido es una inconsistencia explícita, conciliable y no gestionable; no constituye un tercer estado.
 7. Aparición y Asignación son hechos diferentes.
-8. Resultado Corporativo y gestión propia son conocimientos diferentes.
-9. Una Persona tiene como máximo una Relación Comercial.
-10. Una Relación normalmente tiene un único responsable principal vigente.
-11. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
-12. Dos responsables simultáneos requieren autorización trazable.
-13. Una autorización no crea una segunda Relación Comercial.
-14. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
-15. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
+8. Una Aparición tiene normalmente como máximo una Asignación vigente.
+9. Una ausencia aislada en ASIGNADOS comparable no termina automáticamente la Asignación.
+10. Resultado Corporativo y gestión propia son conocimientos diferentes.
+11. Una Persona tiene como máximo una Relación Comercial.
+12. La Relación nace con continuidad comercial propia, no con campaña, asignación, propuesta ni cierre.
+13. `Lead` es una condición de la Relación Comercial, no una entidad distinta.
+14. El Producto Contratado convierte a la Persona en Cliente del Asesor sin crear otra Relación.
+15. Una Relación normalmente tiene un único responsable principal vigente.
+16. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
+17. Dos responsables simultáneos requieren autorización trazable.
+18. Una autorización no crea una segunda Relación Comercial.
+19. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
+20. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
 
-## 7. Vistas derivadas
+## 7. Vistas y clasificaciones derivadas
 
 No constituyen fuente de verdad:
 
@@ -288,6 +323,9 @@ No constituyen fuente de verdad:
 - agenda;
 - alertas;
 - contactos gestionables;
+- clasificación Lead;
+- clasificación Cliente del Asesor;
+- relación dormida o activa;
 - métricas diarias;
 - pipeline y proyección futura.
 
@@ -296,7 +334,8 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 ## 8. Pendientes para versiones futuras
 
 - definir la identidad lógica exacta de Campaña;
-- precisar cuándo una Relación Comercial termina o sólo cambia de estado;
+- precisar cuándo una Relación Comercial termina o sólo cambia de condición;
+- definir las reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
 - incorporar Casos, Oportunidades, Cotizaciones, Propuestas y Productos Contratados;
 - modelar roles, usuarios y autorizaciones técnicas;
 - decidir la representación física de la Autorización Excepcional;
