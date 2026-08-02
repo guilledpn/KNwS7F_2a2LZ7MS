@@ -28,11 +28,12 @@ Persona
 └── Relación Comercial
     └── Caso Comercial
         └── Oportunidad
-            ├── Cotizaciones
-            └── estado de Pipeline pendiente de ubicación definitiva
+            └── Cotizaciones
 ```
 
 La Propuesta no aparece como entidad estructurada. El contenido que el Asesor decide presentar vive de forma descriptiva en el historial del Caso Comercial y puede quedar respaldado por Actividades, notas y documentos asociados.
+
+El Pipeline se opera desde el Caso Comercial, pero las etapas se conservan por Oportunidad para permitir avances distintos. Las tarjetas del Kanban son proyecciones derivadas del Caso agrupadas por etapa; no constituyen entidades persistentes.
 
 ## Decisiones aprobadas
 
@@ -140,13 +141,85 @@ Reglas:
 
 Esta decisión refina la definición previa del Diccionario: `Propuesta` continúa siendo un concepto válido del lenguaje comercial, pero no toda noción del negocio debe transformarse en una entidad persistente y estructurada.
 
+### 5. Pipeline operado por Caso y desagregado por Oportunidad
+
+El Caso Comercial es la unidad de negocio, navegación y contexto operativo del Asesor. Las Oportunidades conservan su etapa individual porque distintas contrataciones del mismo Caso pueden avanzar, someterse, emitirse, descartarse o cerrarse en momentos distintos.
+
+El Kanban no persiste tarjetas independientes. Cada tarjeta es una vista derivada del Caso Comercial y de las Oportunidades que comparten una misma etapa.
+
+Reglas primarias:
+
+1. **Caso unificado por defecto.** Cuando todas las Oportunidades de un Caso comparten etapa, el Kanban muestra una sola tarjeta del Caso.
+2. **Movimiento principal simple.** Mover esa tarjeta cambia a la nueva etapa todas las Oportunidades representadas por ella.
+3. **Separación explícita.** El Asesor puede entrar al Caso y mover una o más Oportunidades a otra etapa. Esta acción excepcional divide la representación del Caso en tarjetas vinculadas.
+4. **Movimiento posterior a la separación.** Arrastrar una tarjeta dividida mueve sólo las Oportunidades que esa tarjeta representa.
+5. **Movimiento total disponible.** `Mover todo el Caso` es una acción explícita que vuelve a mover conjuntamente todas sus Oportunidades, aunque estén distribuidas en varias etapas.
+6. **Navegación única.** Todas las tarjetas vinculadas abren el mismo Caso Comercial; ninguna abre una subentidad aislada como destino principal.
+7. **Sin duplicación de hechos.** La existencia de varias tarjetas no crea varios Casos ni duplica Oportunidades. La agrupación se deriva conceptualmente por `(Caso Comercial, etapa)`.
+8. **Trazabilidad.** Todo cambio de etapa conserva la etapa anterior, la nueva, la fecha y el actor. No existen movimientos silenciosos.
+
+Ejemplo:
+
+```text
+Caso Comercial: protección y ahorro de Ana
+
+Propuesta
+└── Vida Ahorro · 100 CNS proyectados
+
+Sometida
+└── APV · 40 CNS sometidos
+```
+
+Ambas tarjetas pertenecen al mismo Caso y abren su contexto completo.
+
+#### Proyección y hechos reales de CNS
+
+Los CNS proyectados representan una estimación comercial manual del Asesor. No se calculan automáticamente desde Cotizaciones ni mediante una fórmula obligatoria de probabilidades.
+
+Reglas:
+
+- el Caso posee una cifra manual de CNS proyectados;
+- por defecto, la proyección se maneja como un único monto con una fecha prevista de sometimiento y una fecha prevista de emisión;
+- cuando el Caso realmente requiera más de un monto o más de una fecha, el Asesor puede dividir manualmente la proyección en componentes temporales;
+- al separar Oportunidades entre etapas, el sistema debe solicitar únicamente la distribución necesaria para evitar atribuir el mismo monto a más de una tarjeta;
+- la suma de las distribuciones vigentes debe coincidir con el total manual proyectado del Caso;
+- una separación redistribuye la proyección: no la recalcula desde productos, Cotizaciones ni probabilidades;
+- CNS sometidos y CNS emitidos son hechos reales distintos de la proyección y conservan sus propias cantidades y fechas;
+- una misma contratación puede registrar un sometimiento y una emisión en fechas diferentes, y un Caso puede contener varios sometimientos o emisiones;
+- los indicadores por etapa y por período son cálculos derivados; nunca constituyen la fuente de verdad.
+
+Conceptualmente deben distinguirse:
+
+```text
+Proyección manual vigente
+≠ CNS efectivamente sometidos
+≠ CNS efectivamente emitidos
+```
+
+La representación física de los componentes temporales de proyección y de los hechos reales de sometimiento y emisión se definirá durante el diseño lógico, no en este ADR.
+
+#### Criterio de seguridad antes del diseño físico
+
+Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`, el modelo deberá demostrar con casos de prueba que mantiene simultáneamente estas invariantes:
+
+- cada Oportunidad pertenece a un único Caso y posee una única etapa actual;
+- las tarjetas del Kanban se derivan y nunca se convierten en fuente de verdad;
+- mover una tarjeta no duplica ni pierde Oportunidades;
+- separar y volver a unificar conserva historia;
+- la proyección manual no se duplica al aparecer el Caso en varias columnas;
+- la suma de distribuciones de proyección coincide con el total vigente del Caso;
+- proyección, sometimiento y emisión no se sobrescriben entre sí;
+- los totales por etapa y período pueden reconstruirse exclusivamente desde hechos canónicos.
+
+Si estas reglas no pueden expresarse mediante un conjunto pequeño de transiciones deterministas y pruebas reproducibles, el diseño físico deberá detenerse y simplificarse antes de crear tablas.
+
 ## Preguntas pendientes del lote
 
-1. Qué concepto recorre realmente el Pipeline y dónde vive su estado.
-2. Qué estados son hechos persistentes y cuáles son vistas derivadas.
-3. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
-4. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
-5. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+1. Cuáles son las etapas mínimas del Pipeline y cuáles de ellas son terminales.
+2. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
+3. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+4. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+5. Cómo representar lógicamente la proyección manual, sus divisiones temporales y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
 6. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
@@ -174,7 +247,12 @@ No se decidirán todavía:
 - la Oportunidad conserva una contratación potencial individualizable y la Cotización una configuración específica de esa contratación;
 - alternativas mutuamente excluyentes permanecen en una Oportunidad, mientras contrataciones que pueden coexistir se representan como Oportunidades distintas;
 - la Propuesta permanece como conocimiento descriptivo del Caso y no como entidad estructurada del modelo mínimo;
-- no se crea una estructura combinatoria de Propuestas ni Alternativas de Propuesta;
+- el Caso es la unidad de negocio y navegación del Pipeline, mientras la etapa se conserva por Oportunidad;
+- las tarjetas del Kanban son vistas derivadas agrupadas por Caso y etapa, no entidades persistentes;
+- el flujo frecuente mantiene una sola tarjeta y un solo movimiento; la separación por Oportunidad es una acción secundaria explícita;
+- los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
+- proyección, sometimiento y emisión se conservan como conceptos distintos;
+- el diseño físico deberá probar las invariantes de movimiento, distribución y reconstrucción antes de crear tablas;
 - el futuro diseño lógico no podrá convertir heurísticas evolutivas en bloqueos irreversibles sin una decisión posterior explícita;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
