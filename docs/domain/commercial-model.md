@@ -27,6 +27,7 @@ Incluye:
 - condición Lead de la Relación Comercial;
 - Responsabilidad del Asesor;
 - Autorización Excepcional;
+- Tipo de Actividad;
 - Actividad;
 - Tarea.
 
@@ -55,8 +56,9 @@ flowchart LR
     RELACION[Relación Comercial]
     RESPONSABILIDAD[Responsabilidad del Asesor]
     AUTORIZACION[Autorización Excepcional]
-    ACTIVIDAD[Actividad]
-    TAREA[Tarea]
+    TIPO[Tipo de Actividad]
+    ACTIVIDAD[Actividad realizada]
+    TAREA[Tarea: Actividad prevista]
 
     PERSONA --> APARICION
     CAMPANIA --> APARICION
@@ -69,11 +71,14 @@ flowchart LR
     RESPONSABILIDAD --> ASESOR
     AUTORIZACION -. habilita excepción .-> RESPONSABILIDAD
 
+    TIPO --> ACTIVIDAD
+    TIPO --> TAREA
     PERSONA --> ACTIVIDAD
     ASESOR --> ACTIVIDAD
     PERSONA --> TAREA
     ASESOR --> TAREA
     ACTIVIDAD -. puede originar .-> TAREA
+    TAREA -. se ejecuta como .-> ACTIVIDAD
 ```
 
 El diagrama representa relaciones conceptuales, no tablas ni cardinalidades físicas definitivas. `Lead` y `Cliente del Asesor` son condiciones derivadas de la Relación Comercial, no entidades adicionales del diagrama.
@@ -238,31 +243,94 @@ Debe identificar, al menos:
 
 `Administrador` no se define aquí como entidad comercial. Es un rol de autorización de un usuario del sistema.
 
-### 4.10 Actividad
+### 4.10 Tipo de Actividad
 
-Hecho de interacción o gestión asociado siempre a una Persona y realizado por un Asesor.
+Vocabulario común que identifica la clase de acción prevista o realizada.
+
+Se utiliza tanto en la Tarea como en la Actividad para evitar una categoría paralela de Tarea que duplique el significado.
+
+Ejemplos iniciales no exhaustivos:
+
+- Llamada;
+- Reunión;
+- Correo;
+- WhatsApp;
+- Envío de información;
+- Preparación de propuesta;
+- Revisión de antecedentes;
+- Recepción de documentos.
+
+Reglas:
+
+- el Tipo de Actividad responde qué acción se prevé o se realizó;
+- el objetivo de la Tarea responde para qué se realizará;
+- el resultado de la Actividad responde qué ocurrió;
+- el catálogo exacto y su representación física se definirán durante el diseño lógico;
+- el Tipo de Actividad previsto no se sobrescribe con el Tipo realmente realizado.
+
+### 4.11 Actividad
+
+Hecho de interacción o gestión efectivamente ocurrido, asociado siempre a una Persona y realizado por un Asesor.
+
+Debe poder conservar, al menos:
+
+- Tipo de Actividad realmente realizado;
+- fecha y hora efectiva;
+- resultado estructurado;
+- nota de ejecución opcional.
 
 Reglas:
 
 - una Persona puede tener cero o muchas Actividades;
 - una Actividad puede existir sin Relación Comercial, como un intento sin respuesta o una conversación sin continuidad;
 - una Actividad puede originar el nacimiento de una Relación Comercial cuando demuestra continuidad comercial propia;
+- una Actividad puede existir sin Tarea previa;
+- una Actividad puede originar cero, una o varias Tareas futuras;
+- una Actividad puede constituir la ejecución de una Tarea;
+- cuando ejecuta una Tarea, debe corresponder a la misma Persona y al mismo Asesor de la Tarea;
+- el Tipo realmente realizado se conserva aunque difiera del Tipo previsto; esa diferencia no modifica retroactivamente la Tarea;
 - una Actividad puede existir sin Caso u Oportunidad;
 - una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
-- un evento técnico de guardado no equivale por sí solo a una Actividad significativa.
+- un evento técnico de guardado no equivale por sí solo a una Actividad significativa;
+- la nota libre complementa, pero no sustituye, el resultado estructurado.
 
-### 4.11 Tarea
+### 4.12 Tarea
 
-Acción futura asociada a una Persona y a un Asesor, con fecha y estado.
+Previsión de una Actividad futura pendiente de realización, asociada siempre a una Persona y a un Asesor responsable.
+
+Toda Tarea debe conservar, al menos:
+
+- Tipo de Actividad previsto;
+- objetivo o descripción de lo que se pretende realizar;
+- estado;
+- Persona;
+- Asesor responsable.
+
+Puede conservar además:
+
+- contexto o instrucciones opcionales;
+- fecha y hora prevista de ejecución;
+- fecha límite.
+
+No existe una `Nota de programación` separada: el contexto concentra los antecedentes, instrucciones o razones relevantes para ejecutar la Tarea.
 
 Reglas:
 
-- puede crearse manualmente sin Actividad previa;
-- puede originarse en una Actividad;
-- cuando referencia una Actividad, ambas deben corresponder a la misma Persona y al mismo Asesor;
-- puede reprogramarse conservando trazabilidad;
-- su vencimiento puede alimentar vistas de agenda, alertas y cola, pero esas vistas son derivadas.
+- una Tarea puede crearse manualmente sin Actividad previa;
+- una Tarea puede originarse en una Actividad;
+- cuando posee una Actividad de origen, ambas deben corresponder a la misma Persona y al mismo Asesor;
+- una Tarea representa exactamente una Actividad futura prevista;
+- la fecha prevista y la fecha límite no son obligatorias, pero la ausencia de programación temporal debe quedar visible e incentivarse su corrección;
+- una Tarea pendiente sin programación es `Sin programar` como condición derivada, no como estado almacenado;
+- una Tarea pendiente cuya fecha aplicable venció es `Atrasada` como condición derivada, no como estado almacenado;
+- los estados mínimos propios de la Tarea son Pendiente, Completada y Cancelada;
+- ejecutar una Tarea genera una Actividad vinculada y completa la Tarea, aunque el resultado no alcance el objetivo comercial;
+- una Tarea completada por ejecución tiene una única Actividad de ejecución;
+- si después de ejecutar se requiere otro intento o acción, se crea una nueva Tarea;
+- cancelar una Tarea no genera una Actividad, pero debe conservar fecha, responsable y motivo de cancelación;
+- reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
+- la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales.
 
 ## 5. Cardinalidades conceptuales
 
@@ -276,11 +344,16 @@ Reglas:
 | Persona → Relación Comercial | 1 → 0..1 |
 | Relación Comercial → Responsabilidad histórica | 1 → 0..N |
 | Asesor → Responsabilidad | 1 → 0..N |
+| Tipo de Actividad → Tarea | 1 → 0..N |
+| Tipo de Actividad → Actividad | 1 → 0..N |
 | Persona → Actividad | 1 → 0..N |
 | Asesor → Actividad | 1 → 0..N |
 | Persona → Tarea | 1 → 0..N |
 | Asesor → Tarea | 1 → 0..N |
-| Actividad → Tarea originada | 1 → 0..N |
+| Actividad → Tareas originadas | 1 → 0..N |
+| Tarea → Actividad de origen | 1 → 0..1 |
+| Tarea → Actividad de ejecución | 1 → 0..1 |
+| Actividad → Tarea ejecutada | 1 → 0..1 |
 
 La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
@@ -288,7 +361,9 @@ La cardinalidad histórica `0..N` de Asignación permite conservar cambios y té
 
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
 
-Las restricciones temporales, especialmente la unicidad del resultado vigente, de la Asignación vigente, del responsable principal vigente y de las responsabilidades adicionales autorizadas, se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
+La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. Una misma Actividad puede originar varias Tareas futuras, pero una Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
+
+Las restricciones temporales y de consistencia se validarán mediante reglas y pruebas; no se deducen sólo de las cardinalidades estáticas.
 
 ## 6. Invariantes comerciales
 
@@ -310,8 +385,17 @@ Las restricciones temporales, especialmente la unicidad del resultado vigente, d
 16. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
 17. Dos responsables simultáneos requieren autorización trazable.
 18. Una autorización no crea una segunda Relación Comercial.
-19. Actividad y Tarea pertenecen siempre a una Persona y un Asesor.
-20. Una Tarea no puede originarse en una Actividad de otra Persona o Asesor.
+19. Tarea y Actividad pertenecen siempre a una Persona y un Asesor.
+20. Tarea y Actividad utilizan el mismo catálogo de Tipos de Actividad.
+21. Una Tarea representa exactamente una Actividad futura prevista y debe poseer Tipo y objetivo.
+22. El contexto de la Tarea es opcional; no existe una Nota de programación independiente.
+23. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
+24. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
+25. Una Tarea completada por ejecución tiene una única Actividad de ejecución.
+26. Una nueva tentativa posterior requiere una nueva Tarea.
+27. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
+28. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
+29. Reprogramar o cancelar una Tarea no constituye una Actividad.
 
 ## 7. Vistas y clasificaciones derivadas
 
@@ -326,6 +410,8 @@ No constituyen fuente de verdad:
 - clasificación Lead;
 - clasificación Cliente del Asesor;
 - relación dormida o activa;
+- Tarea sin programar;
+- Tarea atrasada;
 - métricas diarias;
 - pipeline y proyección futura.
 
@@ -339,5 +425,9 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - incorporar Casos, Oportunidades, Cotizaciones, Propuestas y Productos Contratados;
 - modelar roles, usuarios y autorizaciones técnicas;
 - decidir la representación física de la Autorización Excepcional;
+- definir el catálogo inicial controlado de Tipos y Resultados de Actividad;
+- decidir la regla operativa exacta cuando el Tipo realizado difiere del Tipo previsto;
+- definir la representación física del historial de reprogramaciones;
+- definir formato y límites de objetivo, contexto y nota de ejecución;
 - validar el historial individual de teléfonos y correos;
 - diseñar `next_v03` y probar estas invariantes con datos ficticios.
