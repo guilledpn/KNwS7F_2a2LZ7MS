@@ -34,6 +34,7 @@ Este archivo gobierna la asignación de identificadores ADR. Las decisiones ADR-
 | ADR-021 | Monorepo y transición Legacy/Next | Aprobado | `docs/adr/ADR-021-monorepo-y-transicion-legacy-next.md` | LCD-20260713-03 |
 | ADR-022 | Docs-as-Code y separación Git/Drive | Aprobado | `docs/adr/ADR-022-docs-as-code-y-separacion-git-drive.md` | LCD-20260713-03 |
 | ADR-023 | Autoridad documental y registro único de identificadores | Aprobado | `docs/adr/ADR-023-autoridad-documental-y-registro-unico.md` | LCD-20260801-01 |
+| ADR-024 | Límites entre Modelo Comercial y Modelo Operacional de CRM Patrimonial Next | Reservado · pendiente de revisión | `docs/adr/ADR-024-limites-modelo-comercial-operacional.md` | LCD-20260801-02 |
 
 ## Colisiones históricas resueltas
 

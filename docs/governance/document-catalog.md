@@ -13,6 +13,9 @@ Este catálogo indica dónde vive la única versión editable canónica de cada 
 | Índice del Modelo del Dominio | 3 | Google Drive | Enmendado por LCD-20260801-01; pendiente de migración |
 | Diccionario del Dominio | 3 | Google Drive | Pendiente de migración |
 | APP LLAMADOS · Modelo de negocio | 3 | Google Drive | Pendiente de migración |
+| Modelo Comercial del CRM Patrimonial | 3 | GitHub `docs/domain/commercial-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |
+| Modelo Operacional del CRM Patrimonial | 3 | GitHub `docs/domain/operational-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |
+| Matriz de Validación Next v03 | 3 · Validación del modelo | GitHub `docs/domain/validation-matrix-next-v03.md` | Creada bajo LCD-20260801-02; pendiente de revisión |
 | Modelo de Productos y matriz Consorcio | 3 | Google Drive | LCD-20260712-01 pendiente de revisión |
 | Backlog y Roadmap | 4 | Google Drive | Pendiente de migración |
 | Bitácora ADR-001 a ADR-020 | 5 | Google Drive | Pendiente de migración íntegra |
@@ -29,6 +32,8 @@ Este catálogo indica dónde vive la única versión editable canónica de cada 
 ## Regla de transición
 
 Mientras un documento figure aquí con autoridad en Drive, su copia o exportación en GitHub es sólo borrador hasta que un LCD complete la migración. Una vez migrado, el documento de Drive debe quedar archivado o transformado en puntero, no continuar editable en paralelo.
+
+Los documentos nuevos que no poseían una versión previa en Drive pueden nacer directamente en GitHub. Su ubicación editable es única desde su creación, aunque su contenido permanezca pendiente de revisión hasta el merge autorizado del LCD correspondiente.
 
 ## Referencias principales de Drive
 

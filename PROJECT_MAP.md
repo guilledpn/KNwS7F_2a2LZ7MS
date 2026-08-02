@@ -2,7 +2,8 @@
 
 Estado: Vigente  
 Último LCD aprobado: LCD-20260801-01  
-Lotes pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
+Lote en revisión: LCD-20260801-02  
+Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
 
 ## Propósito
 
@@ -42,6 +43,15 @@ Cada producto puede tener sus propios ambientes y versiones.
 - GitHub Flow con ramas breves y Pull Requests.
 - Conventional Commits y Semantic Versioning.
 
+## Decisión de dominio en revisión
+
+ADR-024 propone separar:
+
+- Modelo Comercial: hechos, conceptos e invariantes del negocio;
+- Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
+
+La decisión y sus documentos permanecen pendientes de revisión bajo LCD-20260801-02.
+
 ## Contextos de dominio candidatos
 
 1. Identidad y Contactabilidad.
@@ -53,7 +63,7 @@ Cada producto puede tener sus propios ambientes y versiones.
 7. Patrimonio e Inversiones.
 8. Proyección y Analítica.
 
-Estos contextos permanecen sujetos a validación formal antes del diseño físico definitivo.
+Estos contextos permanecen sujetos a validación formal antes del diseño físico definitivo. Los documentos Comercial y Operacional no crean por sí solos esquemas PostgreSQL, microservicios ni contextos delimitados definitivos.
 
 ## Autoridad documental
 
@@ -122,6 +132,17 @@ Aprobados mediante Pull Requests #17 y #18.
 
 El repositorio contiene cambios de julio de 2026 para muestras de análisis y separación entre edición de ficha y eventos de gestión. Esos cambios forman parte de la evolución del Legacy y deben incorporarse al futuro registro histórico detallado sin alterar el Modelo de Next.
 
+## Modelo de Next en revisión
+
+LCD-20260801-02 incorpora como borradores únicos y versionados:
+
+- `docs/domain/commercial-model.md`;
+- `docs/domain/operational-model.md`;
+- `docs/domain/validation-matrix-next-v03.md`;
+- `docs/adr/ADR-024-limites-modelo-comercial-operacional.md`.
+
+Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, Relación Comercial, Responsabilidad del Asesor, Actividad, Tarea, importaciones y conciliaciones. No autorizan todavía SQL ni cambios de runtime.
+
 ## Estado actual de la transición
 
 ### Completado
@@ -136,18 +157,22 @@ El repositorio contiene cambios de julio de 2026 para muestras de análisis y se
 - reconciliación documental Drive/GitHub;
 - registros únicos de LCD y ADR;
 - catálogo de autoridad documental;
-- laboratorio local PostgreSQL y experimentación conceptual de Next iniciados.
+- laboratorio local PostgreSQL y experimentación conceptual de Next iniciados;
+- Matriz de Validación conceptual acordada en conversación y trasladada a documento pendiente de revisión.
 
 ### En curso
 
-- descubrimiento y validación del modelo conceptual de CRM Patrimonial Next;
-- diseño de Persona, Campaña, Aparición, Asignación, Asesor, Relación Comercial, Actividad, Tarea e importaciones;
+- revisión del Modelo Comercial mínimo;
+- revisión del Modelo Operacional mínimo;
+- revisión de ADR-024 y de la Matriz de Validación Next v03;
 - revisión del material educativo del PR #21;
 - cierre documental y visual de LCD-20260715-01;
 - migración progresiva de documentos superiores de Drive a Markdown.
 
 ### No iniciado o no completado
 
+- diseño físico `next_v03`;
+- SQL reproducible de Next;
 - movimientos físicos definitivos hacia la estructura objetivo;
 - desacoplamiento de `main` y la publicación productiva;
 - STAGING plenamente establecido para Next;
@@ -167,6 +192,7 @@ Issue → reserva de LCD/ADR → rama → documentación → diseño → impleme
 - `LCD-20260714-02`: mapas y safety net; PR #17 y #18.
 - `LCD-20260715-01`: gestionabilidad y backfill PROD; PR #19 y #20.
 - `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
-- `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28.
+- `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
+- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31, pendiente de revisión.
 
 El detalle autoritativo vive en `docs/governance/lcd-registry.md`.
