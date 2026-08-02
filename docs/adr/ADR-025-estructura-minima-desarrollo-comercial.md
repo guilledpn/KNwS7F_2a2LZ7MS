@@ -172,7 +172,8 @@ Reglas:
 - la Actividad registra que la presentación o envío ocurrió; su nota puede describir el contenido presentado;
 - un documento, correo, simulación o PDF puede conservarse como evidencia o referencia, pero no convierte automáticamente a la Propuesta en una entidad;
 - el historial del Caso puede construirse desde Actividades, Tareas, notas y otros hechos vinculados sin crear una entidad técnica llamada `Historial`;
-- el sistema no debe generar ni enumerar combinatoriamente todas las propuestas posibles;
+- el sistema no debe generar, enumerar ni validar combinatoriamente todas las propuestas posibles;
+- el sistema tampoco debe exigir que toda descripción de lo presentado se descomponga en referencias estructuradas a cada Oportunidad o Cotización;
 - si la operación futura demuestra una necesidad real de identidad, versionado, aceptación, vigencia, reutilización o trazabilidad regulatoria propia de la Propuesta, su promoción a entidad requerirá un LCD posterior.
 
 Esta decisión refina la definición previa del Diccionario: `Propuesta` continúa siendo un concepto válido del lenguaje comercial, pero no toda noción del negocio debe transformarse en una entidad persistente y estructurada.
