@@ -28,6 +28,7 @@ Incluye:
 - Responsabilidad del Asesor;
 - Autorización Excepcional;
 - Tipo de Actividad;
+- Resultado de Actividad;
 - Actividad;
 - Tarea.
 
@@ -57,6 +58,7 @@ flowchart LR
     RESPONSABILIDAD[Responsabilidad del Asesor]
     AUTORIZACION[Autorización Excepcional]
     TIPO[Tipo de Actividad]
+    RESACT[Resultado de Actividad]
     ACTIVIDAD[Actividad realizada]
     TAREA[Tarea: Actividad prevista]
 
@@ -71,8 +73,10 @@ flowchart LR
     RESPONSABILIDAD --> ASESOR
     AUTORIZACION -. habilita excepción .-> RESPONSABILIDAD
 
-    TIPO --> ACTIVIDAD
     TIPO --> TAREA
+    TIPO --> RESACT
+    RESACT --> ACTIVIDAD
+    TIPO --> ACTIVIDAD
     PERSONA --> ACTIVIDAD
     ASESOR --> ACTIVIDAD
     PERSONA --> TAREA
@@ -265,8 +269,30 @@ Reglas:
 - el Tipo de Actividad responde qué acción se prevé o se realizó;
 - el objetivo de la Tarea responde para qué se realizará;
 - el resultado de la Actividad responde qué ocurrió;
+- cada Tipo de Actividad define qué Resultados de Actividad estructurados admite;
+- una combinación de Tipo y Resultado incompatible debe rechazarse;
 - el catálogo exacto y su representación física se definirán durante el diseño lógico;
 - el Tipo de Actividad previsto no se sobrescribe con el Tipo realmente realizado.
+
+#### 4.10.1 Resultado de Actividad
+
+Clasificación estructurada de lo que ocurrió durante una Actividad concreta.
+
+Ejemplos iniciales:
+
+- para Llamada: No contestó, Conversación efectiva, Número inválido, Buzón de voz;
+- para Reunión: Realizada, Cliente no asistió, Suspendida, Reagendada;
+- para Envío de información: Enviada, Entrega fallida;
+- para Preparación de propuesta: Preparada, No viable, Pendiente de antecedentes.
+
+Reglas:
+
+- el Resultado pertenece a una Actividad y debe ser compatible con su Tipo;
+- describe únicamente lo ocurrido durante esa Actividad;
+- puede complementarse con una nota libre, pero no ser reemplazado por ella;
+- no incorpora como parte de su significado la creación de una Tarea, Relación Comercial, Oportunidad u otro hecho posterior;
+- expresiones como `Agenda reunión`, `Volver a llamar` o `Información enviada` no deben mezclar acción, resultado y próximo paso en una sola etiqueta;
+- las consecuencias se registran como hechos independientes y trazables.
 
 ### 4.11 Actividad
 
@@ -276,7 +302,7 @@ Debe poder conservar, al menos:
 
 - Tipo de Actividad realmente realizado;
 - fecha y hora efectiva;
-- resultado estructurado;
+- Resultado de Actividad estructurado y compatible con el Tipo;
 - nota de ejecución opcional.
 
 Reglas:
@@ -293,7 +319,8 @@ Reglas:
 - una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
 - un evento técnico de guardado no equivale por sí solo a una Actividad significativa;
-- la nota libre complementa, pero no sustituye, el resultado estructurado.
+- la nota libre complementa, pero no sustituye, el resultado estructurado;
+- una consecuencia posterior, como crear una Tarea, una Relación Comercial o una Oportunidad, se registra separadamente y puede conservar referencia a la Actividad que la originó.
 
 ### 4.12 Tarea
 
@@ -344,8 +371,10 @@ Reglas:
 | Persona → Relación Comercial | 1 → 0..1 |
 | Relación Comercial → Responsabilidad histórica | 1 → 0..N |
 | Asesor → Responsabilidad | 1 → 0..N |
+| Tipo de Actividad → Resultado permitido | 1 → 0..N |
 | Tipo de Actividad → Tarea | 1 → 0..N |
 | Tipo de Actividad → Actividad | 1 → 0..N |
+| Resultado de Actividad → Actividad | 1 → 0..N |
 | Persona → Actividad | 1 → 0..N |
 | Asesor → Actividad | 1 → 0..N |
 | Persona → Tarea | 1 → 0..N |
@@ -387,15 +416,19 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 18. Una autorización no crea una segunda Relación Comercial.
 19. Tarea y Actividad pertenecen siempre a una Persona y un Asesor.
 20. Tarea y Actividad utilizan el mismo catálogo de Tipos de Actividad.
-21. Una Tarea representa exactamente una Actividad futura prevista y debe poseer Tipo y objetivo.
-22. El contexto de la Tarea es opcional; no existe una Nota de programación independiente.
-23. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
-24. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
-25. Una Tarea completada por ejecución tiene una única Actividad de ejecución.
-26. Una nueva tentativa posterior requiere una nueva Tarea.
-27. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
-28. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
-29. Reprogramar o cancelar una Tarea no constituye una Actividad.
+21. Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles.
+22. El Resultado de Actividad describe lo ocurrido y no incorpora consecuencias posteriores.
+23. Una Tarea representa exactamente una Actividad futura prevista y debe poseer Tipo y objetivo.
+24. El contexto de la Tarea es opcional; no existe una Nota de programación independiente.
+25. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
+26. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
+27. Una Tarea completada por ejecución tiene una única Actividad de ejecución.
+28. Una nueva tentativa posterior requiere una nueva Tarea.
+29. Una Tarea no puede originarse ni ejecutarse mediante una Actividad de otra Persona o Asesor.
+30. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
+31. Reprogramar o cancelar una Tarea no constituye una Actividad.
+32. La creación de Tareas, Relaciones Comerciales u Oportunidades derivadas de una Actividad se registra como hechos independientes.
+33. Las métricas de llamada efectiva, agendamiento y seguimiento se derivan de Actividades, Resultados y Tareas, no de etiquetas que mezclen varios conocimientos.
 
 ## 7. Vistas y clasificaciones derivadas
 
@@ -412,6 +445,9 @@ No constituyen fuente de verdad:
 - relación dormida o activa;
 - Tarea sin programar;
 - Tarea atrasada;
+- llamada efectiva;
+- agendamiento;
+- seguimiento;
 - métricas diarias;
 - pipeline y proyección futura.
 
