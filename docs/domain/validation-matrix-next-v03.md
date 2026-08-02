@@ -56,6 +56,8 @@ No constituye todavía una especificación SQL.
 | MV-28 | Compatibilidad Tipo–Resultado | Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles | Llamada + No contestó; Reunión + Realizada | Llamada + Propuesta preparada u otra combinación incoherente | T-V03-028 |
 | MV-29 | Consecuencias de Actividad | El Resultado describe lo ocurrido; los próximos pasos son hechos separados | Actividad que origina Tareas, Relación u Oportunidad trazables | Mezclar acción, resultado y consecuencia en una sola etiqueta | T-V03-029 |
 | MV-30 | Métricas derivadas | Llamada efectiva, agendamiento y seguimiento se derivan de hechos persistentes | Derivar llamada efectiva desde Tipo y Resultado y agendamiento desde Actividad más Tarea futura | Guardar `Agenda reunión`, `Volver a llamar` o `Información enviada` como etiquetas ambiguas que sustituyan hechos | T-V03-030 |
+| MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles de la misma Persona y Asesor | Una llamada real que completa dos Tareas sin duplicar la Actividad | Crear varias Actividades ficticias para una sola acción o completar Tareas incompatibles | T-V03-031 |
+| MV-32 | Reasignación de Tarea | El cambio de responsable es explícito y conserva historia | Reasignar una Tarea pendiente con Asesor anterior, nuevo, fecha y motivo | Reasignar automáticamente por transferencia de Relación o cambiar responsable silenciosamente | T-V03-032 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -354,6 +356,33 @@ La regla operativa exacta para autorizar o advertir diferencias entre ambos qued
 
 `Volver a llamar` no se registra como Resultado de la primera Actividad.
 
+### CV-31 · Una Actividad ejecuta varias Tareas
+
+**Dado** que Ana tiene dos Tareas Pendientes asignadas a Guillermo:
+
+- Llamar para confirmar la reunión;
+- Llamar para solicitar liquidaciones.
+
+**Cuando** Guillermo realiza una única Llamada y aborda ambos objetivos  
+**Entonces** se registra una sola Actividad y ésta puede completar ambas Tareas.
+
+No se crean dos Actividades ficticias para representar una sola llamada real. La interfaz debe permitir este vínculo de forma opcional y asistida, sin complejizar el flujo normal de ejecución de una Tarea.
+
+### CV-32 · Transferencia de Relación con Tarea pendiente
+
+**Dado** que Guillermo es responsable de la Relación Comercial de Ana  
+**Y** existe una Tarea Pendiente asignada a Guillermo  
+**Cuando** la Relación Comercial se transfiere a Carolina  
+**Entonces** la Tarea no cambia automáticamente de responsable y queda visible para resolución.
+
+La Tarea puede:
+
+- reasignarse explícitamente a Carolina, conservando Asesor anterior, nuevo, fecha y motivo;
+- cancelarse;
+- permanecer excepcionalmente con Guillermo mediante una decisión explícita.
+
+Una Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -383,13 +412,17 @@ La regla operativa exacta para autorizar o advertir diferencias entre ambos qued
 - Tarea con Tipo y objetivo obligatorios y contexto opcional;
 - ausencia de una Nota de programación separada;
 - programación temporal opcional, pero visible cuando falta o vence;
-- ejecución de Tarea mediante una única Actividad vinculada;
+- cada Tarea ejecutada se vincula a una única Actividad;
+- una Actividad puede ejecutar varias Tareas compatibles de la misma Persona y Asesor;
+- no se duplican Actividades para representar una sola acción real;
 - ejecución completa la Tarea aunque no alcance el objetivo comercial;
 - cada nuevo intento requiere una nueva Tarea;
 - resultado estructurado y nota libre de Actividad separados;
 - creación de Tareas, Relaciones u Oportunidades como hechos separados de la Actividad que los origina;
 - llamada efectiva, agendamiento y seguimiento como métricas derivadas;
 - reprogramación y cancelación no constituyen Actividades;
+- reasignación de Tarea explícita y con historial;
+- transferencia de Relación Comercial sin reasignación automática de Tareas pendientes;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
 - cambio de período sin incidencias masivas;
@@ -402,7 +435,10 @@ La regla operativa exacta para autorizar o advertir diferencias entre ambos qued
 - reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
 - catálogo inicial de Tipos y Resultados de Actividad;
 - regla exacta cuando el Tipo realizado difiere del Tipo previsto;
+- criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
+- experiencia asistida y simple para asociar opcionalmente varias Tareas a una Actividad;
 - representación física del historial de reprogramaciones;
+- representación física del historial de responsables de Tarea;
 - formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
