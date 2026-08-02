@@ -1,0 +1,130 @@
+name: Close LCD document statuses
+
+on:
+  push:
+    branches:
+      - docs/lcd-20260801-02-close-status
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs/lcd-20260801-02-close-status
+
+      - name: Normalize approved document states
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text(encoding="utf-8")
+              if old not in text:
+                  raise SystemExit(f"Expected text not found in {path}: {old!r}")
+              file.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          for path in (
+              "docs/domain/commercial-model.md",
+              "docs/domain/operational-model.md",
+              "docs/domain/validation-matrix-next-v03.md",
+              "docs/adr/ADR-024-limites-modelo-comercial-operacional.md",
+          ):
+              replace_once(path, "- Estado: Pendiente de revisión", "- Estado: Aprobado")
+
+          replace_once(
+              "docs/governance/lcd-registry.md",
+              "- Fecha de reconciliación: 2026-08-01\n- LCD rector: LCD-20260801-01",
+              "- Fecha de reconciliación: 2026-08-01\n- Última actualización: 2026-08-02\n- LCD rector: LCD-20260801-01\n- Último LCD: LCD-20260801-02",
+          )
+          replace_once(
+              "docs/governance/lcd-registry.md",
+              "| LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | En elaboración · pendiente de revisión | Issue #31 y rama `docs/lcd-20260801-02-commercial-operational-models` | — |",
+              "| LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | Aprobado | Issue #31 y Pull Requests #32 y #33 | — |",
+          )
+
+          replace_once(
+              "docs/governance/adr-registry.md",
+              "- Fecha de reconciliación: 2026-08-01\n- LCD rector: LCD-20260801-01",
+              "- Fecha de reconciliación: 2026-08-01\n- Última actualización: 2026-08-02\n- LCD rector: LCD-20260801-01\n- Último LCD: LCD-20260801-02",
+          )
+          replace_once(
+              "docs/governance/adr-registry.md",
+              "| ADR-024 | Límites entre Modelo Comercial y Modelo Operacional de CRM Patrimonial Next | Reservado · pendiente de revisión | `docs/adr/ADR-024-limites-modelo-comercial-operacional.md` | LCD-20260801-02 |",
+              "| ADR-024 | Límites entre Modelo Comercial y Modelo Operacional de CRM Patrimonial Next | Aprobado | `docs/adr/ADR-024-limites-modelo-comercial-operacional.md` | LCD-20260801-02 |",
+          )
+
+          replace_once(
+              "docs/governance/document-catalog.md",
+              "- Fecha: 2026-08-01\n- LCD: LCD-20260801-01",
+              "- Fecha: 2026-08-02\n- LCD: LCD-20260801-02",
+          )
+          replace_once(
+              "docs/governance/document-catalog.md",
+              "| Modelo Comercial del CRM Patrimonial | 3 | GitHub `docs/domain/commercial-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |",
+              "| Modelo Comercial del CRM Patrimonial | 3 | GitHub `docs/domain/commercial-model.md` | Aprobado mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |",
+          )
+          replace_once(
+              "docs/governance/document-catalog.md",
+              "| Modelo Operacional del CRM Patrimonial | 3 | GitHub `docs/domain/operational-model.md` | Creado bajo LCD-20260801-02; pendiente de revisión |",
+              "| Modelo Operacional del CRM Patrimonial | 3 | GitHub `docs/domain/operational-model.md` | Aprobado mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |",
+          )
+          replace_once(
+              "docs/governance/document-catalog.md",
+              "| Matriz de Validación Next v03 | 3 · Validación del modelo | GitHub `docs/domain/validation-matrix-next-v03.md` | Creada bajo LCD-20260801-02; pendiente de revisión |",
+              "| Matriz de Validación Next v03 | 3 · Validación del modelo | GitHub `docs/domain/validation-matrix-next-v03.md` | Aprobada mediante LCD-20260801-02; PR #32 y cierre administrativo PR #33 |",
+          )
+
+          replace_once(
+              "PROJECT_MAP.md",
+              "Último LCD aprobado: LCD-20260801-01  \nLote en revisión: LCD-20260801-02  \nOtros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01",
+              "Último LCD aprobado: LCD-20260801-02  \nLotes pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01",
+          )
+          replace_once("PROJECT_MAP.md", "## Decisión de dominio en revisión", "## Decisión de dominio aprobada")
+          replace_once("PROJECT_MAP.md", "ADR-024 propone separar:", "ADR-024 establece la separación entre:")
+          replace_once(
+              "PROJECT_MAP.md",
+              "La decisión y sus documentos permanecen pendientes de revisión bajo LCD-20260801-02.",
+              "La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.",
+          )
+          replace_once("PROJECT_MAP.md", "## Modelo de Next en revisión", "## Modelo de Next aprobado")
+          replace_once(
+              "PROJECT_MAP.md",
+              "LCD-20260801-02 incorpora como borradores únicos y versionados:",
+              "LCD-20260801-02 incorporó como documentos canónicos, únicos y versionados:",
+          )
+          replace_once(
+              "PROJECT_MAP.md",
+              "- Matriz de Validación conceptual acordada en conversación y trasladada a documento pendiente de revisión.",
+              "- Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados.",
+          )
+          replace_once(
+              "PROJECT_MAP.md",
+              "- revisión del Modelo Comercial mínimo;\n- revisión del Modelo Operacional mínimo;\n- revisión de ADR-024 y de la Matriz de Validación Next v03;",
+              "- preparación del LCD para definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline;",
+          )
+          replace_once(
+              "PROJECT_MAP.md",
+              "- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31, pendiente de revisión.",
+              "- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.",
+          )
+          PY
+
+      - name: Validate governance
+        run: python tools/validate_document_governance.py
+
+      - name: Commit normalization
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/lcd-close-status.yml
+          git add PROJECT_MAP.md docs
+          git commit -m "docs(governance): cerrar LCD-20260801-02"
+          git push origin HEAD:docs/lcd-20260801-02-close-status
