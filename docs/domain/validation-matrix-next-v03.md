@@ -37,7 +37,7 @@ No constituye todavía una especificación SQL.
 | MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
 | MV-11 | Actividad | Es un hecho efectivamente ocurrido, realizado por un Asesor y con una o varias Personas participantes | Intentos, reuniones grupales, notas opcionales y Actividades que originan una Relación o ejecutan Tareas | Actividad sin Persona, Asesor, Tipo, fecha efectiva o resultado estructurado; duplicar una acción por participante | T-V03-011 |
-| MV-12 | Tarea | Es la previsión de una única Actividad futura, con una o varias Personas, Tipo y objetivo | Tarea individual o grupal, manual y excepcionalmente sin fecha | Tarea sin Persona, Asesor, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
+| MV-12 | Tarea | Es la previsión de una única Actividad futura, con una o varias Personas objetivo, Tipo y objetivo | Tarea individual o grupal, manual y excepcionalmente sin fecha | Tarea sin Persona, Asesor, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
 | MV-13 | Importación | Cada archivo genera una ejecución idempotente | Reintentar el mismo archivo sin duplicar | Aplicar dos veces los mismos efectos | T-V03-013 |
 | MV-14 | Linaje | Los hechos indican creación, última observación y último cambio | Identificar qué carga creó o modificó | Guardar copias innecesarias de filas idénticas | T-V03-014 |
 | MV-15 | Datos de contacto | La observación válida más reciente gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
@@ -49,14 +49,14 @@ No constituye todavía una especificación SQL.
 | MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
 | MV-22 | Cliente del Asesor | Se deriva de una Relación con al menos un Producto Contratado vigente asociado al Asesor | Convertir la condición de Lead a Cliente sin cambiar la identidad de la Relación | Crear una segunda Relación al cerrar o emitir un negocio | T-V03-022 |
 | MV-23 | Tipo de Actividad | Es el catálogo común para acciones previstas y realizadas | Usar el mismo Tipo en Tarea y Actividad y conservar diferencias entre previsto y realizado | Crear una Categoría de Tarea paralela que duplique el Tipo | T-V03-023 |
-| MV-24 | Ejecución de Tarea | Ejecutar genera una Actividad vinculada que incluye a todas las Personas de la Tarea y la completa aunque no logre el objetivo comercial | Completar mediante una única Actividad y crear otra Tarea para un nuevo intento | Marcar ejecutada sin Actividad, omitir una Persona prevista o usar otro Asesor | T-V03-024 |
+| MV-24 | Ejecución de Tarea | Ejecutar genera una Actividad vinculada que incluye a todas las Personas objetivo de la Tarea y la completa aunque no logre el objetivo comercial | Completar mediante una única Actividad y crear otra Tarea para un nuevo intento | Marcar ejecutada sin Actividad, omitir una Persona objetivo o usar otro Asesor | T-V03-024 |
 | MV-25 | Programación temporal | Fecha prevista y fecha límite son opcionales, pero su ausencia o vencimiento son visibles | Tarea válida sin fecha, clasificada como Sin programar; Tarea vencida clasificada como Atrasada | Convertir Sin programar o Atrasada en estados que sustituyan Pendiente | T-V03-025 |
 | MV-26 | Texto y resultado | Objetivo, contexto y nota cumplen funciones diferentes | Objetivo obligatorio, contexto y nota de ejecución opcionales, resultado estructurado | Crear Nota de programación redundante o reemplazar el resultado por texto libre | T-V03-026 |
 | MV-27 | Reprogramación y cancelación | No constituyen Actividades | Reprogramar con trazabilidad y cancelar con motivo | Inflar estadísticas creando Actividades por cambios administrativos | T-V03-027 |
 | MV-28 | Compatibilidad Tipo–Resultado | Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles | Llamada + No contestó; Reunión + Realizada | Llamada + Propuesta preparada u otra combinación incoherente | T-V03-028 |
 | MV-29 | Consecuencias de Actividad | El Resultado describe lo ocurrido; los próximos pasos son hechos separados | Actividad que origina Tareas, Relación u Oportunidad trazables | Mezclar acción, resultado y consecuencia en una sola etiqueta | T-V03-029 |
 | MV-30 | Métricas derivadas | Llamada efectiva, agendamiento y seguimiento se derivan de hechos persistentes | Derivar llamada efectiva desde Tipo y Resultado y agendamiento desde Actividad más Tarea futura | Guardar `Agenda reunión`, `Volver a llamar` o `Información enviada` como etiquetas ambiguas que sustituyan hechos | T-V03-030 |
-| MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas están comprendidas entre sus participantes y cuyo Asesor coincide | Una llamada real que completa varias Tareas sin duplicar la Actividad | Crear Actividades ficticias o completar Tareas con Personas ausentes | T-V03-031 |
+| MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están comprendidas entre sus participantes y cuyo Asesor coincide | Una llamada real que completa varias Tareas sin duplicar la Actividad | Crear Actividades ficticias o completar Tareas con Personas ausentes | T-V03-031 |
 | MV-32 | Reasignación de Tarea | El cambio de responsable es explícito y conserva historia | Reasignar una Tarea pendiente con Asesor anterior, nuevo, fecha y motivo | Reasignar automáticamente por transferencia de Relación o cambiar responsable silenciosamente | T-V03-032 |
 | MV-33 | Corrección y anulación de Actividad | Una Actividad histórica no se elimina ni sobrescribe silenciosamente | Corregir o anular conservando original, cambio, responsable, fecha y motivo | Borrar el registro o reemplazarlo sin trazabilidad | T-V03-033 |
 | MV-34 | Efectos de anulación | Una Actividad anulada queda fuera de métricas y no sostiene consecuencias por sí sola | Mantener trazabilidad y advertir consecuencias para revisión | Contarla, usarla para completar Tareas o eliminar automáticamente hechos posteriores | T-V03-034 |
@@ -64,6 +64,8 @@ No constituye todavía una especificación SQL.
 | MV-36 | Participación múltiple | Una única acción real o futura puede involucrar a una o varias Personas sin duplicarse | Una reunión o Tarea grupal con varios participantes | Crear una Actividad o Tarea idéntica por cada Persona | T-V03-036 |
 | MV-37 | Consecuencias individualizadas | La participación grupal no produce automáticamente el mismo efecto comercial para todos | Crear Relación u Oportunidad sólo para la Persona con continuidad propia | Crear Relaciones para todos los participantes por el solo hecho de asistir | T-V03-037 |
 | MV-38 | Tarea grupal sin Relación previa | Una Tarea puede incluir Personas sin Relación Comercial y no la crea por sí sola | Programar una reunión grupal con un acompañante aún sin Relación | Exigir Relación previa o crearla automáticamente por programar | T-V03-038 |
+| MV-39 | Origen hacia otra Persona | Una Actividad puede originar una Tarea para Personas que no participaron en ella | Conversación con Ana que origina una Tarea para llamar a Pedro | Incorporar retroactivamente a Pedro como participante o crearle una Relación por la referencia | T-V03-039 |
+| MV-40 | Simplicidad operativa | Las capacidades excepcionales no deben dominar el flujo frecuente | Ejecutar una Tarea individual sin gestionar controles grupales o excepcionales | Obligar a resolver casos raros en cada registro | T-V03-040 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -231,7 +233,7 @@ Resultado esperado:
 **Cuando** se intenta usarla para ejecutar una Tarea que incluye a María o cuyo responsable es Carolina  
 **Entonces** la operación se rechaza.
 
-Toda Persona de la Tarea debe estar incluida en la Actividad y el Asesor debe coincidir.
+Toda Persona objetivo de la Tarea debe estar incluida en la Actividad de ejecución y el Asesor debe coincidir.
 
 ### CV-15 · Reintento del mismo archivo
 
@@ -445,6 +447,23 @@ Si Pedro no acuerda continuidad, su sola participación no crea una Relación.
 
 La Actividad de ejecución deberá incluir a ambos para completar esa Tarea grupal.
 
+### CV-39 · Referido que no participó en la Actividad de origen
+
+**Dado** que Guillermo conversa con Ana  
+**Y** Ana informa que su hermano Pedro también está interesado y solicita que lo contacten  
+**Cuando** la Actividad con Ana origina una Tarea para llamar a Pedro  
+**Entonces** Pedro es Persona objetivo de la Tarea, pero no participante de la conversación anterior.
+
+La referencia no crea una Relación Comercial para Pedro. La futura llamada que incluya a Pedro será la Actividad que ejecute la Tarea.
+
+### CV-40 · Flujo frecuente sin complejidad excepcional
+
+**Dado** que Guillermo ejecuta una Tarea individual de Llamada para Ana  
+**Cuando** registra el resultado  
+**Entonces** la aplicación completa la Tarea mediante una Actividad sin exigir gestionar participantes adicionales, otras Tareas o Personas distintas.
+
+Las capacidades excepcionales deben permanecer disponibles mediante acciones secundarias o divulgación progresiva.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -472,6 +491,8 @@ La Actividad de ejecución deberá incluir a ambos para completar esa Tarea grup
 - interacción grupal representada mediante una sola Actividad o Tarea;
 - consecuencias comerciales evaluadas individualmente por Persona;
 - Tarea grupal válida aunque alguna Persona no posea Relación previa;
+- una Actividad puede originar una Tarea para Personas que no participaron en ella;
+- la referencia de origen no altera participantes ni crea una Relación para la Persona objetivo;
 - catálogo común de Tipos de Actividad para Tarea y Actividad;
 - cada Tipo de Actividad define los Resultados estructurados compatibles;
 - el Resultado describe lo ocurrido y no las consecuencias posteriores;
@@ -479,7 +500,7 @@ La Actividad de ejecución deberá incluir a ambos para completar esa Tarea grup
 - ausencia de una Nota de programación separada;
 - programación temporal opcional, pero visible cuando falta o vence;
 - cada Tarea ejecutada se vincula a una única Actividad;
-- una Actividad puede ejecutar varias Tareas compatibles cuyas Personas están entre sus participantes;
+- una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están entre sus participantes;
 - no se duplican Actividades para representar una sola acción real;
 - ejecución completa la Tarea aunque no alcance el objetivo comercial;
 - cada nuevo intento requiere una nueva Tarea;
@@ -493,6 +514,9 @@ La Actividad de ejecución deberá incluir a ambos para completar esa Tarea grup
 - Actividad anulada excluida de métricas y de justificación de consecuencias;
 - consecuencias de una Actividad corregida o anulada sujetas a revisión, no a borrado automático;
 - cambios sustantivos de Tarea Pendiente con historial y rectificación explícita de Tareas cerradas;
+- flujo habitual optimizado para una Persona, una Tarea y una Actividad;
+- capacidades excepcionales expuestas sólo mediante divulgación progresiva;
+- nuevos casos hipotéticos incorporados al dominio sólo cuando alteren cardinalidad, invariantes, fuente de verdad o trazabilidad relevante;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña comparable;
 - cambio de período sin incidencias masivas;
@@ -507,6 +531,7 @@ La Actividad de ejecución deberá incluir a ambos para completar esa Tarea grup
 - regla exacta cuando el Tipo realizado difiere del Tipo previsto;
 - criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
 - experiencia asistida y simple para asociar opcionalmente varias Tareas o Personas a una Actividad;
+- mecanismo de divulgación progresiva para crear una Tarea hacia otra Persona desde una Actividad;
 - representación física de la relación muchos-a-muchos entre Personas, Actividades y Tareas;
 - necesidad de atributos de participación, como rol o participante principal;
 - derivación de métricas por acción y por Persona en Actividades grupales;
