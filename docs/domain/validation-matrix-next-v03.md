@@ -70,6 +70,10 @@ No constituye todavía una especificación SQL.
 | MV-42 | Orden propio de ASIGNADOS | La posición de ASIGNADOS pertenece a la lista reducida del Asesor | Conservar un orden propio del Asesor | Copiar el orden TOTAL o usarlo como sustituto | T-V03-042 |
 | MV-43 | Asignación ausente en Campaña activa | Una ausencia posterior comparable es una discrepancia y no un término cierto | Mantener visible la Asignación como pendiente de conciliación y excluirla temporalmente de la cola normal | Terminarla automáticamente o mantenerla como gestionable confirmada | T-V03-043 |
 | MV-44 | Agrupación de incidencias | Una anomalía común de archivo, Campaña, segmento o conjunto se representa primero mediante una incidencia de alcance | Una incidencia de alcance que agrupa miles de filas potencialmente afectadas | Crear incidencias individuales masivas por la misma causa mientras el problema de alcance siga abierto | T-V03-044 |
+| MV-45 | Ejecución Aplicada | Una ejecución Aplicada incorporó o confirmó todos sus efectos válidos y no conserva incidencias abiertas | Filas reiteradas sin cambio dentro de una carga válida | Marcar Aplicada una ejecución con hechos dudosos pendientes | T-V03-045 |
+| MV-46 | Aplicación parcial controlada | Aplicada con incidencias sólo procede cuando las anomalías son individuales, aisladas y separables | Aplicar hechos inequívocos y dejar lo dudoso pendiente | Usar aplicación parcial ante una anomalía que compromete el alcance general | T-V03-046 |
+| MV-47 | Rechazo y fallo | Rechazada corresponde a una falla crítica de la fuente; Fallida, a un error técnico | Distinguir validación de negocio de interrupción técnica | Dejar efectos canónicos en una ejecución Rechazada o efectos parciales silenciosos en una Fallida | T-V03-047 |
+| MV-48 | Atomicidad de aplicación | Cada efecto queda aplicado o pendiente y la ejecución final no puede quedar ambiguamente a medias | Recuperación explícita después de un fallo | Considerar exitosa una ejecución técnicamente incompleta | T-V03-048 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -502,6 +506,35 @@ Ninguna posición sustituye ni deriva de la otra.
 
 Mientras la incidencia de alcance permanezca abierta, no se generan incidencias individuales por la misma causa. Si después se confirma que el archivo era correcto y sólo algunas filas requieren revisión, se crean únicamente las incidencias individuales correspondientes.
 
+### CV-45 · Ejecución Aplicada sin incidencias
+
+**Dado** que una carga válida contiene filas nuevas y filas que reiteran hechos ya conocidos  
+**Cuando** todos sus efectos válidos se incorporan o confirman sin anomalías pendientes  
+**Entonces** la Ejecución queda Aplicada y no conserva incidencias abiertas.
+
+### CV-46 · Aplicación parcial controlada
+
+**Dado** un archivo ASIGNADOS con 165 filas  
+**Y** 164 filas inequívocas y una fila cuya Campaña es ambigua  
+**Cuando** la anomalía individual no pone en duda el alcance general del archivo  
+**Entonces** se aplican las 164 filas inequívocas, la fila ambigua queda pendiente con incidencia y la Ejecución queda Aplicada con incidencias.
+
+Ningún hecho dudoso se inventa ni se aplica parcialmente.
+
+### CV-47 · Rechazo por anomalía de alcance
+
+**Dado** que una carga omite una Campaña completa o presenta una reducción masiva sospechosa  
+**Cuando** no puede confiarse en la integridad general del archivo  
+**Entonces** la Ejecución queda Rechazada y no modifica hechos canónicos.
+
+### CV-48 · Fallo técnico sin efectos parciales silenciosos
+
+**Dado** que una carga válida comienza su procesamiento  
+**Cuando** una interrupción técnica impide completarlo  
+**Entonces** la Ejecución queda Fallida y no se considera Aplicada ni Aplicada con incidencias.
+
+La implementación debe revertir los efectos parciales o mantener la ejecución bloqueada para recuperación explícita antes de confirmar cualquier aplicación.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -522,6 +555,12 @@ Mientras la incidencia de alcance permanezca abierta, no se generan incidencias 
 - toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas;
 - una incidencia de alcance agrupa anomalías comunes de archivo, Campaña, segmento o conjunto y evita incidencias individuales masivas por la misma causa mientras permanezca abierta;
 - las ausencias masivas o estructuradas se tratan primero como posible problema de alcance;
+- una Ejecución Aplicada incorporó o confirmó todos sus efectos válidos y no conserva incidencias abiertas;
+- Aplicada con incidencias representa una aplicación parcial controlada exclusivamente ante anomalías individuales aisladas y separables;
+- una Ejecución Rechazada no modifica hechos canónicos porque la fuente falló una validación crítica de estructura, contenido o alcance;
+- una Ejecución Fallida representa un error técnico y no puede dejar efectos canónicos parciales silenciosos;
+- cada efecto de importación queda aplicado o pendiente, nunca ambiguamente aplicado a medias;
+- una incidencia de alcance abierta bloquea normalmente la aplicación de la carga;
 - el cambio de período termina la vigencia operativa de Asignaciones anteriores sin incidencias individuales;
 - Relación Comercial única;
 - la Relación nace con continuidad comercial propia y no requiere propuesta ni cierre;
@@ -587,6 +626,8 @@ Mientras la incidencia de alcance permanezca abierta, no se generan incidencias 
 - representación física de cambios significativos y rectificaciones de Tarea;
 - representación física de Incidencia de Conciliación y sus alcances;
 - representación física y UX de Asignaciones pendientes de conciliación;
+- representación física de los estados de Ejecución de Importación;
+- mecanismo transaccional y de recuperación ante fallos técnicos;
 - formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
