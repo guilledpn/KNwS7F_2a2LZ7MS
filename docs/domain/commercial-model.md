@@ -78,9 +78,9 @@ flowchart LR
     RESACT --> ACTIVIDAD
     TIPO --> ACTIVIDAD
     PERSONA -->|participa| ACTIVIDAD
-    ASESOR --> ACTIVIDAD
+    ASESOR -->|ejecuta| ACTIVIDAD
     PERSONA -->|objetivo| TAREA
-    ASESOR --> TAREA
+    ASESOR -->|responsable| TAREA
     ACTIVIDAD -. puede originar .-> TAREA
     TAREA -. se ejecuta como .-> ACTIVIDAD
 ```
@@ -134,7 +134,8 @@ Reglas:
 - una Aparición pertenece a una Persona y a una Campaña específica;
 - una Aparición válida normalmente debe tener un único Resultado Corporativo vigente;
 - una Aparición sin resultado válido sólo puede conservarse como inconsistencia explícita y conciliable;
-- la falta de resultado no constituye un tercer estado y no puede gobernar silenciosamente la gestionabilidad.
+- la falta de resultado no constituye un tercer estado y no puede gobernar silenciosamente la gestionabilidad;
+- un retiro corporativo confirmado durante una Campaña activa no elimina ni termina la Aparición histórica: registra que la compañía dejó de incluir a la Persona, conservando el último Resultado Corporativo conocido.
 
 ### 4.5 Resultado Corporativo
 
@@ -171,7 +172,7 @@ Reglas:
 - una Asignación propia permanece visible durante la Campaña activa aunque el Resultado Corporativo sea Gestionado;
 - la ausencia en una carga ASIGNADOS posterior del mismo período, Campaña activa y alcance comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación;
 - mientras la vigencia está pendiente de conciliación, la Aparición permanece visible, pero no integra la cola normal de gestionables hasta confirmar que continúa asignada al Asesor;
-- sólo una resolución confirmada registra el término dentro del mismo período;
+- sólo un retiro de Asignación confirmado registra el término dentro del mismo período y conserva íntegramente el historial;
 - si la ausencia afecta muchas filas o una sección completa, debe tratarse primero como posible problema de alcance del archivo y no como múltiples retiros individuales;
 - el cambio de período termina la vigencia operativa de las Asignaciones anteriores sin generar incidencias individuales por quienes no reaparecen.
 
@@ -300,11 +301,12 @@ Reglas:
 
 ### 4.11 Actividad
 
-Hecho de interacción o gestión efectivamente ocurrido, asociado siempre a una o varias Personas participantes y realizado por un único Asesor responsable.
+Hecho de interacción o gestión efectivamente ocurrido, asociado siempre a una o varias Personas participantes y ejecutado por un único Asesor.
 
 Debe poder conservar, al menos:
 
 - una o varias Personas participantes;
+- Asesor ejecutor;
 - Tipo de Actividad realmente realizado;
 - fecha y hora efectiva;
 - Resultado de Actividad estructurado y compatible con el Tipo;
@@ -325,10 +327,10 @@ Reglas:
 - las Personas objetivo de una Tarea originada pueden coincidir total o parcialmente con las participantes de la Actividad de origen, o ser distintas cuando el origen explica una derivación, referido u otro próximo paso legítimo;
 - la referencia de origen no convierte a una Persona objetivo en participante de la Actividad anterior ni crea una Relación Comercial para ella;
 - una Actividad puede constituir la ejecución de cero, una o varias Tareas compatibles;
-- cuando ejecuta una o varias Tareas, todas sus Personas objetivo deben estar comprendidas entre las Personas participantes de la Actividad y el Asesor debe ser el responsable vigente de cada Tarea;
+- cuando ejecuta una o varias Tareas, todas sus Personas objetivo deben estar comprendidas entre las Personas participantes de la Actividad y el Asesor ejecutor debe ser el responsable vigente de cada Tarea;
 - el Tipo realmente realizado se conserva aunque difiera del Tipo previsto; esa diferencia no modifica retroactivamente la Tarea;
 - una Actividad puede existir sin Caso u Oportunidad;
-- una Actividad puede vincularse posteriormente a uno o varios Casos u Oportunidades;
+- la posibilidad y cardinalidad de vincular una Actividad con Relación Comercial, Caso u Oportunidad serán definidas por el futuro modelo mínimo de desarrollo comercial;
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
 - un evento técnico de guardado no equivale por sí solo a una Actividad significativa;
 - la nota libre complementa, pero no sustituye, el resultado estructurado;
@@ -345,14 +347,14 @@ Toda corrección debe conservar, al menos:
 - contenido original;
 - contenido corregido;
 - fecha de corrección;
-- responsable de la corrección;
+- actor o usuario que corrige;
 - motivo.
 
 Toda anulación debe conservar, al menos:
 
 - Actividad anulada;
 - fecha de anulación;
-- responsable de la anulación;
+- actor o usuario que anula;
 - motivo.
 
 Reglas:
@@ -404,10 +406,10 @@ Reglas:
 - ejecutar una Tarea genera una Actividad vinculada y completa la Tarea, aunque el resultado no alcance el objetivo comercial;
 - la Actividad de ejecución debe incluir a todas las Personas objetivo de la Tarea, aunque puede incluir además a otras Personas participantes;
 - una Tarea completada por ejecución tiene una única Actividad de ejecución;
-- una misma Actividad puede ejecutar y completar varias Tareas compatibles cuando las Personas objetivo de cada Tarea están comprendidas entre sus participantes y el Asesor coincide;
+- una misma Actividad puede ejecutar y completar varias Tareas compatibles cuando las Personas objetivo de cada Tarea están comprendidas entre sus participantes y el Asesor ejecutor coincide con el responsable vigente de cada Tarea;
 - no deben duplicarse Actividades para representar artificialmente una única acción ocurrida;
 - si después de ejecutar se requiere otro intento o acción, se crea una nueva Tarea;
-- cancelar una Tarea no genera una Actividad, pero debe conservar fecha, responsable y motivo de cancelación;
+- cancelar una Tarea no genera una Actividad, pero debe conservar fecha, actor o usuario y motivo de cancelación;
 - reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
 - la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales;
 - la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento;
@@ -449,7 +451,7 @@ Una Tarea Pendiente representa un compromiso futuro todavía modificable. Debe c
 - fecha límite;
 - cancelación.
 
-Los ajustes menores de redacción del contexto pueden tratarse como edición ordinaria cuando no alteran el compromiso. Una Tarea Completada o Cancelada conserva su estado histórico y no se modifica silenciosamente. Toda rectificación posterior debe registrar responsable, fecha, motivo y contenido corregido.
+Los ajustes menores de redacción del contexto pueden tratarse como edición ordinaria cuando no alteran el compromiso. Una Tarea Completada o Cancelada conserva su estado histórico y no se modifica silenciosamente. Toda rectificación posterior debe registrar actor o usuario, fecha, motivo y contenido corregido.
 
 ## 5. Cardinalidades conceptuales
 
@@ -517,7 +519,7 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 16. Una Relación puede quedar temporalmente sin responsable sólo como transición o inconsistencia explícita y alertada.
 17. Dos responsables simultáneos requieren autorización trazable.
 18. Una autorización no crea una segunda Relación Comercial.
-19. Toda Tarea y Actividad pertenece a una o varias Personas y a un único Asesor responsable.
+19. Toda Tarea pertenece a una o varias Personas y a un único Asesor responsable; toda Actividad pertenece a una o varias Personas y a un único Asesor ejecutor.
 20. Tarea y Actividad utilizan el mismo catálogo de Tipos de Actividad.
 21. Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles.
 22. El Resultado de Actividad describe lo ocurrido y no incorpora consecuencias posteriores.
@@ -526,10 +528,10 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 25. La programación temporal de una Tarea es opcional, pero su ausencia debe ser visible como condición derivada.
 26. Una Tarea ejecutada genera una Actividad y queda Completada aunque no alcance el objetivo comercial.
 27. Cada Tarea completada por ejecución tiene una única Actividad de ejecución.
-28. Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están comprendidas entre sus participantes y cuyo Asesor coincide.
+28. Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están comprendidas entre sus participantes y cuyo Asesor ejecutor coincide con el responsable vigente de cada Tarea.
 29. No se duplican Actividades para representar una única acción real que resolvió varias Tareas o involucró a varias Personas.
 30. Una nueva tentativa posterior requiere una nueva Tarea.
-31. La Actividad de ejecución de una Tarea debe incluir a todas sus Personas objetivo y pertenecer al mismo Asesor responsable.
+31. La Actividad de ejecución de una Tarea debe incluir a todas sus Personas objetivo y ser ejecutada por el mismo Asesor responsable.
 32. Las Personas objetivo de una Tarea originada pueden ser distintas de las participantes de la Actividad de origen.
 33. Una referencia de origen no convierte retroactivamente a una Persona en participante ni crea para ella una Relación Comercial.
 34. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
@@ -538,9 +540,9 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 37. Las métricas de llamada efectiva, agendamiento y seguimiento se derivan de Actividades, Resultados y Tareas, no de etiquetas que mezclen varios conocimientos.
 38. La reasignación de una Tarea pendiente es explícita y conserva Asesor anterior, Asesor nuevo, fecha y motivo.
 39. Transferir una Relación Comercial no reasigna automáticamente sus Tareas pendientes.
-40. La Actividad de ejecución pertenece al Asesor responsable vigente de la Tarea en el momento de ejecutarla.
+40. La Actividad de ejecución es realizada por el Asesor responsable vigente de la Tarea en el momento de ejecutarla.
 41. Una Actividad registrada no se elimina ni sobrescribe silenciosamente.
-42. Toda corrección o anulación de Actividad conserva original, cambio, responsable, fecha y motivo.
+42. Toda corrección o anulación de Actividad conserva original, cambio, actor o usuario, fecha y motivo.
 43. Una Actividad anulada no cuenta para métricas, no justifica una Relación Comercial y no completa Tareas.
 44. Las consecuencias de una Actividad corregida o anulada se revisan y no se eliminan automáticamente.
 45. Los cambios sustantivos de una Tarea Pendiente conservan historia; una Tarea Completada o Cancelada sólo se rectifica explícitamente.
@@ -553,6 +555,8 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 52. ASIGNADOS agrega la pertenencia temporal al Asesor y puede procesarse antes o después de TOTAL sin duplicar hechos.
 53. La posición de ASIGNADOS pertenece a la lista del Asesor y es independiente de cualquier posición de TOTAL.
 54. Una ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación; no termina la Asignación automáticamente ni mantiene a la Aparición en la cola normal de gestionables.
+55. Un retiro corporativo confirmado en TOTAL conserva la Aparición histórica y el último Resultado Corporativo conocido.
+56. Un retiro de Asignación confirmado en ASIGNADOS termina la Asignación vigente y conserva su historial.
 
 ## 7. Principio de simplicidad operativa y UX
 
@@ -595,7 +599,8 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - definir la identidad lógica exacta de Campaña;
 - precisar cuándo una Relación Comercial termina o sólo cambia de condición;
 - definir las reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
-- incorporar Casos, Oportunidades, Cotizaciones, Propuestas y Productos Contratados;
+- definir mediante un LCD posterior el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline y sus vínculos opcionales con Tareas y Actividades;
+- incorporar posteriormente Cotizaciones y Productos Contratados;
 - modelar roles, usuarios y autorizaciones técnicas;
 - decidir la representación física de la Autorización Excepcional;
 - definir el catálogo inicial controlado de Tipos y Resultados de Actividad;
@@ -613,4 +618,4 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - definir la UX y la representación física de Asignaciones pendientes de conciliación;
 - definir formato y límites de objetivo, contexto y nota de ejecución;
 - validar el historial individual de teléfonos y correos;
-- diseñar `next_v03` y probar estas invariantes con datos ficticios.
+- diseñar `next_v03` y probar estas invariantes con datos ficticios sólo después de aprobar el modelo mínimo de desarrollo comercial.
