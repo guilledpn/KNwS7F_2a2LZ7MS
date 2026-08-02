@@ -36,8 +36,8 @@ No constituye todavía una especificación SQL.
 | MV-08 | Relación Comercial | Es única, persistente y nace cuando existe continuidad comercial propia | Relación sin Oportunidad, nacida por agenda o seguimiento acordado | Crear otra Relación al cambiar de Asesor o esperar al cierre para crearla | T-V03-008 |
 | MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
-| MV-11 | Actividad | Es un hecho efectivamente ocurrido, realizado por un Asesor y con una o varias Personas participantes | Intentos, reuniones grupales, notas opcionales y Actividades que originan una Relación o ejecutan Tareas | Actividad sin Persona, Asesor, Tipo, fecha efectiva o resultado estructurado; duplicar una acción por participante | T-V03-011 |
-| MV-12 | Tarea | Es la previsión de una única Actividad futura, con una o varias Personas objetivo, Tipo y objetivo | Tarea individual o grupal, manual y excepcionalmente sin fecha | Tarea sin Persona, Asesor, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
+| MV-11 | Actividad | Es un hecho efectivamente ocurrido, ejecutado por un Asesor y con una o varias Personas participantes | Intentos, reuniones grupales, notas opcionales y Actividades que originan una Relación o ejecutan Tareas | Actividad sin Persona, Asesor ejecutor, Tipo, fecha efectiva o resultado estructurado; duplicar una acción por participante | T-V03-011 |
+| MV-12 | Tarea | Es la previsión de una única Actividad futura, con una o varias Personas objetivo, Tipo y objetivo | Tarea individual o grupal, manual y excepcionalmente sin fecha | Tarea sin Persona, Asesor responsable, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
 | MV-13 | Importación | Cada archivo genera una ejecución idempotente | Reintentar el mismo archivo sin duplicar | Aplicar dos veces los mismos efectos | T-V03-013 |
 | MV-14 | Linaje | Los hechos indican creación, última observación y último cambio | Identificar qué carga creó o modificó | Guardar copias innecesarias de filas idénticas | T-V03-014 |
 | MV-15 | Datos de contacto | La observación válida más reciente, provenga de TOTAL o ASIGNADOS, gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
@@ -49,16 +49,16 @@ No constituye todavía una especificación SQL.
 | MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
 | MV-22 | Cliente del Asesor | Se deriva de una Relación con al menos un Producto Contratado vigente asociado al Asesor | Convertir la condición de Lead a Cliente sin cambiar la identidad de la Relación | Crear una segunda Relación al cerrar o emitir un negocio | T-V03-022 |
 | MV-23 | Tipo de Actividad | Es el catálogo común para acciones previstas y realizadas | Usar el mismo Tipo en Tarea y Actividad y conservar diferencias entre previsto y realizado | Crear una Categoría de Tarea paralela que duplique el Tipo | T-V03-023 |
-| MV-24 | Ejecución de Tarea | Ejecutar genera una Actividad vinculada que incluye a todas las Personas objetivo de la Tarea y la completa aunque no logre el objetivo comercial | Completar mediante una única Actividad y crear otra Tarea para un nuevo intento | Marcar ejecutada sin Actividad, omitir una Persona objetivo o usar otro Asesor | T-V03-024 |
+| MV-24 | Ejecución de Tarea | Ejecutar genera una Actividad vinculada que incluye a todas las Personas objetivo de la Tarea y la completa aunque no logre el objetivo comercial | Completar mediante una única Actividad y crear otra Tarea para un nuevo intento | Marcar ejecutada sin Actividad, omitir una Persona objetivo o usar un Asesor ejecutor distinto del responsable vigente | T-V03-024 |
 | MV-25 | Programación temporal | Fecha prevista y fecha límite son opcionales, pero su ausencia o vencimiento son visibles | Tarea válida sin fecha, clasificada como Sin programar; Tarea vencida clasificada como Atrasada | Convertir Sin programar o Atrasada en estados que sustituyan Pendiente | T-V03-025 |
 | MV-26 | Texto y resultado | Objetivo, contexto y nota cumplen funciones diferentes | Objetivo obligatorio, contexto y nota de ejecución opcionales, resultado estructurado | Crear Nota de programación redundante o reemplazar el resultado por texto libre | T-V03-026 |
 | MV-27 | Reprogramación y cancelación | No constituyen Actividades | Reprogramar con trazabilidad y cancelar con motivo | Inflar estadísticas creando Actividades por cambios administrativos | T-V03-027 |
 | MV-28 | Compatibilidad Tipo–Resultado | Cada Tipo de Actividad admite sólo Resultados de Actividad compatibles | Llamada + No contestó; Reunión + Realizada | Llamada + Propuesta preparada u otra combinación incoherente | T-V03-028 |
 | MV-29 | Consecuencias de Actividad | El Resultado describe lo ocurrido; los próximos pasos son hechos separados | Actividad que origina Tareas, Relación u Oportunidad trazables | Mezclar acción, resultado y consecuencia en una sola etiqueta | T-V03-029 |
 | MV-30 | Métricas derivadas | Llamada efectiva, agendamiento y seguimiento se derivan de hechos persistentes | Derivar llamada efectiva desde Tipo y Resultado y agendamiento desde Actividad más Tarea futura | Guardar `Agenda reunión`, `Volver a llamar` o `Información enviada` como etiquetas ambiguas que sustituyan hechos | T-V03-030 |
-| MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están comprendidas entre sus participantes y cuyo Asesor coincide | Una llamada real que completa varias Tareas sin duplicar la Actividad | Crear Actividades ficticias o completar Tareas con Personas ausentes | T-V03-031 |
+| MV-31 | Ejecución múltiple | Una Actividad puede ejecutar varias Tareas compatibles cuyas Personas objetivo están comprendidas entre sus participantes y cuyo Asesor ejecutor coincide con el responsable de cada Tarea | Una llamada real que completa varias Tareas sin duplicar la Actividad | Crear Actividades ficticias o completar Tareas con Personas ausentes o Asesor incompatible | T-V03-031 |
 | MV-32 | Reasignación de Tarea | El cambio de responsable es explícito y conserva historia | Reasignar una Tarea pendiente con Asesor anterior, nuevo, fecha y motivo | Reasignar automáticamente por transferencia de Relación o cambiar responsable silenciosamente | T-V03-032 |
-| MV-33 | Corrección y anulación de Actividad | Una Actividad histórica no se elimina ni sobrescribe silenciosamente | Corregir o anular conservando original, cambio, responsable, fecha y motivo | Borrar el registro o reemplazarlo sin trazabilidad | T-V03-033 |
+| MV-33 | Corrección y anulación de Actividad | Una Actividad histórica no se elimina ni sobrescribe silenciosamente | Corregir o anular conservando original, cambio, actor o usuario, fecha y motivo | Borrar el registro o reemplazarlo sin trazabilidad | T-V03-033 |
 | MV-34 | Efectos de anulación | Una Actividad anulada queda fuera de métricas y no sostiene consecuencias por sí sola | Mantener trazabilidad y advertir consecuencias para revisión | Contarla, usarla para completar Tareas o eliminar automáticamente hechos posteriores | T-V03-034 |
 | MV-35 | Modificación de Tarea | Las Tareas Pendientes pueden cambiar con historial; las cerradas sólo se rectifican explícitamente | Modificar compromiso futuro conservando cambios sustantivos | Reescribir silenciosamente una Tarea Completada o Cancelada | T-V03-035 |
 | MV-36 | Participación múltiple | Una única acción real o futura puede involucrar a una o varias Personas sin duplicarse | Una reunión o Tarea grupal con varios participantes | Crear una Actividad o Tarea idéntica por cada Persona | T-V03-036 |
@@ -74,6 +74,9 @@ No constituye todavía una especificación SQL.
 | MV-46 | Aplicación parcial controlada | Aplicada con incidencias sólo procede cuando las anomalías son individuales, aisladas y separables | Aplicar hechos inequívocos y dejar lo dudoso pendiente | Usar aplicación parcial ante una anomalía que compromete el alcance general | T-V03-046 |
 | MV-47 | Rechazo y fallo | Rechazada corresponde a una falla crítica de la fuente; Fallida, a un error técnico | Distinguir validación de negocio de interrupción técnica | Dejar efectos canónicos en una ejecución Rechazada o efectos parciales silenciosos en una Fallida | T-V03-047 |
 | MV-48 | Atomicidad de aplicación | Cada efecto queda aplicado o pendiente y la ejecución final no puede quedar ambiguamente a medias | Recuperación explícita después de un fallo | Considerar exitosa una ejecución técnicamente incompleta | T-V03-048 |
+| MV-49 | Retiro confirmado según fuente | TOTAL y ASIGNADOS producen consecuencias distintas al confirmar un retiro | Conservar Aparición en TOTAL y terminar Asignación en ASIGNADOS | Eliminar la Aparición histórica o tratar ambos retiros como equivalentes | T-V03-049 |
+| MV-50 | Resolución y cierre de incidencia | `Sin explicación disponible` mantiene abierta la incidencia; la reaparición puede cerrarla automáticamente | Cierre automático trazable sin duplicar hechos | Registrar falta de explicación como resolución o inventar el motivo de la ausencia | T-V03-050 |
+| MV-51 | Corrección posterior a la aplicación | Un defecto descubierto después de aplicar se corrige o compensa con trazabilidad | Nueva acción correctiva que preserve el antecedente | Borrar, reescribir o presentar como nunca aplicada la ejecución anterior | T-V03-051 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -237,11 +240,11 @@ Resultado esperado:
 
 ### CV-14 · Tarea inconsistente
 
-**Dado** que una Actividad tiene como participantes a Ana y Pedro y fue realizada por Guillermo  
+**Dado** que una Actividad tiene como participantes a Ana y Pedro y fue ejecutada por Guillermo  
 **Cuando** se intenta usarla para ejecutar una Tarea que incluye a María o cuyo responsable es Carolina  
 **Entonces** la operación se rechaza.
 
-Toda Persona objetivo de la Tarea debe estar incluida en la Actividad de ejecución y el Asesor debe coincidir.
+Toda Persona objetivo de la Tarea debe estar incluida en la Actividad de ejecución y el Asesor ejecutor debe coincidir con el responsable vigente.
 
 ### CV-15 · Reintento del mismo archivo
 
@@ -334,7 +337,7 @@ La cancelación constituye un flujo diferente y no requiere Actividad.
 **Entonces** conserva trazabilidad del cambio y no se crea una Actividad.
 
 **Cuando** se cancela  
-**Entonces** conserva fecha, responsable y motivo de cancelación, sin crear una Actividad ni afectar estadísticas de gestión.
+**Entonces** conserva fecha, actor o usuario y motivo de cancelación, sin crear una Actividad ni afectar estadísticas de gestión.
 
 ### CV-26 · Objetivo, contexto y nota
 
@@ -408,7 +411,7 @@ Una Actividad de ejecución debe ser realizada por el Asesor responsable vigente
 **Dado** que Guillermo registró una Llamada con resultado `Conversación efectiva`  
 **Y** luego advierte que el resultado correcto era `No contestó`  
 **Cuando** corrige la Actividad  
-**Entonces** se conservan el valor original, el valor corregido, la fecha, el responsable y el motivo.
+**Entonces** se conservan el valor original, el valor corregido, la fecha, el actor o usuario que corrige y el motivo.
 
 Para la operación y las métricas gobierna la versión corregida, sin borrar el antecedente original.
 
@@ -429,7 +432,7 @@ La Actividad permanece auditable y las consecuencias quedan advertidas para revi
 
 **Dado** que una Tarea está Completada o Cancelada  
 **Cuando** se intenta reescribirla como si siguiera Pendiente  
-**Entonces** la operación se rechaza y cualquier rectificación debe registrarse explícitamente con responsable, fecha y motivo.
+**Entonces** la operación se rechaza y cualquier rectificación debe registrarse explícitamente con actor o usuario, fecha y motivo.
 
 ### CV-36 · Reunión con varias Personas
 
@@ -535,6 +538,32 @@ Ningún hecho dudoso se inventa ni se aplica parcialmente.
 
 La implementación debe revertir los efectos parciales o mantener la ejecución bloqueada para recuperación explícita antes de confirmar cualquier aplicación.
 
+### CV-49 · Retiro confirmado con consecuencias distintas
+
+**Dado** que una Persona deja de aparecer en TOTAL dentro de una Campaña activa  
+**Y** la compañía confirma que fue retirada de ese universo  
+**Entonces** se conserva la Persona, la Aparición histórica y el último Resultado Corporativo conocido, y se registra el retiro corporativo sin eliminar el hecho previo.
+
+**Dado** que una Aparición deja de aparecer en ASIGNADOS  
+**Y** se confirma que ya no pertenece a Guillermo  
+**Entonces** termina la Asignación vigente, se conserva su historial y deja de ser gestionable por esa Asignación.
+
+### CV-50 · Falta de explicación y reaparición
+
+**Dado** que una ausencia no puede explicarse  
+**Entonces** la incidencia permanece abierta y `Sin explicación disponible` no se registra como resolución.
+
+**Cuando** la Persona reaparece después en una carga comparable  
+**Entonces** la incidencia puede cerrarse automáticamente, sin duplicar Persona, Aparición ni Asignación y sin inventar el motivo de la ausencia anterior.
+
+### CV-51 · Problema descubierto después de aplicar
+
+**Dado** que una ejecución fue aplicada  
+**Y** después se confirma que el archivo estaba incompleto o contenía un error relevante  
+**Entonces** se registra una corrección o compensación posterior trazable.
+
+La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurrido.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -551,8 +580,12 @@ La implementación debe revertir los efectos parciales o mantener la ejecución 
 - una Aparición tiene normalmente como máximo una Asignación vigente;
 - la ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación y no produce término automático;
 - la Asignación pendiente permanece visible, pero fuera de la cola normal de gestionables hasta confirmar continuidad;
+- un retiro confirmado en TOTAL conserva Persona, Aparición histórica y último Resultado Corporativo conocido;
+- un retiro confirmado en ASIGNADOS termina la Asignación vigente y conserva su historial;
 - existe un único concepto Incidencia de Conciliación con alcance individual o de conjunto;
 - toda incidencia conserva tipo, evidencia, estado, resolución y trazabilidad hacia las Ejecuciones de Importación relacionadas;
+- `Sin explicación disponible` no es una resolución y mantiene abierta la incidencia;
+- una reaparición posterior puede cerrar automáticamente una incidencia sin duplicar hechos ni explicar retroactivamente la ausencia;
 - una incidencia de alcance agrupa anomalías comunes de archivo, Campaña, segmento o conjunto y evita incidencias individuales masivas por la misma causa mientras permanezca abierta;
 - las ausencias masivas o estructuradas se tratan primero como posible problema de alcance;
 - una Ejecución Aplicada incorporó o confirmó todos sus efectos válidos y no conserva incidencias abiertas;
@@ -561,6 +594,7 @@ La implementación debe revertir los efectos parciales o mantener la ejecución 
 - una Ejecución Fallida representa un error técnico y no puede dejar efectos canónicos parciales silenciosos;
 - cada efecto de importación queda aplicado o pendiente, nunca ambiguamente aplicado a medias;
 - una incidencia de alcance abierta bloquea normalmente la aplicación de la carga;
+- un defecto descubierto después de aplicar se corrige o compensa con trazabilidad y no borra la aplicación anterior;
 - el cambio de período termina la vigencia operativa de Asignaciones anteriores sin incidencias individuales;
 - Relación Comercial única;
 - la Relación nace con continuidad comercial propia y no requiere propuesta ni cierre;
@@ -572,6 +606,7 @@ La implementación debe revertir los efectos parciales o mantener la ejecución 
 - responsabilidad simultánea sólo con autorización;
 - Tarea como previsión de una única Actividad futura;
 - Actividad y Tarea con una o varias Personas;
+- Asesor responsable de Tarea y Asesor ejecutor de Actividad como funciones distintas;
 - interacción grupal representada mediante una sola Actividad o Tarea;
 - consecuencias comerciales evaluadas individualmente por Persona;
 - Tarea grupal válida aunque alguna Persona no posea Relación previa;
@@ -645,4 +680,7 @@ El diseño físico puede comenzar sólo cuando:
 2. el Modelo Comercial sea aprobado;
 3. el Modelo Operacional sea aprobado;
 4. las contradicciones con documentos superiores estén resueltas;
-5. los pendientes técnicos estén claramente separados de las reglas del dominio.
+5. los pendientes técnicos estén claramente separados de las reglas del dominio;
+6. un LCD posterior apruebe el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline, junto con los límites de vinculación opcional de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+
+No es necesario completar antes de ese diseño la experiencia de usuario detallada, los nombres definitivos de todas las etapas, las probabilidades, colores, automatizaciones, dashboards ni reglas particulares de cada producto.
