@@ -28,11 +28,11 @@ No constituye todavía una especificación SQL.
 |---|---|---|---|---|---|
 | MV-01 | Persona | Existe independientemente de Campañas, Asesores y Oportunidades | Persona manual sin Apariciones | Eliminar una Persona porque dejó de aparecer | T-V03-001 |
 | MV-02 | Campaña | Representa una selección mensual concreta con identidad interna | Dos Campañas distintas en el mismo período | Identificarla sólo por prefijo o texto ambiguo | T-V03-002 |
-| MV-03 | Aparición | Vincula una Persona con una Campaña concreta | Persona en varias Campañas del mismo mes | Duplicar la misma Aparición por cada TOTAL | T-V03-003 |
+| MV-03 | Aparición | Vincula una Persona con una Campaña concreta | Persona en varias Campañas del mismo mes | Duplicar la misma Aparición por cada TOTAL o ASIGNADOS | T-V03-003 |
 | MV-04 | Resultado Corporativo | Una Aparición válida tiene normalmente exactamente un resultado vigente; la ausencia sólo existe como inconsistencia explícita | Gestionado, No Gestionado o Aparición temporalmente incompleta con incidencia | Dos resultados vigentes, tercer estado inventado o ausencia silenciosa que gobierne gestionabilidad | T-V03-004 |
 | MV-05 | Historial de resultado | Sólo se registra ante un cambio efectivo | Conservar resultado anterior, nuevo, fecha y carga | Crear historial por repetir el mismo valor | T-V03-005 |
-| MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor y tiene normalmente una sola vigencia activa | Aparición sin Asignación, historial de cambios y conciliación ante ausencia comparable | Confundir Asignación con Relación Comercial o terminarla por una ausencia aislada | T-V03-006 |
-| MV-07 | Orden de origen | TOTAL y ASIGNADOS tienen órdenes independientes | Posiciones distintas para la misma Persona | Que una carga sobrescriba el orden de la otra | T-V03-007 |
+| MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor, puede nacer desde ASIGNADOS sin TOTAL previo y tiene normalmente una sola vigencia activa | ASIGNADOS antes de TOTAL, historial de cambios y vigencia pendiente de conciliación ante ausencia comparable | Confundir Asignación con Relación Comercial o terminarla por una ausencia aislada | T-V03-006 |
+| MV-07 | Posición por fuente | TOTAL y ASIGNADOS pueden conservar posiciones propias en listas distintas | Posiciones diferentes para la misma Persona | Heredar o sobrescribir una posición con la otra fuente | T-V03-007 |
 | MV-08 | Relación Comercial | Es única, persistente y nace cuando existe continuidad comercial propia | Relación sin Oportunidad, nacida por agenda o seguimiento acordado | Crear otra Relación al cambiar de Asesor o esperar al cierre para crearla | T-V03-008 |
 | MV-09 | Responsabilidad del Asesor | Existe normalmente un único responsable principal vigente | Transferir responsabilidad y representar temporalmente una Relación sin responsable como transición o inconsistencia alertada | Dos responsables vigentes sin autorización o ausencia silenciosa de responsable | T-V03-009 |
 | MV-10 | Autorización Excepcional | Un Administrador puede autorizar responsabilidad simultánea | Segundo responsable con motivo y trazabilidad | Crear otra Relación Comercial por la excepción | T-V03-010 |
@@ -40,10 +40,10 @@ No constituye todavía una especificación SQL.
 | MV-12 | Tarea | Es la previsión de una única Actividad futura, con una o varias Personas objetivo, Tipo y objetivo | Tarea individual o grupal, manual y excepcionalmente sin fecha | Tarea sin Persona, Asesor, Tipo u objetivo; categoría paralela que duplique el Tipo | T-V03-012 |
 | MV-13 | Importación | Cada archivo genera una ejecución idempotente | Reintentar el mismo archivo sin duplicar | Aplicar dos veces los mismos efectos | T-V03-013 |
 | MV-14 | Linaje | Los hechos indican creación, última observación y último cambio | Identificar qué carga creó o modificó | Guardar copias innecesarias de filas idénticas | T-V03-014 |
-| MV-15 | Datos de contacto | La observación válida más reciente gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
-| MV-16 | Ausencia intra-período | Sólo se analiza entre cargas comparables del mismo período y Campaña | Incidencia por ausencia individual excepcional | Eliminar automáticamente Persona o Aparición | T-V03-016 |
+| MV-15 | Datos de contacto | La observación válida más reciente, provenga de TOTAL o ASIGNADOS, gobierna lo visible | Actualizar teléfono o correo | Mantener como vigente un dato retirado | T-V03-015 |
+| MV-16 | Ausencia intra-período | Sólo se analiza entre cargas comparables del mismo período y Campaña activa | Incidencia por ausencia individual excepcional | Eliminar automáticamente Persona o Aparición | T-V03-016 |
 | MV-17 | Cambio de período | Cada período crea sus propias Apariciones y termina la vigencia operativa de Asignaciones anteriores | Miles de ausencias normales entre meses | Generar incidencias por no reaparecer | T-V03-017 |
-| MV-18 | Alcance del archivo | Se valida antes de comparar Personas | Detectar una Campaña completa faltante | Generar miles de incidencias individuales | T-V03-018 |
+| MV-18 | Alcance del archivo | Se valida antes de comparar Personas | Detectar una Campaña, segmento o bloque anómalo faltante | Generar miles de incidencias individuales | T-V03-018 |
 | MV-19 | Incidencia de Conciliación | Tiene tipo, estado y resoluciones limitadas | Mantenerla abierta hasta conocer el motivo | Resolver sin categoría ni trazabilidad | T-V03-019 |
 | MV-20 | Reaparición | Puede cerrar una incidencia previa sin duplicar hechos | Cierre automático conservando historia | Crear otra Persona, Aparición o Asignación | T-V03-020 |
 | MV-21 | Lead | Es una condición de una Relación Comercial previa a un Producto Contratado | Lead sin Oportunidad y Lead con Oportunidad | Crear una entidad Persona-Lead separada o exigir un cierre previo | T-V03-021 |
@@ -66,6 +66,9 @@ No constituye todavía una especificación SQL.
 | MV-38 | Tarea grupal sin Relación previa | Una Tarea puede incluir Personas sin Relación Comercial y no la crea por sí sola | Programar una reunión grupal con un acompañante aún sin Relación | Exigir Relación previa o crearla automáticamente por programar | T-V03-038 |
 | MV-39 | Origen hacia otra Persona | Una Actividad puede originar una Tarea para Personas que no participaron en ella | Conversación con Ana que origina una Tarea para llamar a Pedro | Incorporar retroactivamente a Pedro como participante o crearle una Relación por la referencia | T-V03-039 |
 | MV-40 | Simplicidad operativa | Las capacidades excepcionales no deben dominar el flujo frecuente | Ejecutar una Tarea individual sin gestionar controles grupales o excepcionales | Obligar a resolver casos raros en cada registro | T-V03-040 |
+| MV-41 | Equivalencia de fuentes | TOTAL y ASIGNADOS observan los mismos hechos comerciales básicos; ASIGNADOS agrega la Asignación | Procesar ASIGNADOS antes o después de TOTAL sin Apariciones incompletas | Tratar ASIGNADOS como una fuente dependiente o semánticamente distinta | T-V03-041 |
+| MV-42 | Orden propio de ASIGNADOS | La posición de ASIGNADOS pertenece a la lista reducida del Asesor | Conservar un orden propio del Asesor | Copiar el orden TOTAL o usarlo como sustituto | T-V03-042 |
+| MV-43 | Asignación ausente en Campaña activa | Una ausencia posterior comparable es una discrepancia y no un término cierto | Mantener visible la Asignación como pendiente de conciliación y excluirla temporalmente de la cola normal | Terminarla automáticamente o mantenerla como gestionable confirmada | T-V03-043 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -180,27 +183,27 @@ Resultado esperado:
 - las Personas no observadas en agosto no generan incidencias;
 - las Asignaciones de julio dejan de estar operativamente vigentes sin incidencias individuales.
 
-### CV-08 · Asignado coincidente
+### CV-08 · ASIGNADOS observa los mismos hechos
 
 ```text
-TOTAL agosto:
-Ana · Propensión Integral
-
 ASIGNADOS agosto:
-Ana · Propensión Integral · Guillermo
+Ana · Propensión Integral · No Gestionado · Guillermo
+
+TOTAL agosto, cargado después:
+Ana · Propensión Integral · No Gestionado
+Pedro · Propensión Integral · No Gestionado
 ```
 
 Resultado esperado:
 
-- una Persona;
-- una Aparición;
-- una Asignación;
-- órdenes TOTAL y ASIGNADOS independientes.
+- ASIGNADOS puede crear Persona, Campaña, Aparición, Resultado Corporativo, datos de contacto y Asignación para Ana;
+- no se crea una Aparición incompleta ni una incidencia por falta de TOTAL previo;
+- TOTAL no duplica a Ana y agrega la Aparición de Pedro;
+- una Persona, una Aparición y una Asignación para Ana.
 
-### CV-09 · Asignado sin coincidencia única
+### CV-09 · Asignado sin identidad única de Campaña
 
-**Dado** que una Persona aparece en dos Campañas del mismo mes  
-**Y** la fila ASIGNADOS no permite determinar cuál corresponde  
+**Dado** que la fila ASIGNADOS no permite determinar de manera única la Campaña concreta  
 **Entonces** no se adivina la Aparición y se crea una incidencia.
 
 ### CV-10 · Transferencia de responsabilidad
@@ -283,13 +286,13 @@ No es necesario esperar una propuesta ni el cierre de un negocio.
 **Cuando** nace un Producto Contratado vigente asociado a Guillermo  
 **Entonces** Ana pasa a clasificarse como Cliente del Asesor sin crear otra Persona ni otra Relación Comercial.
 
-### CV-22 · Ausencia en ASIGNADOS comparable
+### CV-22 · Ausencia en ASIGNADOS comparable dentro de Campaña activa
 
 ```text
 ASIGNADOS_01 agosto:
 Ana · Guillermo
 
-ASIGNADOS_02 agosto:
+ASIGNADOS_02 agosto comparable:
 Ana no aparece
 ```
 
@@ -297,7 +300,9 @@ Resultado esperado:
 
 - no se elimina la Asignación histórica;
 - no se registra término automático;
-- se genera una incidencia de conciliación;
+- su vigencia actual queda pendiente de conciliación;
+- se genera una incidencia;
+- Ana permanece visible, pero queda fuera de la cola normal de gestionables;
 - una resolución confirmada puede registrar el término;
 - una reaparición posterior cierra la incidencia sin duplicar la Asignación.
 
@@ -464,6 +469,30 @@ La referencia no crea una Relación Comercial para Pedro. La futura llamada que 
 
 Las capacidades excepcionales deben permanecer disponibles mediante acciones secundarias o divulgación progresiva.
 
+### CV-41 · ASIGNADOS antes de TOTAL
+
+**Dado** que se carga primero un archivo ASIGNADOS válido con las mismas columnas comerciales de TOTAL  
+**Cuando** la fila identifica a Ana, su Campaña, Resultado Corporativo, datos de contacto y Asesor  
+**Entonces** el sistema crea o actualiza todos esos hechos y registra la Asignación sin esperar TOTAL.
+
+La llegada posterior de TOTAL vuelve a observar los mismos hechos sin duplicarlos.
+
+### CV-42 · Posiciones independientes
+
+**Dado** que Ana ocupa la posición 10.532 en TOTAL y la posición 17 en ASIGNADOS de Guillermo  
+**Cuando** se procesan ambos archivos  
+**Entonces** ambas posiciones se conservan en sus respectivos ámbitos.
+
+Ninguna posición sustituye ni deriva de la otra.
+
+### CV-43 · Ausencia sospechosa y alcance
+
+**Dado** que una carga posterior comparable de la misma Campaña activa omite a una Persona antes presente  
+**Entonces** se genera una conciliación individual sin eliminar ni terminar automáticamente el hecho anterior.
+
+**Dado** que la carga omite una cantidad masiva, una Campaña o una sección reconocible  
+**Entonces** se genera primero una incidencia de alcance y se evalúa bloquear o rechazar el archivo, sin crear miles de incidencias individuales.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -474,9 +503,13 @@ Las capacidades excepcionales deben permanecer disponibles mediante acciones sec
 - toda Aparición válida normalmente tiene un único Resultado Corporativo vigente;
 - la falta de resultado es una inconsistencia explícita, conciliable y no gestionable, nunca un tercer estado;
 - Resultado Corporativo separado de la gestión propia;
-- órdenes TOTAL y ASIGNADOS independientes;
+- TOTAL y ASIGNADOS observan los mismos hechos comerciales básicos;
+- ASIGNADOS agrega la pertenencia temporal al Asesor y puede procesarse antes o después de TOTAL;
+- posición propia de ASIGNADOS dentro de la lista del Asesor, independiente de cualquier posición TOTAL;
 - una Aparición tiene normalmente como máximo una Asignación vigente;
-- la ausencia en ASIGNADOS comparable genera conciliación y no término automático;
+- la ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación y no produce término automático;
+- la Asignación pendiente permanece visible, pero fuera de la cola normal de gestionables hasta confirmar continuidad;
+- las ausencias masivas o estructuradas se tratan primero como posible problema de alcance;
 - el cambio de período termina la vigencia operativa de Asignaciones anteriores sin incidencias individuales;
 - Relación Comercial única;
 - la Relación nace con continuidad comercial propia y no requiere propuesta ni cierre;
@@ -518,7 +551,7 @@ Las capacidades excepcionales deben permanecer disponibles mediante acciones sec
 - capacidades excepcionales expuestas sólo mediante divulgación progresiva;
 - nuevos casos hipotéticos incorporados al dominio sólo cuando alteren cardinalidad, invariantes, fuente de verdad o trazabilidad relevante;
 - cargas TOTAL sucesivas e incrementales;
-- comparación de ausencias sólo dentro del mismo período y Campaña comparable;
+- comparación de ausencias sólo dentro del mismo período y Campaña activa comparable;
 - cambio de período sin incidencias masivas;
 - linaje mínimo e historial sólo ante cambios efectivos.
 
@@ -540,6 +573,7 @@ Las capacidades excepcionales deben permanecer disponibles mediante acciones sec
 - representación física de correcciones y anulaciones de Actividad;
 - revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
 - representación física de cambios significativos y rectificaciones de Tarea;
+- representación física y UX de Asignaciones pendientes de conciliación;
 - formato y límites de objetivo, contexto y nota de ejecución;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
