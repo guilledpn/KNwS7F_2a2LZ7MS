@@ -2,7 +2,8 @@
 
 Estado: Vigente  
 Último LCD aprobado: LCD-20260801-02  
-Lotes pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
+Lote en revisión: <span style="color:red">LCD-20260802-01</span>  
+Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
 
 ## Propósito
 
@@ -50,6 +51,18 @@ ADR-024 establece la separación entre:
 - Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
 
 La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.
+
+## Desarrollo comercial en revisión
+
+LCD-20260802-01 y ADR-025 deben definir el modelo mínimo de:
+
+- Caso Comercial;
+- Oportunidad;
+- Propuesta;
+- Pipeline;
+- vínculos opcionales de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+
+La hipótesis inicial permanece pendiente de validación. Este lote no autoriza SQL, diseño físico definitivo ni cambios de runtime.
 
 ## Contextos de dominio candidatos
 
@@ -161,7 +174,7 @@ Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, R
 
 ### En curso
 
-- preparación del LCD para definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline;
+- descubrimiento y validación del modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline bajo LCD-20260802-01;
 - revisión del material educativo del PR #21;
 - cierre documental y visual de LCD-20260715-01;
 - migración progresiva de documentos superiores de Drive a Markdown.
@@ -191,5 +204,6 @@ Issue → reserva de LCD/ADR → rama → documentación → diseño → impleme
 - `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
 - `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
 - `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.
+- `LCD-20260802-01`: modelo mínimo de desarrollo comercial; Issue #34, en descubrimiento.
 
 El detalle autoritativo vive en `docs/governance/lcd-registry.md`.
