@@ -163,12 +163,16 @@ Reglas:
 - una Aparición puede no tener Asignación;
 - una Aparición tiene normalmente como máximo una Asignación vigente;
 - una Asignación no crea una Relación Comercial;
-- el orden de Asignación es independiente del orden informado por la carga TOTAL;
+- una carga ASIGNADOS puede observar Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto, además de confirmar la Asignación, sin depender de una carga TOTAL previa;
+- la Asignación puede conservar una posición propia dentro de la lista reducida del Asesor;
+- la posición de ASIGNADOS es independiente de cualquier posición de la Aparición en TOTAL y ninguna debe sobrescribir a la otra;
 - debe conservarse historial cuando cambia o termina;
 - una Asignación a otro Asesor puede bloquear la gestión salvo excepción autorizada;
 - una Asignación propia permanece visible durante la Campaña activa aunque el Resultado Corporativo sea Gestionado;
-- la ausencia en una carga ASIGNADOS posterior del mismo período y alcance comparable no termina automáticamente la Asignación: genera conciliación;
+- la ausencia en una carga ASIGNADOS posterior del mismo período, Campaña activa y alcance comparable no termina automáticamente la Asignación: deja su vigencia pendiente de conciliación;
+- mientras la vigencia está pendiente de conciliación, la Aparición permanece visible, pero no integra la cola normal de gestionables hasta confirmar que continúa asignada al Asesor;
 - sólo una resolución confirmada registra el término dentro del mismo período;
+- si la ausencia afecta muchas filas o una sección completa, debe tratarse primero como posible problema de alcance del archivo y no como múltiples retiros individuales;
 - el cambio de período termina la vigencia operativa de las Asignaciones anteriores sin generar incidencias individuales por quienes no reaparecen.
 
 ### 4.7 Relación Comercial
@@ -479,7 +483,7 @@ Los ajustes menores de redacción del contexto pueden tratarse como edición ord
 
 La cardinalidad `0..1` del Resultado Corporativo permite representar temporalmente una fuente incompleta o inválida. En operación normal, una Aparición válida debe tener exactamente un resultado vigente; la ausencia es una inconsistencia visible y conciliable, no un estado del negocio.
 
-La cardinalidad histórica `0..N` de Asignación permite conservar cambios y términos. En operación normal, una Aparición tiene como máximo una Asignación vigente; la ausencia en una carga comparable no la termina sin conciliación.
+La cardinalidad histórica `0..N` de Asignación permite conservar cambios y términos. En operación normal, una Aparición tiene como máximo una Asignación vigente. La ausencia dentro de la misma Campaña activa y en una carga ASIGNADOS comparable no termina la Asignación por sí sola: deja su vigencia pendiente de conciliación y requiere una resolución trazable.
 
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
 
@@ -545,6 +549,10 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 48. La participación en una Actividad o Tarea no crea automáticamente una Relación Comercial.
 49. Las consecuencias comerciales de una Actividad o Tarea grupal se determinan individualmente para cada Persona.
 50. Una Tarea grupal puede incluir Personas sin Relación Comercial previa.
+51. TOTAL y ASIGNADOS pueden observar los mismos hechos de Persona, Campaña, Aparición, Resultado Corporativo y datos de contacto.
+52. ASIGNADOS agrega la pertenencia temporal al Asesor y puede procesarse antes o después de TOTAL sin duplicar hechos.
+53. La posición de ASIGNADOS pertenece a la lista del Asesor y es independiente de cualquier posición de TOTAL.
+54. Una ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación; no termina la Asignación automáticamente ni mantiene a la Aparición en la cola normal de gestionables.
 
 ## 7. Principio de simplicidad operativa y UX
 
@@ -602,6 +610,7 @@ Se calculan desde hechos persistentes y reglas aprobadas.
 - definir la representación física de correcciones y anulaciones de Actividad;
 - definir la revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
 - definir la representación física de cambios significativos y rectificaciones de Tarea;
+- definir la UX y la representación física de Asignaciones pendientes de conciliación;
 - definir formato y límites de objetivo, contexto y nota de ejecución;
 - validar el historial individual de teléfonos y correos;
 - diseñar `next_v03` y probar estas invariantes con datos ficticios.
