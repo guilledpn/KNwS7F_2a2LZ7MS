@@ -29,7 +29,7 @@ No constituye todavía una especificación SQL.
 | MV-01 | Persona | Existe independientemente de Campañas, Asesores y Oportunidades | Persona manual sin Apariciones | Eliminar una Persona porque dejó de aparecer | T-V03-001 |
 | MV-02 | Campaña | Representa una selección mensual concreta con identidad interna | Dos Campañas distintas en el mismo período | Identificarla sólo por prefijo o texto ambiguo | T-V03-002 |
 | MV-03 | Aparición | Vincula una Persona con una Campaña concreta | Persona en varias Campañas del mismo mes | Duplicar la misma Aparición por cada TOTAL | T-V03-003 |
-| MV-04 | Resultado Corporativo | Cada Aparición tiene como máximo un resultado vigente | Cambio No Gestionado → Gestionado | Dos resultados vigentes simultáneos | T-V03-004 |
+| MV-04 | Resultado Corporativo | Una Aparición válida tiene normalmente exactamente un resultado vigente; la ausencia sólo existe como inconsistencia explícita | Gestionado, No Gestionado o Aparición temporalmente incompleta con incidencia | Dos resultados vigentes, tercer estado inventado o ausencia silenciosa que gobierne gestionabilidad | T-V03-004 |
 | MV-05 | Historial de resultado | Sólo se registra ante un cambio efectivo | Conservar resultado anterior, nuevo, fecha y carga | Crear historial por repetir el mismo valor | T-V03-005 |
 | MV-06 | Asignación | Vincula temporalmente una Aparición con un Asesor | Aparición sin Asignación e historial de cambios | Confundir Asignación con Relación Comercial | T-V03-006 |
 | MV-07 | Orden de origen | TOTAL y ASIGNADOS tienen órdenes independientes | Posiciones distintas para la misma Persona | Que una carga sobrescriba el orden de la otra | T-V03-007 |
@@ -226,6 +226,14 @@ Resultado esperado:
 
 La ausencia de responsable no puede permanecer como situación silenciosa normal.
 
+### CV-17 · Aparición sin resultado válido
+
+**Dado** que una fuente informa que Ana apareció en una Campaña  
+**Y** el resultado viene vacío, inválido o no puede determinarse  
+**Entonces** se conserva la Aparición como inconsistencia explícita, se genera una incidencia y no se considera gestionable hasta resolverla.
+
+El sistema no inventa `Gestionado`, `No Gestionado` ni un tercer estado como `Desconocido`.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -233,6 +241,8 @@ La ausencia de responsable no puede permanecer como situación silenciosa normal
 - Persona independiente;
 - Campaña mensual concreta;
 - Aparición distinta de Asignación;
+- toda Aparición válida normalmente tiene un único Resultado Corporativo vigente;
+- la falta de resultado es una inconsistencia explícita, conciliable y no gestionable, nunca un tercer estado;
 - Resultado Corporativo separado de la gestión propia;
 - órdenes TOTAL y ASIGNADOS independientes;
 - Relación Comercial única;
