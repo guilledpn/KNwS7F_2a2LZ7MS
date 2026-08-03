@@ -33,7 +33,7 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260716-01 | 2026-07-16 | Crear material educativo y diagnóstico de arquitectura de datos | Pendiente de revisión | Pull Request borrador #21 | — |
 | LCD-20260801-01 | 2026-08-01 | Reconciliar Drive y GitHub, corregir colisiones y fijar autoridad documental | Aprobado por autorización explícita del usuario; implementación documental trazada en Issue #28 | Issue #28 y Pull Requests #29 y #30 | — |
 | LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | Aprobado | Issue #31 y Pull Requests #32 y #33 | — |
-| LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | <span style="color:red">Consolidado · pendiente de revisión y aprobación final</span> | Issue #34 y Pull Request borrador #35 | — |
+| LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | <span style="color:red">Consolidado en ADR, Modelo Comercial y Matriz · pendiente de revisión y aprobación final</span> | Issue #34 y Pull Request borrador #35 | — |
 
 ## Próxima asignación
 
