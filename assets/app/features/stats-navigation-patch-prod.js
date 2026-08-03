@@ -1,7 +1,7 @@
 (function installProdStatsNavigationPatch(global){
   'use strict';
 
-  const PATCH_ID='UI-20260803-03';
+  const PATCH_ID='UI-20260803-02';
   let installed=false;
   let screenBeforeStats='contacts';
 
@@ -21,10 +21,10 @@
       button.setAttribute('aria-label','Volver');
       button.setAttribute('title','Volver');
       button.style.display='none';
-      button.style.flex='0 0 44px';
       button.innerHTML='<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>';
       topbar.insertBefore(button,title);
     }
+    button.style.flex='0 0 44px';
 
     button.onclick=()=>{
       const target=screenBeforeStats&&screenBeforeStats!=='stats'
@@ -48,6 +48,8 @@
     }
 
     if(global.CRM_STATS_NAVIGATION_PATCH===PATCH_ID){
+      ensureBackButton();
+      syncBackButton(typeof currentScreen!=='undefined'?currentScreen:'contacts');
       installed=true;
       return;
     }
