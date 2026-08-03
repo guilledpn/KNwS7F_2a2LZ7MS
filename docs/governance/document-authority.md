@@ -116,6 +116,10 @@ GitHub puede enlazar estas fuentes, pero no copiar su contenido. Drive no copia 
 
 La carpeta Drive `App_llamados_crm` es un repositorio de fuentes y evidencia, no un repositorio documental paralelo.
 
+### Incidencia de permisos pendiente · Issue #40
+
+La raíz ya no contiene documentos rectores ni registros paralelos. Drive rechazó con `403 appNotAuthorizedToFile` la eliminación de `Bases_maestras/normalizar_bases_campanas.py` y el renombre de la carpeta contenedora `Modelo del dominio`. El archivo residual no tiene autoridad —la versión canónica es `tools/normalize_campaign_bases.py`— y debe eliminarse manualmente; la carpeta debe renombrarse `Fuentes y evidencia del dominio`. La subcarpeta `Fuentes de productos` sí fue renombrada.
+
 ## Identificadores
 
 Los espacios `LCD-AAAAMMDD-NN` y `ADR-NNN` son únicos. Antes de iniciar un lote:

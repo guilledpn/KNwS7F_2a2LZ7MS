@@ -3,7 +3,7 @@
 - Estado: Vigente
 - Último LCD aprobado: LCD-20260803-01
 - Última entrega Legacy: `App_llamados_v1.05-ui-20260803-07` · Issue #39
-- Pendientes abiertos relevantes: Issue #38 y PR #21
+- Pendientes abiertos relevantes: Issues #38 y #40; PR #21
 
 ## Productos
 
@@ -87,9 +87,10 @@ Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge a
 
 ## Próximos pasos
 
-1. Resolver Issue #38 en DEV.
-2. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
-3. Abrir el lote de diseño físico mínimo `next_v03`.
-4. Decidir el destino del PR educativo #21.
+1. Completar las dos acciones manuales de Drive registradas en Issue #40.
+2. Resolver Issue #38 en DEV.
+3. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
+4. Abrir el lote de diseño físico mínimo `next_v03`.
+5. Decidir el destino del PR educativo #21.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.
