@@ -1,6 +1,6 @@
-const APP_VERSION='App_llamados_v1.05-ui-20260803-03';
-const PATCH_ID='UI-20260803-03';
-const METRICS_PATCH_ID='UI-20260803-03';
+const APP_VERSION='App_llamados_v1.05-ui-20260803-04';
+const PATCH_ID='UI-20260803-04';
+const METRICS_PATCH_ID='UI-20260803-04';
 const METRICS_PATCH_TAG='<script src="./assets/app/features/stats-metrics-patch-prod.js?v='+METRICS_PATCH_ID+'" data-crm-stats-metrics-patch="'+METRICS_PATCH_ID+'"></script>';
 const NAVIGATION_PATCH_TAG='<script src="./assets/app/features/stats-navigation-patch-prod.js?v='+PATCH_ID+'" data-crm-stats-navigation-patch="'+PATCH_ID+'"></script>';
 
