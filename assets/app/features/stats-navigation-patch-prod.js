@@ -1,7 +1,7 @@
 (function installProdStatsNavigationPatch(global){
   'use strict';
 
-  const PATCH_ID='UI-20260803-01';
+  const PATCH_ID='UI-20260803-02';
   let installed=false;
   let screenBeforeStats='contacts';
 
@@ -27,7 +27,7 @@
 
     button.onclick=()=>{
       const target=screenBeforeStats&&screenBeforeStats!=='stats'
-        ? screenBeforeStats
+        ?screenBeforeStats
         :'contacts';
       global.setScreen(target);
     };
@@ -43,6 +43,11 @@
     if(installed)return;
     if(typeof global.setScreen!=='function'){
       setTimeout(install,50);
+      return;
+    }
+
+    if(global.CRM_STATS_NAVIGATION_PATCH===PATCH_ID){
+      installed=true;
       return;
     }
 
