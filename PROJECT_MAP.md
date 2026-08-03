@@ -1,8 +1,8 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260801-02  
-Lote en revisión: <span style="color:red">LCD-20260802-01</span>  
+Último LCD aprobado: LCD-20260802-01  
+Lote en revisión: ninguno  
 Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
 
 ## Propósito
@@ -52,7 +52,7 @@ ADR-024 establece la separación entre:
 
 La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.
 
-## Desarrollo comercial en revisión
+## Desarrollo comercial aprobado
 
 LCD-20260802-01 y ADR-025 consolidan el modelo mínimo de:
 
@@ -65,7 +65,7 @@ LCD-20260802-01 y ADR-025 consolidan el modelo mínimo de:
 - vínculos opcionales de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad;
 - clasificación de reglas en invariantes, advertencias y recomendaciones.
 
-Las decisiones estructurales están consolidadas en ADR-025, el Modelo Comercial y la Matriz de Validación. El lote permanece pendiente de revisión de equivalencia y aprobación final. No autoriza SQL, diseño físico definitivo ni cambios de runtime.
+Las decisiones estructurales y su equivalencia histórica quedaron aprobadas en ADR-025, el Modelo Comercial y la Matriz de Validación. El lote no autoriza SQL, diseño físico definitivo ni cambios de runtime.
 
 ## Contextos de dominio candidatos
 
@@ -179,7 +179,6 @@ Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, R
 
 ### En curso
 
-- revisión de equivalencia, coherencia y aprobación final de LCD-20260802-01;
 - revisión del material educativo del PR #21;
 - cierre documental y visual de LCD-20260715-01;
 - migración progresiva de documentos superiores de Drive a Markdown.
@@ -209,6 +208,6 @@ Issue → reserva de LCD/ADR → rama → documentación → diseño → impleme
 - `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
 - `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
 - `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.
-- `LCD-20260802-01`: modelo mínimo de desarrollo comercial; Issue #34 y PR #35, consolidado y pendiente de revisión final.
+- `LCD-20260802-01`: modelo mínimo de desarrollo comercial; Issue #34 y PR #35, aprobado con equivalencia histórica resuelta.
 
 El detalle autoritativo vive en `docs/governance/lcd-registry.md`.

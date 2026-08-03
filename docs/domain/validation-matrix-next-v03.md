@@ -1,11 +1,11 @@
 # Matriz de Validación del Modelo · CRM Patrimonial Next v03
 
 - Versión: 0.2
-- Estado: <span style="color:red">Extensión consolidada · pendiente de revisión final · LCD-20260802-01</span>
+- Estado: Aprobada · LCD-20260802-01
 - Fecha: 2026-08-03
 - LCD aprobado de origen: LCD-20260801-02
-- LCD en revisión: <span style="color:red">LCD-20260802-01</span>
-- ADR: ADR-024 y <span style="color:red">ADR-025</span>
+- LCD aprobado de extensión: LCD-20260802-01
+- ADR: ADR-024 y ADR-025
 - Issues: #31 y #34
 - Motivo del cambio: incorporar reglas verificables del modelo mínimo de desarrollo comercial.
 
@@ -939,9 +939,9 @@ El diseño físico puede comenzar sólo cuando:
 3. el Modelo Operacional sea aprobado y permanezca coherente con estas reglas;
 4. las contradicciones con documentos superiores estén resueltas;
 5. los pendientes técnicos estén claramente separados de las reglas del dominio;
-6. ADR-025 y LCD-20260802-01 completen revisión, equivalencia documental y aprobación formal;
+6. ADR-025 y LCD-20260802-01 permanezcan aprobados y sin contradicciones nuevas;
 7. las transiciones y casos conceptuales aquí descritos puedan expresarse mediante pruebas reproducibles sin introducir estados o entidades no aprobados.
 
-Mientras LCD-20260802-01 permanezca en revisión, `next_v03` continúa bloqueado para diseño físico y SQL.
+La aprobación documental de LCD-20260802-01 elimina este bloqueo conceptual. El diseño físico y SQL siguen requiriendo un lote propio y pruebas reproducibles; este documento no los autoriza por sí solo.
 
 No es necesario completar antes de ese diseño la experiencia de usuario detallada, probabilidades, colores, automatizaciones, dashboards ni reglas particulares de cada producto.

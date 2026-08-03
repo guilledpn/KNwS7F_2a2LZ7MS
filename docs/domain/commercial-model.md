@@ -1,11 +1,11 @@
 # Modelo Comercial del CRM Patrimonial
 
 - Versión: 0.2
-- Estado: <span style="color:red">Extensión consolidada · pendiente de revisión final · LCD-20260802-01</span>
+- Estado: Aprobado · LCD-20260802-01
 - Fecha: 2026-08-03
 - LCD aprobado de origen: LCD-20260801-02
-- LCD en revisión: <span style="color:red">LCD-20260802-01</span>
-- ADR: ADR-024 y <span style="color:red">ADR-025</span>
+- LCD aprobado de extensión: LCD-20260802-01
+- ADR: ADR-024 y ADR-025
 - Issues: #31 y #34
 - Motivo del cambio: incorporar el modelo mínimo aprobado de Caso Comercial, Oportunidad, Cotización, Propuesta, Pipeline, CNS y Producto Contratado.
 
@@ -540,7 +540,7 @@ Reglas:
 - una Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió;
 - cuando una Oportunidad se gana, se identifica una única Cotización seleccionada y las restantes quedan como antecedentes históricos.
 
-Una taxonomía todavía incompleta no debe convertirse prematuramente en una restricción física irreversible. Las combinaciones aparentemente incoherentes se tratan como advertencias confirmables mientras no contradigan una invariante aprobada.
+Una Cotización puede conservar capitales, costos y CNS descriptivos de su configuración, pero esos valores no gobiernan la proyección vigente del Caso ni se suman automáticamente. Una taxonomía todavía incompleta no debe convertirse prematuramente en una restricción física irreversible. Las combinaciones aparentemente incoherentes se tratan como advertencias confirmables mientras no contradigan una invariante aprobada.
 
 ### 4.16 Propuesta
 
@@ -630,6 +630,8 @@ Reglas:
 - las diferencias expresan la evolución real del mismo negocio y no crean saldos parciales;
 - los reportes de flujo pueden mostrar hechos ocurridos en un período, pero no sumarlos como producción independiente;
 - una misma magnitud no puede computarse simultáneamente en varias etapas.
+
+Los CNS reconocidos con posterioridad y el capital asociado a la contratación son hechos distintos de los CNS emitidos. Este modelo mínimo no los implementa todavía, pero tampoco los equipara ni los elimina.
 
 ### 4.19 Historial descriptivo del Caso
 

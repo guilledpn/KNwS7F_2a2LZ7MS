@@ -1,7 +1,7 @@
 # ADR-025 · Estructura mínima del desarrollo comercial
 
 - Fecha: 2026-08-02
-- Estado: <span style="color:red">Consolidado · pendiente de revisión final</span>
+- Estado: Aprobado
 - LCD: LCD-20260802-01
 - Issue: #34
 - Última actualización: 2026-08-03
@@ -21,7 +21,17 @@ El Modelo Comercial aprobado ya contiene Persona, Relación Comercial, Tarea y A
 - Producto Contratado;
 - vínculos opcionales de Tareas y Actividades con el desarrollo comercial.
 
-El Diccionario del Dominio y `APP LLAMADOS · Modelo de negocio` constituyen antecedentes canónicos. Este LCD consolida esos antecedentes, resuelve vacíos y sustituye expresamente las hipótesis incompatibles surgidas durante el descubrimiento.
+El Diccionario del Dominio y `APP LLAMADOS · Modelo de negocio` constituyeron antecedentes históricos. Este LCD consolida su conocimiento vigente, resuelve vacíos y sustituye expresamente las hipótesis incompatibles surgidas durante el descubrimiento.
+
+## Reconciliación de antecedentes
+
+La revisión final del Issue #34 resolvió las cinco diferencias detectadas entre ADR-025 y los documentos históricos:
+
+1. Un Caso puede existir con cero, una o varias Oportunidades; la antigua exigencia de una o más Oportunidades queda sustituida.
+2. Una Cotización puede conservar capitales, costos y CNS descriptivos de su configuración, pero no gobierna la proyección vigente del Caso ni la suma automáticamente.
+3. CNS emitidos, CNS reconocidos y capital asociado son hechos distintos. Este ADR modela proyección, sometimiento y emisión del Caso; el reconocimiento posterior y el capital quedan fuera de su alcance, sin negarlos ni equipararlos.
+4. Un Caso queda `Ganado` únicamente al alcanzar `Emitido`. Cualquier regla histórica que lo cerraba antes del sometimiento o de la emisión queda sustituida.
+5. Las Oportunidades de un Caso pueden ser complementarias o alternativas. Las Cotizaciones representan configuraciones mutuamente excluyentes de un mismo contrato potencial.
 
 ## 1. Estructura conceptual aprobada
 
@@ -99,6 +109,7 @@ Reglas:
 - una diferencia impuesta por un CRM corporativo no redefine el dominio propio;
 - cada Cotización pertenece exactamente a una Oportunidad;
 - una Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió;
+- una Cotización puede conservar valores descriptivos de su configuración, incluidos capital, costo o CNS informativos, pero esos valores no sustituyen la proyección vigente del Caso ni se agregan automáticamente a ella;
 - cuando una Oportunidad se gana, queda identificada una única Cotización seleccionada y las demás permanecen descartadas como antecedentes históricos.
 
 Cardinalidad:
@@ -313,6 +324,8 @@ Reglas:
 - las diferencias entre proyección, sometimiento y emisión expresan la evolución real del negocio y no crean saldos parciales;
 - los reportes de flujo pueden mostrar hechos ocurridos en un período, pero no sumarlos como producción independiente.
 
+Los CNS reconocidos con posterioridad y el capital asociado a una contratación son hechos diferentes de los CNS emitidos. Su modelado queda fuera de este lote y deberá preservar esa distinción.
+
 Ejemplo:
 
 ```text
@@ -472,6 +485,11 @@ No bloquean ni exigen confirmación:
 
 Este ADR sustituye expresamente las hipótesis intermedias que proponían:
 
+- exigir una o más Oportunidades para que exista un Caso;
+- cerrar un Caso como Ganado antes de llegar a `Emitido`;
+- tratar los CNS descriptivos de una Cotización como la proyección viva del Caso;
+- equiparar CNS emitidos, CNS reconocidos y capital;
+- limitar las Oportunidades de un Caso a componentes complementarios, excluyendo alternativas contractuales;
 - exigir al menos una Oportunidad para crear un Caso;
 - mantener etapas individuales por Oportunidad;
 - mostrar varias tarjetas del mismo Caso en distintas columnas;
@@ -511,12 +529,7 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 
 No quedan preguntas estructurales pendientes para el modelo mínimo de desarrollo comercial.
 
-La consolidación en `docs/domain/commercial-model.md` y `docs/domain/validation-matrix-next-v03.md` fue completada el 2026-08-03. Antes de cerrar el LCD corresponde:
-
-1. revisar equivalencia con los antecedentes canónicos y registrar cualquier refinamiento explícito;
-2. aprobar ADR-025 y los documentos derivados;
-3. actualizar registros, catálogo y espejos documentales aplicables;
-4. fusionar el PR y cerrar el Issue mediante autorización explícita.
+La consolidación en `docs/domain/commercial-model.md` y `docs/domain/validation-matrix-next-v03.md`, incluida la equivalencia con los antecedentes históricos, fue aprobada el 2026-08-03.
 
 ## Límites del lote
 
