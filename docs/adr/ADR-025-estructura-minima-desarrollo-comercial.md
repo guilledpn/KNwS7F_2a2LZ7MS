@@ -27,30 +27,31 @@ La estructura mínima actualmente aprobada es:
 Persona
 └── Relación Comercial
     └── Caso Comercial
-        └── Oportunidad
+        └── Oportunidades
             └── Cotizaciones
 ```
 
 La Propuesta no aparece como entidad estructurada. El contenido que el Asesor decide presentar vive de forma descriptiva en el historial del Caso Comercial y puede quedar respaldado por Actividades, notas y documentos asociados.
 
-El Pipeline se opera desde el Caso Comercial, pero las etapas se conservan por Oportunidad para permitir avances distintos. Las tarjetas del Kanban son proyecciones derivadas del Caso agrupadas por etapa; no constituyen entidades persistentes.
+El Caso Comercial representa un negocio indivisible y constituye la unidad canónica del Pipeline. Posee una sola etapa actual, una sola tarjeta operativa y un resultado final de Ganado o Perdido. Las Oportunidades y Cotizaciones explican qué productos y configuraciones fueron evaluados dentro del negocio, pero no fragmentan su posición operativa.
 
 ## Decisiones aprobadas
 
 ### 1. Origen y criterio de agrupación del Caso Comercial
 
-Un Caso Comercial representa un objetivo, necesidad o proceso de decisión concreto de una Persona dentro de una Relación Comercial.
+Un Caso Comercial representa un negocio concreto dentro de una Relación Comercial: un proceso de decisión que el Asesor administra y espera resolver como una unidad.
 
 Reglas:
 
 - una Relación Comercial puede existir sin Casos Comerciales;
 - una Relación Comercial puede contener varios Casos simultáneos o sucesivos;
-- un Caso no nace vacío: nace cuando se identifica al menos una Oportunidad concreta asociada a su objetivo, necesidad o proceso de decisión;
-- un Caso agrupa una o más Oportunidades;
-- varias Oportunidades pertenecen al mismo Caso cuando responden al mismo objetivo, necesidad o proceso de decisión y forman parte de un mismo desarrollo comercial conjunto, complementario o alternativo;
-- la coincidencia temporal o de producto no basta por sí sola para unir o separar Casos;
-- antes de identificar una Oportunidad puede existir una Relación Comercial o una condición Lead sin Oportunidad, pero todavía no existe un Caso;
-- el Caso organiza el desarrollo comercial propio y no reemplaza las Oportunidades formales que pueda exigir la compañía.
+- un Caso no nace vacío: nace cuando se identifica al menos una Oportunidad concreta;
+- un Caso agrupa una o más Oportunidades evaluadas dentro del mismo negocio;
+- varias Oportunidades pueden permanecer en un mismo Caso cuando son alternativas o componentes cuya decisión y avance se administran conjuntamente;
+- la coincidencia de Persona, objetivo, necesidad, fecha o producto no basta por sí sola para unir Casos;
+- dos desarrollos que necesitan avanzar, someterse, emitirse, ganarse o perderse de manera independiente deben constituir Casos distintos;
+- antes de identificar una Oportunidad puede existir una Relación Comercial o una condición Lead, pero todavía no existe un Caso;
+- el Caso organiza el desarrollo comercial propio y no reemplaza las oportunidades formales que pueda exigir la compañía.
 
 Cardinalidad conceptual aprobada:
 
@@ -61,31 +62,34 @@ Caso Comercial     1 ── 1..N Oportunidades
 
 ### 2. Nacimiento, pertenencia y cardinalidad de la Oportunidad
 
-Una Oportunidad representa una contratación potencial individualizable de un producto concreto para la cual existe un desarrollo comercial real que seguir.
+Una Oportunidad representa una contratación potencial individualizable de un producto concreto evaluado dentro de un Caso Comercial.
 
 Reglas:
 
 - una necesidad general, interés difuso o conversación exploratoria sin producto potencial concreto no crea todavía una Oportunidad;
-- la Oportunidad nace cuando se identifica un producto potencial concreto dentro de una Relación Comercial y existe una intención, necesidad o posibilidad comercial que justifica su seguimiento;
+- la Oportunidad nace cuando se identifica un producto potencial concreto y existe una posibilidad comercial que justifica evaluarlo;
 - toda Oportunidad presupone una Relación Comercial existente;
-- toda Oportunidad pertenece exactamente a un Caso Comercial;
+- toda Oportunidad pertenece exactamente a un Caso Comercial en cada momento;
 - no existen Oportunidades sueltas fuera de un Caso;
-- la primera Oportunidad de un objetivo, necesidad o proceso de decisión origina o identifica simultáneamente el Caso correspondiente;
-- una Persona puede mantener varios Casos y varias Oportunidades abiertas simultáneamente dentro de su única Relación Comercial;
-- la Oportunidad conserva el desarrollo comercial de un producto concreto; el Caso conserva el objetivo, necesidad o proceso de decisión que explica por qué esa Oportunidad existe y cómo se relaciona con otras;
-- toda reclasificación posterior de una Oportunidad entre Casos debe conservar historia.
+- la primera Oportunidad de un negocio origina o identifica simultáneamente el Caso correspondiente;
+- una Persona puede mantener varios Casos y varias Oportunidades simultáneamente dentro de su única Relación Comercial;
+- la Oportunidad conserva la identidad del producto potencial; el Caso conserva la identidad del negocio;
+- mientras el Caso permanece abierto, las Oportunidades son alternativas o componentes candidatos del negocio, no unidades independientes del Pipeline;
+- al ganarse el Caso, las Oportunidades contratadas quedan identificadas como ganadas y las restantes quedan descartadas históricamente;
+- al perderse el Caso, ninguna Oportunidad resulta ganada;
+- toda reclasificación o traslado posterior de una Oportunidad entre Casos debe conservar historia, origen, fecha y actor.
 
 Cardinalidad conceptual aprobada:
 
 ```text
 Relación Comercial 1 ── 0..N Casos Comerciales
 Caso Comercial     1 ── 1..N Oportunidades
-Oportunidad        1 ── 1 Caso Comercial
+Oportunidad        1 ── 1 Caso Comercial actual
 ```
 
 ### 3. Distinción entre Oportunidad y Cotización
 
-Una Cotización representa una configuración específica de una Oportunidad. La Oportunidad conserva la identidad de la contratación potencial; las Cotizaciones representan alternativas concretas para materializar esa misma contratación.
+Una Cotización representa una configuración específica de una Oportunidad. La Oportunidad conserva la identidad de la contratación potencial; las Cotizaciones representan alternativas concretas para materializarla.
 
 Reglas:
 
@@ -93,10 +97,12 @@ Reglas:
 - dos Cotizaciones pertenecen a la misma Oportunidad cuando son configuraciones mutuamente excluyentes de una única contratación potencial;
 - capital asegurado, prima, cobertura, régimen, aporte, costo, plazo u otra configuración distinta no crean por sí solos una nueva Oportunidad;
 - dos desarrollos constituyen Oportunidades distintas cuando representan contrataciones individualizables que podrían celebrarse y persistir simultáneamente;
-- pueden existir varias Oportunidades del mismo producto cuando representan contrataciones distintas y compatibles;
+- pueden existir varias Oportunidades del mismo producto cuando representan contrataciones distintas;
 - una diferencia impuesta por el CRM corporativo no redefine por sí sola el dominio propio;
 - una Cotización pertenece exactamente a una Oportunidad;
-- la Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió.
+- la Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió;
+- cuando una Oportunidad se gana, queda identificada la Cotización elegida cuando corresponda y las demás Cotizaciones de esa Oportunidad quedan descartadas;
+- las Cotizaciones no seleccionadas permanecen como antecedentes históricos de lo evaluado.
 
 Cardinalidad conceptual aprobada:
 
@@ -141,197 +147,168 @@ Reglas:
 
 Esta decisión refina la definición previa del Diccionario: `Propuesta` continúa siendo un concepto válido del lenguaje comercial, pero no toda noción del negocio debe transformarse en una entidad persistente y estructurada.
 
-### 5. Pipeline operado por Caso y desagregado por Oportunidad
+### 5. Caso Comercial como unidad indivisible del Pipeline
 
-El Caso Comercial es la unidad de negocio, navegación y contexto operativo del Asesor. Las Oportunidades conservan su etapa individual porque distintas contrataciones del mismo Caso pueden avanzar, someterse, emitirse, descartarse o cerrarse en momentos distintos.
+El Caso Comercial es la unidad canónica del Pipeline, de la navegación operativa y de la medición de CNS por etapa. Un Caso representa un solo negocio y ocupa íntegramente una sola etapa actual.
 
-El Kanban no persiste tarjetas independientes. Cada tarjeta es una vista derivada del Caso Comercial y de las Oportunidades que comparten una misma etapa.
+#### Etapa operativa
 
-Reglas primarias:
+Reglas:
 
-1. **Caso unificado por defecto.** Cuando todas las Oportunidades de un Caso comparten etapa, el Kanban muestra una sola tarjeta del Caso.
-2. **Movimiento principal simple.** Mover esa tarjeta cambia a la nueva etapa todas las Oportunidades representadas por ella.
-3. **Separación explícita.** El Asesor puede entrar al Caso y mover una o más Oportunidades a otra etapa. Esta acción excepcional divide la representación del Caso en tarjetas vinculadas.
-4. **Movimiento posterior a la separación.** Arrastrar una tarjeta dividida mueve sólo las Oportunidades que esa tarjeta representa.
-5. **Movimiento total disponible.** `Mover todo el Caso` es una acción explícita que vuelve a mover conjuntamente todas sus Oportunidades, aunque estén distribuidas en varias etapas.
-6. **Navegación única.** Todas las tarjetas vinculadas abren el mismo Caso Comercial; ninguna abre una subentidad aislada como destino principal.
-7. **Sin duplicación de hechos.** La existencia de varias tarjetas no crea varios Casos ni duplica Oportunidades. La agrupación se deriva conceptualmente por `(Caso Comercial, etapa)`.
-8. **Trazabilidad.** Todo cambio de etapa conserva la etapa anterior, la nueva, la fecha y el actor. No existen movimientos silenciosos.
+1. cada Caso posee exactamente una etapa actual mientras está activo;
+2. el Kanban muestra una sola tarjeta por Caso;
+3. mover la tarjeta cambia la etapa del Caso completo;
+4. las Oportunidades no poseen etapas independientes dentro del Pipeline;
+5. un Caso no puede aparecer simultáneamente en dos columnas;
+6. las tarjetas del Kanban son vistas derivadas del Caso y nunca constituyen una fuente de verdad independiente;
+7. todo cambio de etapa conserva etapa anterior, etapa nueva, fecha y actor;
+8. la capa operativa debe responder directamente cuántos negocios y cuántos CNS se encuentran en cada etapa, usando el lenguaje habitual del Asesor.
 
-Ejemplo:
+No se utilizarán como lenguaje operativo principal categorías abstractas como `terminal`, `no terminal`, `concretado` o `no concretado`. El Asesor trabaja con negocios en etapas reconocibles, negocios ganados, negocios perdidos y CNS por etapa.
+
+#### Resultado del Caso
+
+El Caso posee un resultado final inequívoco:
 
 ```text
-Caso Comercial: protección y ahorro de Ana
-
-Propuesta
-└── Vida Ahorro · 100 CNS proyectados
-
-Sometida
-└── APV · 40 CNS sometidos
+Ganado
+Perdido
 ```
 
-Ambas tarjetas pertenecen al mismo Caso y abren su contexto completo.
+Reglas:
+
+- un Caso es Ganado cuando se obtiene al menos una de las contrataciones evaluadas dentro de él;
+- un Caso es Perdido cuando no se obtiene ninguna contratación;
+- no existe un resultado de `parcialmente ganado`;
+- obtener más o menos CNS que los proyectados modifica la realidad económica del Caso, pero no su condición de Ganado;
+- al ganarse el Caso, se identifican las Oportunidades ganadas y las demás quedan descartadas;
+- al perderse el Caso, todas sus Oportunidades quedan históricamente en el camino y ninguna se transforma en contratación;
+- si una Oportunidad conserva una posibilidad comercial independiente después del cierre del Caso, debe originar un nuevo Caso antes de continuar su propio desarrollo;
+- la reapertura, corrección o anulación de un resultado deberá conservar historia y se definirá antes del diseño físico.
+
+Un Caso puede ganar más de una Oportunidad cuando las contrataciones se resuelven conjuntamente como parte del mismo negocio. Si el Asesor advierte que dos Oportunidades podrían ganarse en momentos distintos o requerir seguimientos independientes, debe separarlas en Casos distintos en lugar de mantener un Pipeline fragmentado.
+
+#### Separación excepcional de una Oportunidad en un nuevo Caso
+
+La posibilidad de que una Oportunidad inicialmente evaluada dentro de un Caso necesite avanzar con tiempos propios es real, pero extraordinaria y estadísticamente poco significativa. No debe imponer complejidad permanente al flujo normal.
+
+Reglas:
+
+- el flujo principal conserva un Caso indivisible;
+- el Asesor puede separar explícitamente una Oportunidad y originar con ella un nuevo Caso;
+- la Oportunidad deja de pertenecer al Caso anterior y pasa a pertenecer al nuevo Caso, conservando trazabilidad de origen;
+- el nuevo Caso adquiere desde ese momento su propia etapa, proyección, resultado e historial operativo;
+- la separación no duplica la Oportunidad, las Cotizaciones ni los CNS;
+- el Caso de origen conserva el antecedente de que la Oportunidad fue evaluada inicialmente dentro de él;
+- esta capacidad debe exponerse mediante divulgación progresiva y no complicar la interfaz habitual;
+- los detalles físicos y de interfaz de la separación se decidirán después de validar las transiciones conceptuales.
+
+La regla de simplificación es:
+
+> Si dos desarrollos necesitan ocupar etapas diferentes o resolverse en tiempos independientes, son dos Casos Comerciales.
 
 #### Proyección y hechos reales de CNS
 
-Los CNS proyectados representan una estimación comercial manual del Asesor. No se calculan automáticamente desde Cotizaciones ni mediante una fórmula obligatoria de probabilidades.
+Los CNS constituyen una magnitud comercial y no una entidad autónoma. El Caso conserva la posición operativa de CNS correspondiente a su etapa actual y mantiene separados los antecedentes históricos de proyección, sometimiento y emisión.
 
 Reglas:
 
-- el Caso posee una cifra manual de CNS proyectados;
-- por defecto, la proyección se maneja como un único monto con una fecha prevista de sometimiento y una fecha prevista de emisión;
-- cuando el Caso realmente requiera más de un monto o más de una fecha, el Asesor puede dividir manualmente la proyección en componentes temporales;
-- al separar Oportunidades entre etapas, el sistema debe solicitar únicamente la distribución necesaria para evitar atribuir el mismo monto a más de una tarjeta;
-- la suma de las distribuciones vigentes debe coincidir con el total manual proyectado del Caso mientras todas las Oportunidades permanecen en etapas proyectivas;
-- una separación redistribuye la proyección: no la recalcula desde productos, Cotizaciones ni probabilidades;
-- los CNS sometidos y los CNS emitidos son hechos reales distintos de la proyección y conservan sus propias cantidades y fechas;
-- una Oportunidad ocupa íntegramente una sola etapa actual;
-- un Caso puede contener varias Oportunidades y, por ello, varios sometimientos o emisiones independientes;
-- los indicadores por etapa y por período son cálculos derivados; nunca constituyen la fuente de verdad.
-
-Conceptualmente deben distinguirse:
-
-```text
-Proyección manual del Caso
-≠ CNS efectivamente sometidos por una Oportunidad
-≠ CNS efectivamente emitidos por una Oportunidad
-```
-
-#### Consumo de la proyección por el avance real
-
-La proyección inicial se conserva como antecedente histórico de lo que el Asesor estimó para el Caso, pero no permanece sumándose íntegramente con los CNS sometidos o emitidos.
-
-Para representar la posición vigente del Pipeline, cada Oportunidad aporta una sola magnitud según su etapa actual:
-
-```text
-Oportunidad en etapa proyectiva
-→ CNS proyectados vigentes atribuidos a esa Oportunidad o grupo todavía no factual
-
-Oportunidad Sometida
-→ CNS efectivamente sometidos
-
-Oportunidad Emitida
-→ CNS efectivamente emitidos
-```
-
-Reglas:
-
-- una Oportunidad no puede aportar CNS simultáneamente a más de una etapa del stock vigente;
-- cuando una Oportunidad avanza, abandona completamente la etapa anterior;
-- la magnitud correspondiente a la nueva etapa reemplaza a la anterior sólo para efectos de la posición vigente;
-- los valores anteriores permanecen disponibles como antecedentes históricos;
-- la proyección inicial permanece disponible para comparación, pero no constituye un componente adicional del total vigente;
-- la proyección vigente puede revisarse con trazabilidad cuando la expectativa comercial cambie;
-- los valores reales pueden superar o quedar bajo la proyección; esa diferencia es información comercial y no debe forzarse artificialmente para conservar igualdad;
-- los reportes de flujo pueden mostrar CNS sometidos y emitidos durante un mismo período porque representan hechos distintos, pero no deben sumarlos como si fueran producción adicional independiente;
-- la posición vigente y el flujo histórico responden preguntas diferentes y deben mantenerse separados.
+- el Caso posee una proyección manual de CNS ingresada por el Asesor;
+- la proyección no se calcula automáticamente desde Cotizaciones ni probabilidades;
+- la proyección inicial se conserva como antecedente histórico;
+- los CNS sometidos y los CNS emitidos son hechos reales distintos, con sus cantidades y fechas;
+- ingresar a una etapa factual como `Sometida` exige registrar el sometimiento real que la fundamenta;
+- ingresar a una etapa factual como `Emitida` exige registrar la emisión real que la fundamenta;
+- registrar el hecho y cambiar la etapa constituyen una única operación de negocio: se aplican íntegramente o no se aplican;
+- para la posición vigente, el Caso aporta CNS únicamente a su etapa actual;
+- al avanzar el Caso, deja de aportar CNS a la etapa anterior;
+- los valores anteriores permanecen disponibles como historia, pero no se suman nuevamente al stock vigente;
+- una diferencia entre CNS proyectados, sometidos y emitidos refleja la evolución o modificación real del negocio y no crea saldos parciales entre etapas;
+- los reportes de flujo pueden mostrar sometimientos y emisiones ocurridos durante un período como hechos distintos, pero no deben sumarlos como producción independiente;
+- la estadística se deriva de los hechos canónicos y no gobierna la operación.
 
 Ejemplo:
 
 ```text
-Proyección inicial del Caso: 140 CNS
+Caso Comercial: Protección y ahorro de Ana
 
-Oportunidades actuales:
-- Vida Ahorro · Propuesta · 100 CNS proyectados
-- APV · Emitida · 38 CNS emitidos
-
-Posición vigente:
-- Propuesta: 100 CNS
-- Sometida: 0 CNS
-- Emitida: 38 CNS
-
-Total representado en la posición vigente: 138 CNS
-Desviación respecto de la proyección inicial: -2 CNS
-```
-
-La diferencia no deja CNS suspendidos entre etapas. Expresa que la realidad comercial terminó siendo distinta de la estimación original.
-
-#### Etapas factuales respaldadas por hechos reales
-
-Las etapas `Sometida` y `Emitida` representan hechos ocurridos y no simples apreciaciones comerciales del Asesor.
-
-Reglas:
-
-- una Oportunidad no puede permanecer en `Sometida` sin un sometimiento real registrado;
-- una Oportunidad no puede permanecer en `Emitida` sin una emisión real registrada;
-- ingresar a `Sometida` exige registrar al menos la cantidad de CNS sometidos y la fecha efectiva del sometimiento;
-- ingresar a `Emitida` exige registrar al menos la cantidad de CNS emitidos y la fecha efectiva de la emisión;
-- arrastrar una tarjeta hacia una etapa factual constituye una sola operación de negocio: registra el hecho, actualiza la etapa, reemplaza para el stock vigente la magnitud de la etapa anterior y conserva la trazabilidad;
-- si cualquiera de esos efectos falla, la transición completa debe considerarse no aplicada;
-- las etapas anteriores a `Sometida` pueden representar apreciaciones o avances comerciales, pero no deben inventar sometimientos ni emisiones;
-- un monto real puede diferir del proyectado o del sometido; la diferencia se conserva como información comercial y no genera automáticamente una proyección residual ni un saldo pendiente.
-
-Conceptualmente:
-
-```text
-Mover a Sometida
-= registrar sometimiento real + mover íntegramente la Oportunidad
-
-Mover a Emitida
-= registrar emisión real + mover íntegramente la Oportunidad
-```
-
-Esta regla impide que el Kanban y las estadísticas describan realidades diferentes.
-
-#### Integridad indivisible de la Oportunidad por etapa
-
-Una Oportunidad representa un único producto potencial. Por ello, no puede vivir parcialmente en dos etapas ni conservar saldos económicos en una etapa anterior después de avanzar.
-
-Reglas:
-
-- cada Oportunidad posee exactamente una etapa actual;
-- toda la Oportunidad avanza conjuntamente;
-- una diferencia entre CNS proyectados, sometidos y emitidos representa una modificación, ajuste o edición del producto durante su desarrollo;
-- esa diferencia no representa CNS pendientes, rechazados parcialmente, suspendidos ni trasladables entre etapas;
-- no se crean saldos de `CNS sometidos pendientes de emisión` para una misma Oportunidad;
-- no se divide una Oportunidad por diferencias entre sus magnitudes históricas;
-- si existen dos productos que pueden avanzar o concluir en momentos distintos, deben representarse mediante dos Oportunidades, aunque pertenezcan al mismo Caso;
-- la etapa actual determina qué magnitud participa en el stock vigente, mientras las magnitudes de etapas anteriores permanecen sólo como historia.
-
-Ejemplo:
-
-```text
-Oportunidad APV
-
-Proyección atribuida: 40 CNS
-Sometimiento real: 40 CNS
-Emisión real: 38 CNS
+Proyección inicial: 140 CNS
+Sometimiento real: 135 CNS
+Emisión real: 128 CNS
 Etapa actual: Emitida
+Resultado: Ganado
 ```
 
-La posición vigente computa 38 CNS en `Emitida`. Los 40 CNS sometidos se conservan como antecedente, y la diferencia de -2 CNS describe la modificación del producto; no crea 2 CNS pendientes en `Sometida`.
+La posición vigente computa 128 CNS en `Emitida`. Los 140 CNS proyectados y los 135 CNS sometidos se conservan como antecedentes para medir desviaciones, pero no permanecen ocupando columnas anteriores.
 
-La representación física de los componentes temporales de proyección y de los hechos reales de sometimiento y emisión se definirá durante el diseño lógico, no en este ADR.
+#### Oportunidades y Cotizaciones al resolverse el negocio
+
+Cuando el Caso se gana:
+
+```text
+Caso Ganado
+├── Oportunidad ganada
+│   └── Cotización seleccionada
+├── Oportunidad ganada opcional
+│   └── Cotización seleccionada
+└── Oportunidades descartadas
+    └── Cotizaciones no seleccionadas
+```
+
+Reglas:
+
+- una Oportunidad ganada identifica la contratación obtenida;
+- las Oportunidades no ganadas quedan descartadas dentro de ese Caso;
+- cuando una Oportunidad posee varias Cotizaciones, la elegida queda identificada y las demás se descartan;
+- los descartes no borran los antecedentes ni requieren crear entidades adicionales;
+- una Oportunidad descartada sólo puede continuar comercialmente si se separa trazablemente en un nuevo Caso;
+- el Producto Contratado, cuando corresponda, será el resultado persistente de la Oportunidad ganada y no será sustituido por la Cotización.
+
+#### Decisiones sustituidas dentro de este mismo borrador
+
+Esta decisión reemplaza expresamente las hipótesis intermedias del presente LCD que proponían:
+
+- conservar una etapa individual por Oportunidad;
+- mostrar varias tarjetas del mismo Caso en distintas columnas;
+- dividir o reunir tarjetas del Caso según la etapa de sus Oportunidades;
+- distribuir la proyección del Caso entre tarjetas u Oportunidades para representar etapas simultáneas;
+- mantener saldos parciales de CNS entre etapas;
+- derivar el cierre del Caso desde una mezcla de resultados independientes de sus Oportunidades.
+
+Esas hipótesis quedan descartadas y no deben trasladarse al Modelo Comercial, a la Matriz de Validación ni al diseño físico.
 
 #### Criterio de seguridad antes del diseño físico
 
-Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`, el modelo deberá demostrar con casos de prueba que mantiene simultáneamente estas invariantes:
+Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`, el modelo deberá demostrar mediante transiciones deterministas y pruebas reproducibles que mantiene simultáneamente estas invariantes:
 
-- cada Oportunidad pertenece a un único Caso y posee una única etapa actual;
-- las tarjetas del Kanban se derivan y nunca se convierten en fuente de verdad;
-- mover una tarjeta no duplica ni pierde Oportunidades;
-- separar y volver a unificar conserva historia;
-- la proyección manual no se duplica al aparecer el Caso en varias columnas;
-- la distribución proyectiva no atribuye el mismo monto a más de una tarjeta;
-- una Oportunidad aporta una sola magnitud a una sola etapa del stock vigente;
+- cada Caso pertenece a una Relación Comercial y posee al menos una Oportunidad;
+- cada Caso activo posee una única etapa actual;
+- cada Caso aparece una sola vez en el Pipeline;
+- mover un Caso no duplica ni pierde Oportunidades, Cotizaciones o CNS;
+- una etapa factual no existe sin el hecho real que la fundamenta;
+- la transición hacia una etapa factual se aplica íntegramente o no se aplica;
+- el stock vigente computa cada Caso y sus CNS en una sola etapa;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
-- proyección, sometimiento y emisión no se sobrescriben entre sí;
-- una etapa factual no puede existir sin el hecho real que la fundamenta;
-- la transición hacia una etapa factual se aplica de forma íntegra o no se aplica;
-- una diferencia de CNS entre etapas no crea saldos ni permanencias parciales;
-- dos productos que avanzan separadamente se representan mediante dos Oportunidades;
+- las diferencias entre proyección, sometimiento y emisión no crean saldos parciales;
+- un Caso Ganado posee al menos una Oportunidad ganada;
+- un Caso Perdido no posee Oportunidades ganadas;
+- al ganar una Oportunidad se identifica la Cotización seleccionada cuando corresponda y las restantes quedan descartadas;
+- separar una Oportunidad en un nuevo Caso no duplica hechos y conserva su origen;
+- dos desarrollos que requieren etapas o tiempos independientes pertenecen a Casos distintos;
 - los totales por etapa y período pueden reconstruirse exclusivamente desde hechos canónicos.
 
 Si estas reglas no pueden expresarse mediante un conjunto pequeño de transiciones deterministas y pruebas reproducibles, el diseño físico deberá detenerse y simplificarse antes de crear tablas.
 
 ## Preguntas pendientes del lote
 
-1. Cuáles son las etapas mínimas del Pipeline y cuáles de ellas son terminales.
-2. Cómo se cierran, descartan, reemplazan, reclasifican o reabren Casos y Oportunidades sin borrar historia.
-3. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
-4. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
-5. Cómo representar lógicamente la proyección manual, sus revisiones, sus divisiones temporales y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
-6. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
+1. Cuáles son las etapas mínimas del Pipeline y cuáles transiciones se permiten entre ellas.
+2. Cómo se registra la pérdida, corrección, anulación o reapertura de un Caso sin borrar historia.
+3. Cómo se representa lógicamente la proyección manual, sus revisiones y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
+4. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+5. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+6. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
+7. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
+8. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
 
@@ -354,21 +331,17 @@ No se decidirán todavía:
 - `next_v03` continúa bloqueado para diseño físico definitivo;
 - el Caso Comercial queda diferenciado de la Relación Comercial y de la Oportunidad;
 - una Relación puede persistir sin Caso y un Caso no puede persistir sin al menos una Oportunidad asociada;
-- toda Oportunidad pertenece exactamente a un Caso;
-- la Oportunidad conserva una contratación potencial individualizable y la Cotización una configuración específica de esa contratación;
-- alternativas mutuamente excluyentes permanecen en una Oportunidad, mientras contrataciones que pueden coexistir se representan como Oportunidades distintas;
-- la Propuesta permanece como conocimiento descriptivo del Caso y no como entidad estructurada del modelo mínimo;
-- el Caso es la unidad de negocio y navegación del Pipeline, mientras la etapa se conserva por Oportunidad;
-- las tarjetas del Kanban son vistas derivadas agrupadas por Caso y etapa, no entidades persistentes;
-- el flujo frecuente mantiene una sola tarjeta y un solo movimiento; la separación por Oportunidad es una acción secundaria explícita;
+- toda Oportunidad pertenece exactamente a un Caso actual y puede trasladarse sólo con trazabilidad;
+- la Oportunidad conserva una contratación potencial individualizable y la Cotización una configuración específica;
+- la Propuesta permanece como conocimiento descriptivo del Caso y no como entidad estructurada;
+- el Caso es la unidad indivisible del Pipeline, posee una sola etapa y aparece en una sola tarjeta;
+- el resultado del Caso es Ganado o Perdido, sin parcialidades;
+- las Oportunidades ganadas identifican las contrataciones obtenidas y las demás quedan descartadas;
+- las Cotizaciones no seleccionadas permanecen como antecedentes históricos;
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
-- la proyección inicial se conserva como antecedente histórico, pero no se duplica con CNS sometidos o emitidos en la posición vigente;
-- proyección, sometimiento y emisión se conservan como conceptos distintos;
-- `Sometida` y `Emitida` requieren hechos reales consistentes con sus cantidades y fechas;
-- una Oportunidad ocupa íntegramente una sola etapa y no conserva saldos parciales en etapas anteriores;
-- las diferencias entre CNS proyectados, sometidos y emitidos expresan modificaciones del producto y no fracciones pendientes;
-- el diseño físico deberá probar las invariantes de movimiento, distribución, reemplazo, transición factual, indivisibilidad y reconstrucción antes de crear tablas;
-- el futuro diseño lógico no podrá convertir heurísticas evolutivas en bloqueos irreversibles sin una decisión posterior explícita;
+- la proyección, el sometimiento y la emisión se conservan como hechos distintos sin duplicarse en la posición vigente;
+- una Oportunidad que necesite tiempos independientes origina un nuevo Caso en vez de fragmentar el Pipeline;
+- las situaciones extraordinarias se resuelven mediante una capacidad excepcional trazable y no mediante complejidad permanente del modelo;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
 
