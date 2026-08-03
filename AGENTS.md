@@ -1,9 +1,9 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260801-01  
-Gobernanza documental: ADR-023  
-Reconciliación: Issue #28
+Último LCD aprobado: LCD-20260803-01
+Gobernanza documental: ADR-023 y ADR-026
+Última conciliación total: 2026-08-03
 
 ## Propósito
 
@@ -52,7 +52,6 @@ Una colisión o divergencia documental bloquea el trabajo dependiente hasta ser 
 Gobiernan:
 
 - `docs/governance/document-authority.md`;
-- `docs/governance/document-catalog.md`;
 - `docs/governance/lcd-registry.md`;
 - `docs/governance/adr-registry.md`.
 
@@ -61,9 +60,11 @@ Reglas:
 - cada artefacto tiene una sola ubicación editable canónica;
 - GitHub es canónico para conocimiento propio versionable, ingeniería, código, migraciones, pruebas y registros maestros;
 - Drive es canónico para fuentes originales, bases de campaña, evidencia externa, archivos sensibles y material no apto para Git;
-- los documentos superiores que todavía viven en Drive mantienen autoridad hasta completar su migración validada;
 - no se mantienen copias editables paralelas;
-- una exportación o copia no cambia por sí sola la autoridad.
+- no existen registros, catálogos ni documentos espejo en Drive;
+- una exportación o copia no cambia por sí sola la autoridad;
+- los borradores documentales viven en ramas/PR, no en Drive;
+- después de una migración validada se retira la copia anterior.
 
 ## Estrategia del producto
 
@@ -74,6 +75,13 @@ Reglas:
 - La arquitectura objetivo es DDD + arquitectura hexagonal + monolito modular.
 
 Decisiones canónicas: ADR-021 y ADR-022. Los archivos históricos nombrados ADR-018 y ADR-019 son sólo aliases de compatibilidad.
+
+Documentos rectores:
+
+- Constitución: `docs/project/constitution.md`;
+- Arquitectura: `docs/architecture/crm-patrimonial.md`;
+- Modelo del Dominio: `docs/domain/README.md`;
+- Roadmap: `docs/project/backlog-roadmap.md`.
 
 ## Reglas Git
 

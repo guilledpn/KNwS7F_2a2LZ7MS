@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 LCD_REGISTRY = ROOT / "docs/governance/lcd-registry.md"
 ADR_REGISTRY = ROOT / "docs/governance/adr-registry.md"
 AUTHORITY = ROOT / "docs/governance/document-authority.md"
-CATALOG = ROOT / "docs/governance/document-catalog.md"
 AGENTS = ROOT / "AGENTS.md"
 
 LCD_PATTERN = re.compile(r"^\|\s*(LCD-\d{8}-\d{2})\s*\|", re.MULTILINE)
@@ -42,7 +41,6 @@ def main() -> int:
         lcd_text = read(LCD_REGISTRY)
         adr_text = read(ADR_REGISTRY)
         authority_text = read(AUTHORITY)
-        catalog_text = read(CATALOG)
         agents_text = read(AGENTS)
     except AssertionError as exc:
         print(f"FAIL: {exc}")
@@ -78,12 +76,23 @@ def main() -> int:
     required_refs = {
         "AGENTS.md": agents_text,
         "document-authority.md": authority_text,
-        "document-catalog.md": catalog_text,
     }
     for name, text in required_refs.items():
         for required in ("lcd-registry.md", "adr-registry.md"):
-            if required not in text and name != "document-catalog.md":
+            if required not in text:
                 errors.append(f"{name} no referencia {required}")
+
+    forbidden_references = {
+        "document-catalog.md": "catálogo separado retirado",
+        "espejo navegable": "espejo documental retirado",
+        "sincronizar el espejo": "sincronización de espejo retirada",
+    }
+    governance_scope = [AGENTS, AUTHORITY, LCD_REGISTRY, ADR_REGISTRY]
+    for path in governance_scope:
+        text = read(path).lower()
+        for needle, reason in forbidden_references.items():
+            if needle in text:
+                errors.append(f"{path.relative_to(ROOT)} referencia {reason}: {needle}")
 
     alias_018 = read(ROOT / "docs/adr/ADR-018-monorepo-y-transicion-legacy-next.md")
     alias_019 = read(ROOT / "docs/adr/ADR-019-docs-as-code-y-separacion-git-drive.md")

@@ -4,6 +4,7 @@
 - Estado: Aprobado
 - LCD: LCD-20260801-01
 - Issue: #28
+- Refinamiento: ADR-026 · LCD-20260803-01
 
 ## Contexto
 
@@ -19,7 +20,7 @@ La divergencia hacía imposible determinar la fuente vigente únicamente desde l
 4. Reconocer un único espacio de nombres para ADR y otro para LCD en todo el proyecto.
 5. Convertir `docs/governance/adr-registry.md` y `docs/governance/lcd-registry.md` en registros canónicos.
 6. Exigir la reserva del identificador antes de crear rama, documento o decisión.
-7. Mantener la Bitácora y documentos superiores de Drive como canónicos durante su migración, según `document-catalog.md`.
+7. Mantener una sola ubicación durante cualquier migración y retirar la anterior inmediatamente después del merge validado.
 8. No reescribir commits ni Pull Requests históricos; registrar equivalencias explícitas.
 
 ## Reconciliación aprobada
@@ -51,13 +52,13 @@ La divergencia hacía imposible determinar la fuente vigente únicamente desde l
 ### Costos
 
 - Los documentos vivos de Drive requieren migración individual y validada.
-- Durante la transición debe mantenerse sincronizado un espejo navegable en Drive.
+- Una migración exige retirar la copia anterior después del merge.
 - Las referencias históricas necesitan aliases explícitos.
 
 ## Controles
 
 - Revisión obligatoria de registros antes de asignar identificadores.
-- Actualización del catálogo en todo cambio de autoridad.
+- Actualización del índice único de autoridad en todo cambio de estructura.
 - Prueba documental de unicidad en una etapa posterior.
 - Revisión del diff para asegurar que los lotes documentales no alteren runtime sin declararlo.
 - Prohibición de fusionar una colisión no resuelta.
@@ -76,6 +77,10 @@ Descartado porque Drive contenía el registro histórico previo y decisiones de 
 
 Descartado porque rompería trazabilidad de commits y Pull Requests. Se utilizan aliases y archivos de compatibilidad.
 
-### Declarar toda la carpeta de Drive obsoleta de inmediato
+### Declarar toda la carpeta de Drive obsoleta
 
-Descartado porque contiene documentos superiores, fuentes sensibles y evidencia todavía no migrada.
+Descartado porque Drive sigue siendo necesario para fuentes sensibles, evidencia externa, respaldos y material corporativo. ADR-026 sí retira de allí los documentos propios migrados.
+
+## Refinamiento posterior
+
+ADR-026 demostró que incluso un registro presentado como referencia podía confundirse con la autoridad. Desde LCD-20260803-01 no existe catálogo separado, Registro Maestro paralelo ni documento superior vivo en Drive.

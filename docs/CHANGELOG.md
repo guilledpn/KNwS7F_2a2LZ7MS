@@ -2,6 +2,31 @@
 
 Registro humano y tecnico de versiones.
 
+## App_llamados_v1.05-ui-20260803-07 · 2026-08-03
+
+### Tipo
+
+Mejora de navegación productiva aprobada visualmente.
+
+### Cambios
+
+- Contactos conserva su raíz sin flecha.
+- Stats e Importar usan retorno contextual con objetivo táctil de 44 px.
+- El regreso restaura contacto exacto y posición de scroll cuando corresponde.
+- La barra derecha conserva el orden `Sprint → Hoy → Ajustes`.
+- Ajustes preserva el contexto del contacto.
+
+### Evidencia
+
+Issue #39, parche `assets/app/features/stats-navigation-patch-prod.js`, service worker y safety checks.
+
+## Operación julio/agosto · 2026-08-03
+
+- La carga controlada de julio/agosto fue completada y conciliada (Issue #36).
+- La campaña inválida de junio fue retirada de la cola actual sin borrar sus Apariciones históricas (Issue #37).
+- La solución persistente para excluir campañas inválidas permanece abierta en Issue #38.
+- Se corrigió la separación entre edición de ficha y eventos reales de gestión, incluida limpieza controlada de datos ficticios (Issues #26 y #27).
+
 ## App_llamados_v1.05 · 2026-07-09
 
 ### Tipo

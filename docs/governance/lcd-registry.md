@@ -4,7 +4,7 @@
 - Fecha de reconciliación: 2026-08-01
 - Última actualización: 2026-08-03
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260802-01
+- Último LCD: LCD-20260803-01
 - Issue: #28
 
 Este archivo es la autoridad para asignar y consultar identificadores LCD. Los registros históricos de Drive y los Pull Requests se conservan como evidencia, pero no pueden crear una secuencia paralela.
@@ -21,19 +21,20 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 
 | LCD canónico | Fecha | Motivo | Estado | Evidencia principal | Alias histórico |
 |---|---|---|---|---|---|
-| LCD-20260711-01 | 2026-07-11 | Crear el Índice del Modelo del Dominio y la estructura documental inicial | Aprobado | Índice del Modelo del Dominio en Drive | — |
-| LCD-20260712-01 | 2026-07-12 | Crear y organizar el Modelo de Productos y catálogo Consorcio | Pendiente de revisión | ADR-017 y documentos de Drive | — |
-| LCD-20260713-01 | 2026-07-13 | Corregir métricas operativas derivadas por Persona y día | Aprobado y promovido a PROD | ADR-018 de Drive y migraciones productivas | — |
-| LCD-20260713-02 | 2026-07-13 | Crear Registro Maestro y navegación documental | Aprobado como antecedente del sistema reconciliado | ADR-019 de Drive y Registro Maestro | — |
+| LCD-20260711-01 | 2026-07-11 | Crear el Índice del Modelo del Dominio y la estructura documental inicial | Aprobado | `docs/domain/README.md` | — |
+| LCD-20260712-01 | 2026-07-12 | Crear y organizar el Modelo de Productos y catálogo Consorcio | Estructura aprobada; catálogo en revisión continua | ADR-017, `docs/domain/product-model.md` y fuentes Consorcio en Drive | — |
+| LCD-20260713-01 | 2026-07-13 | Corregir métricas operativas derivadas por Persona y día | Aprobado y promovido a PROD | ADR-018 consolidada y migraciones productivas | — |
+| LCD-20260713-02 | 2026-07-13 | Crear Registro Maestro y navegación documental | Obsoleto como mecanismo vigente por ADR-026 | ADR-019 consolidada; historia Git/Drive | — |
 | LCD-20260713-03 | 2026-07-13 | Adoptar monorepo, Docs-as-Code y programa de aprendizaje | Aprobado | Pull Request #9; ADR-021 y ADR-022 | En GitHub histórico figuró como LCD-20260713-01 |
 | LCD-20260713-04 | 2026-07-13 | Inventariar el repositorio y planificar la transición reversible | Aprobado | Pull Request #11 | En GitHub histórico figuró como LCD-20260713-02 |
 | LCD-20260714-01 | 2026-07-14 | Cerrar Etapa 0 y preparar protección del Legacy | Aprobado | Pull Request #15 | — |
 | LCD-20260714-02 | 2026-07-14 | Mapear arquitectura y crear red mínima de seguridad Legacy | Aprobado | Pull Requests #17 y #18 | — |
-| LCD-20260715-01 | 2026-07-15 | Unificar gestionabilidad, ejecutar backfill y promover a PROD | Promovido y validado técnicamente; revisión documental y smoke visual pendientes | ADR-020, Pull Requests #19 y #20, Registro Maestro de Drive | — |
+| LCD-20260715-01 | 2026-07-15 | Unificar gestionabilidad, ejecutar backfill y promover a PROD | Aprobado, promovido y documentado | ADR-020, Pull Requests #19 y #20, pruebas y validaciones versionadas | — |
 | LCD-20260716-01 | 2026-07-16 | Crear material educativo y diagnóstico de arquitectura de datos | Pendiente de revisión | Pull Request borrador #21 | — |
 | LCD-20260801-01 | 2026-08-01 | Reconciliar Drive y GitHub, corregir colisiones y fijar autoridad documental | Aprobado por autorización explícita del usuario; implementación documental trazada en Issue #28 | Issue #28 y Pull Requests #29 y #30 | — |
 | LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | Aprobado | Issue #31 y Pull Requests #32 y #33 | — |
 | LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | Aprobado; equivalencia histórica resuelta | Issue #34 y Pull Request #35 | — |
+| LCD-20260803-01 | 2026-08-03 | Conciliar y migrar la documentación a una ubicación única sin espejos | Aprobado | Issue #40, ADR-026, informe de conciliación y Pull Request del lote | — |
 
 ## Próxima asignación
 
@@ -41,4 +42,4 @@ El próximo LCD debe calcularse desde la fecha efectiva de apertura y este regis
 
 ## Relación con Drive
 
-El Google Sheet «Registro Maestro de Lotes de Cambio Documental del CRM Patrimonial» se mantiene como espejo navegable durante la transición. Ante una divergencia posterior a LCD-20260801-01, gobierna este archivo versionado y la divergencia bloquea nuevas asignaciones hasta ser corregida.
+Drive no mantiene un registro LCD paralelo. Las fuentes o evidencias no publicables pueden enlazarse desde la columna correspondiente, pero nunca asignan identificadores ni estados.

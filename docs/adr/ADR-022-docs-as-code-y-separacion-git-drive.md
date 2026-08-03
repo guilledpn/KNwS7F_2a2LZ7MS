@@ -6,6 +6,7 @@
 - Issue original: #7
 - Aprobación original: Pull Request #9
 - Reconciliación de identificador: LCD-20260801-01 · Issue #28
+- Refinamiento: ADR-026 · LCD-20260803-01
 - Alias histórico no canónico: ADR-019 / LCD-20260713-01 en GitHub anterior a la reconciliación
 
 ## Contexto
@@ -73,10 +74,12 @@ En documentación versionada por Git:
 
 - Migrar documentos gradualmente y mediante LCD.
 - No retirar el original hasta validar la nueva versión.
-- Mantener un catálogo de autoridad documental.
+- Mantener un índice de autoridad único dentro de `document-authority.md`.
 - Mantener índices de referencias hacia Drive.
 - Prohibir datos personales, secretos y material reservado en Git.
 - Aplicar ADR-023 para identificadores y autoridad.
+
+ADR-026 elimina la excepción transitoria de documentos superiores y registros paralelos en Drive: GitHub contiene todo el conocimiento propio versionable y Drive sólo fuentes/evidencia no publicables.
 
 ## Nota de reconciliación
 

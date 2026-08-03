@@ -1,7 +1,7 @@
 # Programa de aprendizaje del CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260713-01  
+Último LCD aprobado: LCD-20260803-01
 Aprobación: Pull Request #9
 
 ## Propósito

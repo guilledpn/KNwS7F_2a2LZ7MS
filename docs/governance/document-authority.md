@@ -1,138 +1,152 @@
-# Autoridad documental del CRM Patrimonial
+# Autoridad e índice documental del CRM Patrimonial
 
 - Estado: Aprobado
-- Fecha: 2026-08-01
-- LCD: LCD-20260801-01
-- ADR: ADR-023
-- Issue: #28
+- Última actualización: 2026-08-03
+- LCD: LCD-20260803-01
+- ADR: ADR-023 y ADR-026
 
-## 1. Propósito
+## Regla fundamental
 
-Establecer una única autoridad para cada artefacto documental y eliminar la posibilidad de que Google Drive y GitHub mantengan versiones editables divergentes del mismo conocimiento.
+> Cada artefacto posee una sola ubicación editable y una sola copia vigente.
 
-Esta norma no cambia la jerarquía documental del proyecto. La Constitución, la Arquitectura, el Modelo del Dominio, el Backlog y la Bitácora conservan su precedencia semántica con independencia de la plataforma en la que viva su versión canónica.
+GitHub es la opción predeterminada. Drive sólo se utiliza cuando el contenido no debe publicarse o no es apropiado para Git. No existen espejos, sincronización bidireccional ni copias navegables paralelas.
 
-## 2. Regla fundamental
+## GitHub
 
-> Cada artefacto posee una sola ubicación editable canónica.
+Única autoridad para conocimiento propio, publicable y versionable:
 
-Una copia, exportación, respaldo, enlace, evidencia o versión histórica nunca adquiere autoridad por ser más reciente o estar en otra plataforma.
+- documentos rectores y modelos;
+- ADR y LCD;
+- procedimientos, diagramas y evidencia técnica publicable;
+- código, migraciones, pruebas y herramientas genéricas;
+- trazabilidad mediante Issues, ramas, commits, PR y Releases.
 
-## 3. Distribución de autoridad
+Una rama o PR contiene un candidato. El merge aprobado incorpora el cambio canónico.
 
-### 3.1 GitHub
+## Drive
 
-GitHub es la fuente canónica para el conocimiento propio y versionable creado por el proyecto:
+Única autoridad para:
 
-- Constitución, Arquitectura y modelos del dominio cuando completen su migración validada;
-- Backlog y Roadmap;
-- ADR y registros de decisiones;
-- registros maestros de LCD y ADR;
-- diagramas Mermaid;
-- procedimientos operativos y de despliegue;
-- documentación técnica y educativa;
-- código, migraciones, pruebas y herramientas;
-- trazabilidad mediante Issues, ramas, commits, Pull Requests y Releases.
+- bases originales y normalizadas con datos reales;
+- archivos con PII o información patrimonial sensible;
+- manuales, fichas, PDFs y documentos corporativos o de terceros;
+- fuentes regulatorias y evidencia externa;
+- respaldos, archivos grandes y resultados operativos no publicables;
+- matrices de trabajo que dependan de Sheets y contengan material reservado.
 
-La ubicación canónica de los documentos versionables se registra en `docs/governance/document-catalog.md` o en el índice especializado que lo sustituya.
+GitHub puede enlazar estas fuentes, pero no copiar su contenido. Drive no copia documentos canónicos de GitHub.
 
-### 3.2 Google Drive
-
-Google Drive es la fuente canónica para fuentes y evidencias que no deben vivir en el repositorio Git:
-
-- bases originales y normalizadas de campañas;
-- archivos con datos personales o información sensible;
-- manuales, folletos y documentos corporativos externos;
-- PDFs, fuentes regulatorias y antecedentes de terceros;
-- evidencias externas, respaldos y archivos grandes;
-- matrices operativas que requieran Google Sheets mientras no exista una migración aprobada.
-
-GitHub conserva índices y enlaces hacia estas fuentes, pero no duplica su contenido editable.
-
-### 3.3 Repositorio público
-
-Mientras `guilledpn/KNwS7F_2a2LZ7MS` sea público, queda prohibido incorporar:
+## Prohibiciones del repositorio público
 
 - datos personales reales;
 - bases de campaña;
-- secretos o credenciales;
+- secretos, tokens o credenciales privadas;
 - documentación corporativa reservada;
 - información patrimonial sensible;
-- cualquier archivo cuya publicación no haya sido autorizada.
+- binarios de terceros sin autorización de publicación.
 
-## 4. Transición de documentos actualmente vivos en Drive
+## Índice canónico
 
-Los documentos superiores que aún viven en Drive conservan autoridad hasta completar, para cada uno, este proceso:
+### Nivel 1 · Constitución
 
-1. exportación íntegra a Markdown;
-2. reconciliación con decisiones posteriores;
-3. revisión mediante Pull Request;
-4. validación de contenido y enlaces;
-5. merge aprobado;
-6. actualización del catálogo documental;
-7. conversión de la copia de Drive en referencia archivada o puntero no editable.
+| Documento | Uso |
+|---|---|
+| `docs/project/constitution.md` | Principios que gobiernan todas las decisiones |
 
-No basta con copiar un archivo para cambiar su autoridad.
+### Nivel 2 · Arquitectura
 
-## 5. Identificadores únicos
+| Documento | Uso |
+|---|---|
+| `docs/architecture/crm-patrimonial.md` | Arquitectura integral Legacy/Next |
+| `docs/architecture/contact-eligibility-policy.md` | Política ejecutable de gestionabilidad |
+| `docs/architecture/current-repository-inventory.md` | Inventario técnico AS-IS de la transición |
+| `docs/architecture/product-environment-deployment-matrix.md` | Separación producto/ambiente/despliegue |
+| `docs/architecture/target-monorepo-structure.md` | Estructura objetivo del monorepo |
+| `docs/architecture/reversible-monorepo-migration-plan.md` | Secuencia reversible de transición |
+| `docs/architecture/diagrams/` | Mapas AS-IS, TO-BE y transición |
+| `docs/architecture/legacy-automation-security-audit.md` | Auditoría de automatizaciones Legacy |
+| `docs/architecture/prod-pwa-validator-drift.md` | Riesgo de deriva del validador productivo |
 
-Los espacios de nombres `LCD-AAAAMMDD-NN` y `ADR-NNN` son únicos para todo el proyecto.
+### Nivel 3 · Modelo del Dominio
 
-Antes de crear una rama, documento, Issue o ADR:
+| Documento | Uso |
+|---|---|
+| `docs/domain/README.md` | Entrada y separación de responsabilidades |
+| `docs/domain/dictionary.md` | Lenguaje ubicuo |
+| `docs/domain/commercial-model.md` | Reglas comerciales |
+| `docs/domain/operational-model.md` | Reglas de importación y conciliación |
+| `docs/domain/patrimonial-model.md` | Conocimiento patrimonial |
+| `docs/domain/product-model.md` | Estructura transversal de productos |
+| `docs/domain/validation-matrix-next-v03.md` | Criterios verificables de Next |
 
-1. consultar `docs/governance/lcd-registry.md` y `docs/governance/adr-registry.md`;
-2. reservar allí el identificador en la rama del lote;
-3. verificar que no aparezca con otro significado en Drive ni GitHub;
-4. usar ese mismo identificador en todos los documentos y commits del lote.
+### Nivel 4 · Planificación
 
-Un identificador reservado nunca se reutiliza para otro propósito, aunque el trabajo sea cancelado. Se marca `Cancelado`, `Sustituido` u `Obsoleto`.
+| Documento | Uso |
+|---|---|
+| `docs/project/backlog-roadmap.md` | Estado real, pendientes y prioridad |
 
-## 6. Registros maestros
+### Nivel 5 · Decisiones y gobernanza
 
-- `docs/governance/lcd-registry.md` es el registro canónico de LCD.
-- `docs/governance/adr-registry.md` es el registro canónico de ADR.
-- El Registro Maestro de Google Sheets queda como espejo navegable y referencia histórica durante la transición.
-- La Bitácora de Drive conserva la historia anterior a esta reconciliación hasta que sea migrada y validada.
+| Documento | Uso |
+|---|---|
+| `docs/adr/ADR-001-020-historical-decisions.md` | Historia consolidada anterior a Docs-as-Code |
+| `docs/adr/ADR-021-*` a `ADR-026-*` | Decisiones completas actuales |
+| `docs/governance/adr-registry.md` | Identificadores y estado de ADR |
+| `docs/governance/lcd-registry.md` | Identificadores y estado de LCD |
+| `docs/governance/document-authority.md` | Regla e índice actual; no hay catálogo separado |
+| `PROJECT_MAP.md` | Mapa breve para orientación |
 
-Los registros nunca sustituyen el contenido completo de una decisión o de un documento del dominio: indican identidad, estado, autoridad y ubicación.
+### Nivel 6 · Operación, aprendizaje e implementación
 
-## 7. Estados y aprobación
+- `AGENTS.md`: reglas obligatorias para colaboradores y agentes.
+- `docs/operations/`: procedimientos, smoke tests y validaciones.
+- `docs/learning/`: registro educativo; no gobierna el dominio.
+- documentos técnicos raíz de `docs/`: ambiente, base, recuperación, releases y entregas históricas.
+- `docs/CHANGELOG.md`: historia humana de la app productiva.
+- `releases/`, `supabase/`, `tests/` y `tools/`: artefactos implementables y verificables.
 
-En GitHub:
+## Fuentes exclusivas de Drive
 
-- rama y Pull Request abierto: contenido pendiente;
-- diff: mecanismo de revisión;
-- merge autorizado: aprobación del lote;
-- Release o despliegue: promoción operativa, cuando corresponda.
-
-En Drive, el color rojo se mantiene exclusivamente para contenido del último LCD pendiente mientras existan documentos canónicos vivos allí. El rojo deja de aplicarse al documento una vez que su autoridad migra a GitHub.
-
-## 8. Colisiones históricas reconciliadas
-
-| Identificador conflictivo en GitHub histórico | Identificador canónico definitivo | Decisión |
+| Conjunto | Uso | Regla |
 |---|---|---|
-| ADR-018 | ADR-021 | Monorepo y transición Legacy/Next |
-| ADR-019 | ADR-022 | Docs-as-Code y separación Git/Drive |
-| LCD-20260713-01 | LCD-20260713-03 | Gobernanza inicial del monorepo |
-| LCD-20260713-02 | LCD-20260713-04 | Inventario y plan reversible del repositorio |
+| `Bases_maestras` y respaldos | originales, normalizados y evidencia de campaña | Nunca Git público |
+| `CARGA_CONTROLADA_*` | evidencia operativa y datos de una carga | No se presenta como procedimiento canónico si está obsoleto |
+| `Productos Consorcio` | PDFs, manuales, fichas y matriz corporativa | Fuente del Modelo de Productos, no copia del modelo |
+| Backups y archivos grandes | recuperación y evidencia | Mantener control de acceso y período |
 
-Los identificadores originales de Drive conservan su significado:
+La carpeta Drive `App_llamados_crm` es un repositorio de fuentes y evidencia, no un repositorio documental paralelo.
 
-- ADR-018 y LCD-20260713-01: métricas operativas derivadas por Persona y día;
-- ADR-019 y LCD-20260713-02: Registro Maestro y navegación documental.
+## Identificadores
 
-Los commits y Pull Requests históricos no se reescriben. Los archivos vigentes y registros actuales contienen la equivalencia definitiva.
+Los espacios `LCD-AAAAMMDD-NN` y `ADR-NNN` son únicos. Antes de iniciar un lote:
 
-## 9. Control preventivo
+1. revisar `lcd-registry.md` y `adr-registry.md`;
+2. reservar el siguiente identificador libre en la rama;
+3. no derivarlo de un PR, conversación o archivo aislado;
+4. no reutilizar identificadores cancelados;
+5. mantener la misma identidad en Issue, documentos, commits y PR.
 
-Toda revisión documental debe comprobar:
+## Control preventivo
 
-- identificador reservado y único;
-- una sola ubicación editable canónica;
+Toda revisión comprueba:
+
+- una ubicación editable por artefacto;
+- identificadores registrados y únicos;
 - enlaces cruzados válidos;
-- ausencia de información sensible en Git;
-- actualización de los registros maestros;
-- actualización del catálogo cuando cambia la autoridad;
-- ausencia de copias paralelas presentadas como vigentes.
+- ausencia de PII, secretos y material reservado;
+- ausencia de referencias a espejos o catálogos retirados;
+- actualización del Roadmap cuando cambia el estado real;
+- evidencia de validación antes del merge.
 
-Una colisión detectada bloquea el merge hasta ser resuelta.
+Una copia adjunta o exportada nunca adquiere autoridad. Si aparece una copia paralela presentada como vigente, se detiene el trabajo dependiente hasta eliminar o reclasificar la duplicación.
+
+## Migración entre ubicaciones
+
+1. congelar el original;
+2. preparar y reconciliar el candidato en una rama;
+3. validar equivalencia y seguridad;
+4. fusionar el PR;
+5. retirar inmediatamente el original de la ubicación anterior;
+6. verificar que sólo quede la ubicación decidida.
+
+No existe una fase posterior de “sincronización”.

@@ -222,7 +222,7 @@ Habilitar o verificar secret scanning en GitHub y auditar la historia completa c
 
 ### Fuente canónica
 
-La Arquitectura y el Modelo de Negocio establecen:
+La Arquitectura y la Política de Gestionabilidad establecen:
 
 - última aparición `No Gestionado` → potencialmente gestionable;
 - última aparición `Gestionado` → no gestionable preventivamente;

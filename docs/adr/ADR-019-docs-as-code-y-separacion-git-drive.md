@@ -8,6 +8,6 @@ El contenido que antes figuraba aquí como **ADR-019 · Docs-as-Code y separaci�
 - archivo: `docs/adr/ADR-022-docs-as-code-y-separacion-git-drive.md`;
 - LCD canónico: `LCD-20260713-03`.
 
-`ADR-019` pertenece exclusivamente a **Registro Maestro y navegación documental**, registrada en la Bitácora Arquitectónica de Drive bajo `LCD-20260713-02`.
+`ADR-019` pertenece exclusivamente a **Registro Maestro y navegación documental**, consolidada como decisión histórica y declarada obsoleta por ADR-026.
 
 Este archivo no es una ADR canónica y no debe citarse como autoridad de decisión.
