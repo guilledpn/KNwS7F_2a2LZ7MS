@@ -13,7 +13,7 @@
 
 Describir los conceptos y reglas comerciales mínimos necesarios para representar la transición desde una Persona observada en campañas corporativas hasta una relación comercial propia, su desarrollo mediante Casos y Oportunidades y la eventual existencia de Productos Contratados, sin confundir hechos corporativos, gestión interna ni procesos técnicos de importación.
 
-Este documento desarrolla y organiza conceptos ya definidos en el Diccionario del Dominio y en `APP LLAMADOS · Modelo de negocio`. No reemplaza el Modelo Patrimonial ni el Modelo de Productos. ADR-025 amplía el alcance aprobado mediante ADR-024 y sustituye expresamente las hipótesis intermedias incompatibles surgidas durante su descubrimiento.
+Este documento desarrolla y organiza los conceptos del Diccionario del Dominio y absorbió el conocimiento vigente del antecedente histórico `APP LLAMADOS · Modelo de negocio`. No reemplaza el Modelo Patrimonial ni el Modelo de Productos. ADR-025 amplía el alcance aprobado mediante ADR-024 y sustituye expresamente las hipótesis intermedias incompatibles surgidas durante su descubrimiento.
 
 ## 2. Alcance de esta versión
 
@@ -952,4 +952,4 @@ Estas hipótesis no deben trasladarse a la Matriz de Validación ni al diseño f
 - definir nombres físicos, restricciones y transacciones para Caso, Oportunidad, Cotización, etapas, CNS y Producto Contratado;
 - definir el mecanismo técnico de advertencias confirmables y operaciones de corrección;
 - modelar el ciclo posterior de Productos Contratados y sus reglas particulares por producto;
-- diseñar `next_v03` y probar estas invariantes con datos ficticios sólo después de aprobar LCD-20260802-01 y su Matriz de Validación actualizada.
+- diseñar `next_v03` en un LCD propio y probar estas invariantes con datos ficticios antes de cualquier cambio de esquema o runtime.

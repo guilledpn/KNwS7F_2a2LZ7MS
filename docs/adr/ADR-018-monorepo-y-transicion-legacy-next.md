@@ -8,6 +8,6 @@ El contenido que antes figuraba aquí como **ADR-018 · Monorepo y transición L
 - archivo: `docs/adr/ADR-021-monorepo-y-transicion-legacy-next.md`;
 - LCD canónico: `LCD-20260713-03`.
 
-`ADR-018` pertenece exclusivamente a **Métricas operativas derivadas por Persona y día**, registrada en la Bitácora Arquitectónica de Drive bajo `LCD-20260713-01`.
+`ADR-018` pertenece exclusivamente a **Métricas operativas derivadas por Persona y día**, consolidada en `docs/adr/ADR-001-020-historical-decisions.md` bajo `LCD-20260713-01`.
 
 Este archivo no es una ADR canónica y no debe citarse como autoridad de decisión.

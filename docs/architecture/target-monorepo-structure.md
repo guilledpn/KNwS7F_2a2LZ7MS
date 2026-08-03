@@ -125,14 +125,14 @@ Espacio reservado para código realmente compartido. Inicialmente sólo debe con
 Contiene conocimiento versionable propio del proyecto.
 
 - `governance/`: método de trabajo, autoridad documental, registros LCD/ADR y control de cambios.
-- `domain/`: modelos y lenguaje del negocio cuando completen su migración validada.
+- `domain/`: modelos y lenguaje canónico del negocio.
 - `architecture/`: organización técnica y diagramas.
 - `adr/`: decisiones con contexto y consecuencias.
 - `operations/`: despliegue, incidentes, backups y recuperación.
 - `references/`: índices hacia fuentes externas de Drive.
 - `learning/`: matriz y bitácora de competencias.
 
-La autoridad actual de cada documento se consulta en `docs/governance/document-catalog.md`. La existencia de un archivo en `docs/` no lo vuelve canónico si su migración no ha sido aprobada.
+La autoridad actual se consulta en `docs/governance/document-authority.md`. Los documentos propios fusionados en `main` son canónicos; las ramas y PR contienen candidatos.
 
 ### `supabase/`
 

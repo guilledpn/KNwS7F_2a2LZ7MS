@@ -183,7 +183,7 @@ Regla: el contenido de `supabase/` puede describir y transformar el esquema, per
 
 Debe evitarse una reorganización masiva hasta identificar qué archivos son canónicos, históricos, evidencias o artefactos generados.
 
-Desde LCD-20260801-01, la autoridad de cada documento se consulta en `docs/governance/document-catalog.md`, y los identificadores se reservan en los registros canónicos de GitHub.
+Desde LCD-20260803-01, la autoridad y el índice se consultan en `docs/governance/document-authority.md`; los identificadores se reservan en los registros canónicos de GitHub. Los documentos propios ya no viven en Drive.
 
 ### 7. Diagnósticos y releases
 

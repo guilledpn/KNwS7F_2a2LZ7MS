@@ -413,7 +413,7 @@ Cuando se activa una Campaña del período siguiente:
 - las Asignaciones del período anterior dejan de estar operativamente vigentes sin generar incidencias individuales por quienes no reaparecen;
 - el término de una Asignación no termina una Relación Comercial ni una Responsabilidad del Asesor existente.
 
-La Campaña anterior permanece activa hasta que se cargan los primeros contactos válidos del período siguiente, conforme al modelo de negocio vigente.
+La Campaña del período siguiente se activa mediante una operación explícita, después de validar y conciliar el conjunto que la sustenta. La primera fila o carga parcial válida no desactiva por sí sola la Campaña anterior. La activación conserva fecha, actor y Ejecuciones de Importación asociadas.
 
 ## 15. Procesamiento de ASIGNADOS
 

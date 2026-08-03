@@ -124,7 +124,7 @@ Para cada archivo relevante, registrar:
 
 ### Decisión documental incorporada
 
-ADR-023 y `docs/governance/document-catalog.md` clasifican la autoridad documental. Continúa pendiente clasificar exhaustivamente artefactos ejecutables, diagnósticos y releases.
+ADR-023, ADR-026 y `docs/governance/document-authority.md` clasifican la autoridad documental. Continúa pendiente clasificar exhaustivamente artefactos ejecutables, diagnósticos y releases.
 
 ### Decisión esperada
 

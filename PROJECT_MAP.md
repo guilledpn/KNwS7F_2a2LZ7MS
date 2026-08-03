@@ -1,213 +1,95 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
-Estado: Vigente  
-Último LCD aprobado: LCD-20260802-01  
-Lote en revisión: ninguno  
-Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
+- Estado: Vigente
+- Último LCD aprobado: LCD-20260803-01
+- Última entrega Legacy: `App_llamados_v1.05-ui-20260803-07` · Issue #39
+- Pendientes abiertos relevantes: Issue #38 y PR #21
 
-## Propósito
+## Productos
 
-Entregar una vista breve y actualizada del proyecto, sus productos, ambientes, documentos y dirección arquitectónica.
+| Producto | Estado | Propósito |
+|---|---|---|
+| APP LLAMADOS Legacy | Productivo y estable | Operación actual de contactos, gestión, Stats, Importar, Ajustes y Sprint |
+| CRM Patrimonial Next | Modelo conceptual aprobado | Nueva generación, desarrollada por verticales sin reescritura abrupta |
 
-## Producto conceptual
+La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monolito modular. Decisiones: ADR-021 y ADR-022.
 
-CRM Patrimonial.
+## Documentos rectores
 
-## Productos operativos
+| Jerarquía | Documento |
+|---:|---|
+| 1 | `docs/project/constitution.md` |
+| 2 | `docs/architecture/crm-patrimonial.md` |
+| 3 | `docs/domain/README.md` y modelos especializados |
+| 4 | `docs/project/backlog-roadmap.md` |
+| 5 | `docs/adr/` y registros de gobernanza |
+| 6 | `AGENTS.md`, procedimientos y documentación técnica |
 
-### APP LLAMADOS · Legacy
-
-Aplicación productiva actual. Debe mantenerse estable mientras se corrigen bugs y se incorporan mejoras acotadas.
-
-### CRM Patrimonial Next
-
-Nueva generación en descubrimiento, validación conceptual y diseño experimental. Se construirá progresivamente sin imponer su arquitectura sobre el Legacy mediante una reescritura abrupta.
-
-## Diferencias esenciales
-
-- **Producto:** APP LLAMADOS Legacy o CRM Patrimonial Next.
-- **Ambiente:** local, DEV, STAGING o PROD.
-- **Versión:** identificación concreta de una entrega.
-
-Cada producto puede tener sus propios ambientes y versiones.
-
-## Estrategia técnica aprobada
-
-- Monorepo: ADR-021.
-- Docs-as-Code y separación Git/Drive: ADR-022.
-- Autoridad documental e identificadores únicos: ADR-023.
-- DDD estratégico y táctico.
-- Arquitectura hexagonal.
-- Monolito modular.
-- Strangler Fig Pattern para la transición.
-- GitHub Flow con ramas breves y Pull Requests.
-- Conventional Commits y Semantic Versioning.
-
-## Decisión de dominio aprobada
-
-ADR-024 establece la separación entre:
-
-- Modelo Comercial: hechos, conceptos e invariantes del negocio;
-- Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
-
-La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.
-
-## Desarrollo comercial aprobado
-
-LCD-20260802-01 y ADR-025 consolidan el modelo mínimo de:
-
-- Caso Comercial como negocio indivisible y unidad del Pipeline;
-- Oportunidad como contratación potencial individualizable;
-- Cotización como configuración específica de una Oportunidad;
-- Propuesta e historial del Caso como conocimiento descriptivo y vistas derivadas;
-- etapas, resultados, transiciones y CNS del Caso;
-- Producto Contratado y su origen en una Oportunidad ganada;
-- vínculos opcionales de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad;
-- clasificación de reglas en invariantes, advertencias y recomendaciones.
-
-Las decisiones estructurales y su equivalencia histórica quedaron aprobadas en ADR-025, el Modelo Comercial y la Matriz de Validación. El lote no autoriza SQL, diseño físico definitivo ni cambios de runtime.
-
-## Contextos de dominio candidatos
-
-1. Identidad y Contactabilidad.
-2. Adquisición y Campañas.
-3. Gestión Operativa.
-4. Gestión Comercial.
-5. Catálogo de Productos.
-6. Productos Contratados y Postventa.
-7. Patrimonio e Inversiones.
-8. Proyección y Analítica.
-
-Estos contextos permanecen sujetos a validación formal antes del diseño físico definitivo. Los documentos Comercial y Operacional no crean por sí solos esquemas PostgreSQL, microservicios ni contextos delimitados definitivos.
+El índice detallado vive en `docs/governance/document-authority.md`.
 
 ## Autoridad documental
 
-### GitHub
+- GitHub: única ubicación de documentos propios, ADR/LCD, procedimientos, código, migraciones, pruebas y herramientas.
+- Drive: única ubicación de datos reales, bases, respaldos, fuentes de terceros, manuales, PDFs y material reservado.
+- No existen espejos ni copias editables paralelas. ADR-026.
 
-Fuente canónica para conocimiento propio versionable, ingeniería, ADR nuevos, registros maestros, diagramas, procedimientos, código, migraciones, pruebas e historial técnico.
+## Modelo de Next
 
-Registros rectores:
+ADR-024 separa:
 
-- `docs/governance/document-authority.md`;
-- `docs/governance/document-catalog.md`;
-- `docs/governance/lcd-registry.md`;
-- `docs/governance/adr-registry.md`.
+- Modelo Comercial: conceptos, hechos e invariantes del negocio.
+- Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
 
-### Google Drive
+ADR-025 aprueba:
 
-Fuente canónica para bases de campaña, datos sensibles, manuales, PDFs, fuentes regulatorias, evidencia externa, respaldos y archivos no aptos para el repositorio público.
+- Caso como negocio indivisible, unidad del Pipeline y contenedor de 0..N Oportunidades;
+- Oportunidades complementarias o alternativas;
+- Cotización como configuración;
+- etapas `Nuevo → Pendiente → Propuesta → En Firma → Sometido → Emitido`;
+- `Ganado` sólo en `Emitido` y `Perdido` como resultado;
+- proyección, sometimiento, emisión, reconocimiento de CNS y capital como conocimientos distintos;
+- Producto Contratado desde Oportunidad ganada y Cotización seleccionada;
+- Tareas/Actividades con Persona y Asesor esenciales y contexto comercial opcional.
 
-Los documentos superiores que aún viven en Drive conservan autoridad hasta completar su migración individual, validada y registrada en el catálogo.
+El diseño físico `next_v03` todavía requiere un LCD propio; la documentación aprobada no autoriza SQL ni cambios de runtime.
 
-No se mantienen dos copias editables del mismo artefacto.
+## Estado Legacy al 2026-08-03
 
-## Reconciliación histórica de identificadores
+- política única de gestionabilidad implementada y promovida;
+- métricas por Persona/día en PROD;
+- muestra analítica estratificada disponible;
+- edición de ficha separada de gestión real y datos ficticios saneados;
+- carga julio/agosto completada y conciliada;
+- campaña inválida retirada de la cola actual, con solución persistente pendiente en Issue #38;
+- navegación contextual y retorno exacto aprobados mediante Issue #39;
+- defecto semántico conocido en metadatos de `get_contacts_v2`, pendiente de registrar/corregir.
 
-| Referencia histórica de GitHub | Identidad canónica |
-|---|---|
-| ADR-018 Monorepo | ADR-021 |
-| ADR-019 Docs-as-Code | ADR-022 |
-| LCD-20260713-01 del PR #9 | LCD-20260713-03 |
-| LCD-20260713-02 del PR #11 | LCD-20260713-04 |
+## Ambientes
 
-ADR-018, ADR-019, LCD-20260713-01 y LCD-20260713-02 mantienen los significados registrados previamente en Drive.
+- Local: análisis y pruebas sin datos reales.
+- DEV: experimentación con datos ficticios o sanitizados.
+- STAGING: candidatos ya validados en DEV.
+- PROD: operación real; nunca experimental.
 
-## Documentos aprobados de arquitectura de transición
+La matriz detallada está en `docs/architecture/product-environment-deployment-matrix.md`.
 
-### Inventario y plan · LCD-20260713-04
+## Flujo
 
-- `docs/architecture/current-repository-inventory.md`
-- `docs/architecture/product-environment-deployment-matrix.md`
-- `docs/architecture/target-monorepo-structure.md`
-- `docs/architecture/reversible-monorepo-migration-plan.md`
+```text
+Descubrir → Validar → Documentar → Diseñar → Implementar
+```
 
-Aprobados mediante Pull Request #11.
+Ejecución trazable:
 
-### Mapas visuales y red de seguridad · LCD-20260714-02
+```text
+Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge aprobado → promoción
+```
 
-- `docs/architecture/diagrams/`
-- `docs/architecture/legacy-automation-security-audit.md`
-- `docs/architecture/prod-pwa-validator-drift.md`
-- `docs/operations/legacy-critical-surface.md`
-- `docs/operations/legacy-smoke-test.md`
-- `tests/characterization/`
-- `tools/run_legacy_safety_checks.py`
+## Próximos pasos
 
-Aprobados mediante Pull Requests #17 y #18.
+1. Resolver Issue #38 en DEV.
+2. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
+3. Abrir el lote de diseño físico mínimo `next_v03`.
+4. Decidir el destino del PR educativo #21.
 
-### Gestionabilidad canónica · LCD-20260715-01
-
-- política ADR-020 promovida a PROD;
-- 536.275 estados corporativos aplicados con trazabilidad;
-- cola canónica validada técnicamente;
-- migraciones, rollback, pruebas y documentación versionados;
-- revisión documental final y smoke visual autenticado aún pendientes en el registro.
-
-### Mejoras operativas posteriores
-
-El repositorio contiene cambios de julio de 2026 para muestras de análisis y separación entre edición de ficha y eventos de gestión. Esos cambios forman parte de la evolución del Legacy y deben incorporarse al futuro registro histórico detallado sin alterar el Modelo de Next.
-
-## Modelo de Next aprobado
-
-LCD-20260801-02 incorporó como documentos canónicos, únicos y versionados:
-
-- `docs/domain/commercial-model.md`;
-- `docs/domain/operational-model.md`;
-- `docs/domain/validation-matrix-next-v03.md`;
-- `docs/adr/ADR-024-limites-modelo-comercial-operacional.md`.
-
-Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, Relación Comercial, Responsabilidad del Asesor, Actividad, Tarea, importaciones y conciliaciones. LCD-20260802-01 amplía en revisión el Modelo Comercial y la Matriz con Caso, Oportunidad, Cotización, Pipeline, CNS y Producto Contratado. Ninguno de estos documentos autoriza todavía SQL ni cambios de runtime.
-
-## Estado actual de la transición
-
-### Completado
-
-- separación conceptual Legacy/Next;
-- decisión de monorepo y estrategia Strangler;
-- Docs-as-Code para conocimiento versionable;
-- inventario técnico y plan reversible;
-- mapas AS-IS, TO-BE y transición;
-- red mínima de seguridad del Legacy;
-- política canónica de gestionabilidad promovida técnicamente;
-- reconciliación documental Drive/GitHub;
-- registros únicos de LCD y ADR;
-- catálogo de autoridad documental;
-- laboratorio local PostgreSQL y experimentación conceptual de Next iniciados;
-- Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados;
-- cierre conceptual de las decisiones estructurales de ADR-025;
-- consolidación de ADR-025 en el Modelo Comercial y la Matriz de Validación.
-
-### En curso
-
-- revisión del material educativo del PR #21;
-- cierre documental y visual de LCD-20260715-01;
-- migración progresiva de documentos superiores de Drive a Markdown.
-
-### No iniciado o no completado
-
-- diseño físico `next_v03`;
-- SQL reproducible de Next;
-- movimientos físicos definitivos hacia la estructura objetivo;
-- desacoplamiento de `main` y la publicación productiva;
-- STAGING plenamente establecido para Next;
-- primera vertical funcional de CRM Patrimonial Next;
-- migración de datos desde Legacy a Next;
-- retiro seguro del Legacy.
-
-## Flujo de trabajo
-
-Issue → reserva de LCD/ADR → rama → documentación → diseño → implementación → pruebas → Pull Request → revisión → merge autorizado → release o despliegue cuando corresponda.
-
-## Lotes relevantes
-
-- `LCD-20260713-03`: gobernanza del monorepo, ADR-021 y ADR-022; PR #9.
-- `LCD-20260713-04`: inventario y transición reversible; PR #11.
-- `LCD-20260714-01`: cierre de Etapa 0; PR #15.
-- `LCD-20260714-02`: mapas y safety net; PR #17 y #18.
-- `LCD-20260715-01`: gestionabilidad y backfill PROD; PR #19 y #20.
-- `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
-- `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
-- `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.
-- `LCD-20260802-01`: modelo mínimo de desarrollo comercial; Issue #34 y PR #35, aprobado con equivalencia histórica resuelta.
-
-El detalle autoritativo vive en `docs/governance/lcd-registry.md`.
+El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.
