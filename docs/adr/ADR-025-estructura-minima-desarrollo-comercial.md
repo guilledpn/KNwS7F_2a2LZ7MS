@@ -369,6 +369,27 @@ Reglas:
 - los reportes de flujo pueden mostrar sometimientos y emisiones ocurridos durante un período como hechos distintos, pero no deben sumarlos como producción independiente;
 - la estadística se deriva de los hechos canónicos y no gobierna la operación.
 
+#### Representación conceptual mínima
+
+El modelo mínimo distingue exactamente tres clases de información del Caso:
+
+1. **Proyección vigente.** Contiene el monto manual de CNS proyectados, la fecha estimada de sometimiento y la fecha estimada de emisión. Puede revisarse durante el desarrollo comercial. La revisión más reciente gobierna la proyección operativa y cada valor anterior permanece trazable con fecha y actor.
+2. **Sometimiento real.** Registra el monto efectivamente sometido y su fecha efectiva. Fundamenta la etapa `Sometido` y no reemplaza ni reescribe la proyección.
+3. **Emisión real.** Registra el monto efectivamente emitido y su fecha efectiva. Fundamenta la etapa `Emitido`, determina el resultado `Ganado` y no reemplaza ni reescribe el sometimiento.
+
+Reglas adicionales:
+
+- no se crea una entidad autónoma `CNS` ni una estructura paralela de versiones;
+- la proyección vigente pertenece al Caso completo y no se distribuye entre Oportunidades;
+- una revisión modifica la expectativa actual, no los hechos reales ya ocurridos;
+- los hechos de sometimiento y emisión sólo se corrigen o anulan mediante operaciones explícitas y trazables que conservan el registro original;
+- para el stock operativo, el Caso usa la magnitud correspondiente a su etapa actual;
+- para análisis histórico, proyección, sometimiento y emisión pueden compararse como valores sucesivos del mismo negocio, pero nunca sumarse como si fueran producción independiente.
+
+La regla consolidada es:
+
+> El Caso conserva una proyección vigente revisable con historial, un sometimiento real y una emisión real. Son tres hechos conceptualmente distintos, suficientes para operar el Pipeline y medir desviaciones sin crear entidades ni saldos adicionales.
+
 Ejemplo:
 
 ```text
@@ -438,6 +459,9 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - abandonar `Sometido` exige una corrección explícita y motivada;
 - un Caso `Emitido` sólo puede cambiar mediante rectificación o anulación explícita de la emisión;
 - reabrir un Caso `Perdido` recupera su última etapa y conserva íntegramente el cierre anterior;
+- existe una sola proyección vigente del Caso, cuyas revisiones conservan historia;
+- el sometimiento real y la emisión real son hechos distintos que no se sobrescriben entre sí ni reescriben la proyección;
+- corregir o anular un sometimiento o una emisión conserva el hecho original y la trazabilidad de la corrección;
 - el stock vigente computa cada Caso y sus CNS en una sola etapa;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - las diferencias entre proyección, sometimiento y emisión no crean saldos parciales;
@@ -452,12 +476,11 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 
 ## Preguntas pendientes del lote
 
-1. Cómo se representa lógicamente la proyección manual, sus revisiones y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
-2. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
-3. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
-4. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
-5. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
-6. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
+1. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+2. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+3. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
+4. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
+5. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
 
@@ -494,7 +517,8 @@ No se decidirán todavía:
 - las Oportunidades ganadas identifican las contrataciones obtenidas y las demás quedan descartadas;
 - las Cotizaciones no seleccionadas permanecen como antecedentes históricos;
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
-- la proyección, el sometimiento y la emisión se conservan como hechos distintos sin duplicarse en la posición vigente;
+- el Caso conserva una proyección vigente con historial de revisiones, un sometimiento real y una emisión real como hechos distintos;
+- la proyección, el sometimiento y la emisión no se sobrescriben ni se duplican en la posición vigente;
 - una Oportunidad que necesite tiempos independientes origina un nuevo Caso en vez de fragmentar el Pipeline;
 - las situaciones extraordinarias se resuelven mediante una capacidad excepcional trazable y no mediante complejidad permanente del modelo;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
