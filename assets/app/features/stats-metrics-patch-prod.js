@@ -2,7 +2,10 @@
   'use strict';
 
   const PATCH_ID='LCD-20260713-01';
+  const NAVIGATION_PATCH_ID='UI-20260803-02';
   let installed=false;
+  let navigationInstalled=false;
+  let screenBeforeStats='contacts';
 
   const byId=id=>document.getElementById(id);
   const num=value=>Number(value||0);
@@ -10,6 +13,59 @@
   const percent=value=>value==null?'–':Number(value).toLocaleString('es-CL',{maximumFractionDigits:1})+'%';
   const breakdownValue=(breakdown,label)=>Number((breakdown||{})[label]||0);
   const getClient=()=>typeof sb!=='undefined'?sb:null;
+
+  function ensureStatsBackButton(){
+    const topbar=byId('main-topbar');
+    const title=byId('main-title');
+    if(!topbar||!title)return null;
+
+    let button=byId('stats-back-btn');
+    if(!button){
+      button=document.createElement('button');
+      button.id='stats-back-btn';
+      button.type='button';
+      button.className='icon-btn';
+      button.setAttribute('aria-label','Volver');
+      button.setAttribute('title','Volver');
+      button.style.display='none';
+      button.innerHTML='<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>';
+      topbar.insertBefore(button,title);
+    }
+
+    button.onclick=()=>{
+      const target=screenBeforeStats&&screenBeforeStats!=='stats'?screenBeforeStats:'contacts';
+      global.setScreen(target);
+    };
+    return button;
+  }
+
+  function syncStatsBackButton(screen){
+    const button=ensureStatsBackButton();
+    if(button)button.style.display=screen==='stats'?'grid':'none';
+  }
+
+  function installStatsNavigation(){
+    if(navigationInstalled)return;
+    if(typeof global.setScreen!=='function'){
+      setTimeout(installStatsNavigation,50);
+      return;
+    }
+
+    const originalSetScreen=global.setScreen;
+    global.setScreen=function patchedSetScreen(screen,button){
+      if(screen==='stats'&&typeof currentScreen!=='undefined'&&currentScreen!=='stats'){
+        screenBeforeStats=currentScreen||'contacts';
+      }
+      const result=originalSetScreen.call(this,screen,button);
+      syncStatsBackButton(screen);
+      return result;
+    };
+
+    ensureStatsBackButton();
+    syncStatsBackButton(typeof currentScreen!=='undefined'?currentScreen:'contacts');
+    global.CRM_STATS_NAVIGATION_PATCH=NAVIGATION_PATCH_ID;
+    navigationInstalled=true;
+  }
 
   function agendaLine(row){
     const name=String(row?.nombre||'Sin nombre');
@@ -159,6 +215,7 @@
 
   function install(){
     if(installed)return;
+    installStatsNavigation();
     if(typeof global.renderStats!=='function'||typeof global.refreshGoal!=='function'||typeof global.reportCardSkeleton!=='function'){
       setTimeout(install,50);
       return;
