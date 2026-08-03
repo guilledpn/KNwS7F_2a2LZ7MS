@@ -1,11 +1,13 @@
 # Matriz de Validación del Modelo · CRM Patrimonial Next v03
 
-- Versión: 0.1
-- Estado: Aprobado
-- Fecha: 2026-08-01
-- LCD: LCD-20260801-02
-- ADR: ADR-024
-- Issue: #31
+- Versión: 0.2
+- Estado: <span style="color:red">Extensión pendiente de revisión · LCD-20260802-01</span>
+- Fecha: 2026-08-03
+- LCD aprobado de origen: LCD-20260801-02
+- LCD en revisión: <span style="color:red">LCD-20260802-01</span>
+- ADR: ADR-024 y <span style="color:red">ADR-025</span>
+- Issues: #31 y #34
+- Motivo del cambio: incorporar reglas verificables del modelo mínimo de desarrollo comercial.
 
 ## 1. Propósito
 
@@ -77,6 +79,33 @@ No constituye todavía una especificación SQL.
 | MV-49 | Retiro confirmado según fuente | TOTAL y ASIGNADOS producen consecuencias distintas al confirmar un retiro | Conservar Aparición en TOTAL y terminar Asignación en ASIGNADOS | Eliminar la Aparición histórica o tratar ambos retiros como equivalentes | T-V03-049 |
 | MV-50 | Resolución y cierre de incidencia | `Sin explicación disponible` mantiene abierta la incidencia; la reaparición puede cerrarla automáticamente | Cierre automático trazable sin duplicar hechos | Registrar falta de explicación como resolución o inventar el motivo de la ausencia | T-V03-050 |
 | MV-51 | Corrección posterior a la aplicación | Un defecto descubierto después de aplicar se corrige o compensa con trazabilidad | Nueva acción correctiva que preserve el antecedente | Borrar, reescribir o presentar como nunca aplicada la ejecución anterior | T-V03-051 |
+| MV-52 | Caso Comercial | Representa un negocio indivisible y pertenece a Persona, Relación Comercial y Asesor propietario | Caso Nuevo sin Oportunidades | Caso sin Persona, Relación o Asesor | T-V03-052 |
+| MV-53 | Pertenencia de Oportunidad | Toda Oportunidad pertenece exactamente a un Caso actual | Caso con cero o varias Oportunidades y traslado trazable | Oportunidad suelta o vinculada simultáneamente a varios Casos | T-V03-053 |
+| MV-54 | Cotización | Es una configuración específica y pertenece exactamente a una Oportunidad | Varias configuraciones mutuamente excluyentes | Cotización sin Oportunidad o usada como Producto Contratado | T-V03-054 |
+| MV-55 | Coexistencia comercial | Contratos que pueden celebrarse y persistir simultáneamente son Oportunidades distintas | Dos Oportunidades del mismo producto | Unir contrataciones independientes por coincidir en producto o fecha | T-V03-055 |
+| MV-56 | Propuesta | Permanece como conocimiento descriptivo del Caso | Descripción, documentos y Actividades de preparación | Crear automáticamente entidades Propuesta, versión o composición | T-V03-056 |
+| MV-57 | Unidad del Pipeline | El Caso posee una única etapa actual y una sola tarjeta | Una tarjeta derivada por Caso | Etapas por Oportunidad o el mismo Caso en varias columnas | T-V03-057 |
+| MV-58 | Etapa Propuesta | Exige proyección vigente y fechas estimadas | Avanzar sin Cotización mediante confirmación | Avanzar sin CNS proyectados o fechas | T-V03-058 |
+| MV-59 | Etapa En Firma | Exige Oportunidades aceptadas y una Cotización seleccionada para cada una | Varias Oportunidades aceptadas conjuntamente | En Firma sin alternativa aceptada o Cotización seleccionada | T-V03-059 |
+| MV-60 | Etapa Sometido | Exige contrato firmado, CNS sometidos y fecha efectiva en una operación atómica | Diferencia entre proyección y sometimiento | Etapa Sometido sin hecho real o aplicación parcial | T-V03-060 |
+| MV-61 | Etapa Emitido | Exige aceptación de compañía, CNS emitidos, fecha efectiva y Productos Contratados | Varias Oportunidades ganadas y varios Productos | Emitido sin Ganado, sin Producto o sin hecho real | T-V03-061 |
+| MV-62 | Resultado Perdido | Es cierre, no etapa, y conserva la última etapa alcanzada | Reabrir con trazabilidad | Caso Perdido con Oportunidades ganadas | T-V03-062 |
+| MV-63 | Movimientos y correcciones | Los movimientos ordinarios son reversibles antes de Sometido; hechos factuales sólo se corrigen explícitamente | Retroceder entre etapas comerciales y rectificar hechos | Sobrescribir sometimiento, emisión o cierre | T-V03-063 |
+| MV-64 | CNS del Caso | Proyección, sometimiento y emisión son conocimientos distintos | Valores diferentes y revisiones trazables | Sobrescribirlos o crear saldos parciales automáticos | T-V03-064 |
+| MV-65 | Doble conteo de CNS | El Caso aporta la magnitud correspondiente únicamente a su etapa actual | Reportes históricos de flujo separados del stock | Computar el mismo monto simultáneamente en varias etapas | T-V03-065 |
+| MV-66 | Contexto de Tarea y Actividad | Personas y Asesor son esenciales; Relación, Casos y Oportunidades son opcionales | Tarea o Actividad sin Caso | Registro sin Persona o Asesor, o creación automática de contexto | T-V03-066 |
+| MV-67 | Planificación y ejecución | La Tarea conserva contexto previsto y la Actividad contexto real | Actividad que corrige el contexto heredado | Sobrescribir silenciosamente la Tarea | T-V03-067 |
+| MV-68 | Historial del Caso | Es una vista derivada de hechos y notas descriptivas | Cronología reconstruida y descripción vigente editable | Crear entidad Historial o reemplazar hechos por notas | T-V03-068 |
+| MV-69 | Separación de Oportunidad | Traslada la Oportunidad sin copiarla y conserva trazabilidad | Nuevo Caso con misma Persona, Relación y Asesor por defecto | Duplicar identidad, Cotizaciones o historia | T-V03-069 |
+| MV-70 | Proyección al separar | Ambos Casos deben revisar expresamente sus proyecciones | Redistribución manual coherente | Duplicar CNS proyectados entre origen y destino | T-V03-070 |
+| MV-71 | Oportunidad ganada | Identifica exactamente una Cotización seleccionada | Descartar históricamente las restantes | Cero o varias Cotizaciones seleccionadas | T-V03-071 |
+| MV-72 | Producto Contratado | Cada Oportunidad ganada origina exactamente uno al entrar en vigencia | Varios Productos por varias Oportunidades ganadas | Producto sin Oportunidad de origen o dos por la misma Oportunidad | T-V03-072 |
+| MV-73 | Coherencia del cierre | Emitido posee al menos una Oportunidad ganada; Perdido ninguna | Ganar varias Oportunidades conjuntamente | Emitido sin ganadas o Perdido con ganadas | T-V03-073 |
+| MV-74 | Evolución posterior | El Producto Contratado evoluciona sin reescribir antecedentes | Modificación o término posterior | Cambiar retroactivamente Cotización o resultado Ganado | T-V03-074 |
+| MV-75 | Clasificación de reglas | Invariantes bloquean, advertencias requieren confirmación y recomendaciones no gobiernan validez | Confirmar una situación dudosa válida | Convertir toda heurística en restricción rígida | T-V03-075 |
+| MV-76 | Advertencia por salto | Puede omitirse una etapa previa si se cumplen requisitos de destino | Salto confirmado y trazable | Saltar sin antecedentes obligatorios | T-V03-076 |
+| MV-77 | Compatibilidad aparente | Una taxonomía incompleta genera advertencia y opción de reclasificar | Confirmar o separar productos coherentemente | Rechazar automáticamente por heurística no aprobada | T-V03-077 |
+| MV-78 | Simplicidad de separación | La operación excepcional no domina el flujo normal | Divulgación progresiva para separar | Exigir revisar separación en cada Caso | T-V03-078 |
 
 ## 3. Casos conceptuales obligatorios
 
@@ -564,6 +593,210 @@ La implementación debe revertir los efectos parciales o mantener la ejecución 
 
 La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurrido.
 
+### CV-52 · Caso Nuevo sin Oportunidades
+
+**Dado** que Ana posee una Relación Comercial y Guillermo es su Asesor responsable  
+**Cuando** se identifica un negocio todavía impreciso  
+**Entonces** puede crearse un Caso en `Nuevo` vinculado a Ana, su Relación y Guillermo, sin Oportunidades, Cotizaciones, CNS ni fechas.
+
+### CV-53 · Oportunidad siempre dentro de un Caso
+
+**Dado** que existe un producto potencial concreto  
+**Cuando** se crea una Oportunidad  
+**Entonces** debe pertenecer exactamente a un Caso actual.
+
+Se rechaza crearla suelta o vincularla simultáneamente a dos Casos.
+
+### CV-54 · Configuraciones de una misma contratación
+
+**Dado** que Ana evalúa un mismo seguro con capitales de UF 2.000, UF 3.000 y UF 4.000  
+**Y** sólo puede contratar una de esas configuraciones  
+**Entonces** existe una Oportunidad con tres Cotizaciones.
+
+### CV-55 · Dos contrataciones simultáneas
+
+**Dado** que Ana puede contratar simultáneamente un APV y un seguro de vida  
+**Entonces** se representan mediante dos Oportunidades, aunque se administren dentro del mismo Caso si avanzan y se resuelven conjuntamente.
+
+### CV-56 · Propuesta descriptiva
+
+**Dado** que Guillermo prepara una recomendación combinando Oportunidades, Cotizaciones y documentos  
+**Entonces** puede conservar la descripción, las Actividades y las evidencias dentro del Caso.
+
+No nace automáticamente una entidad Propuesta ni versiones estructuradas.
+
+### CV-57 · Una sola tarjeta por Caso
+
+**Dado** que un Caso contiene tres Oportunidades  
+**Cuando** está en `Propuesta`  
+**Entonces** el Kanban muestra una única tarjeta del Caso en `Propuesta`.
+
+No aparecen tres tarjetas ni etapas independientes por Oportunidad.
+
+### CV-58 · Ingreso a Propuesta
+
+**Dado** un Caso en `Pendiente`  
+**Y** una proyección de 80 CNS con fechas estimadas de sometimiento y emisión  
+**Cuando** no existe todavía una Cotización  
+**Entonces** el sistema advierte y permite continuar con confirmación.
+
+Sin proyección o fechas, la operación se rechaza.
+
+### CV-59 · Ingreso a En Firma
+
+**Dado** que el cliente aceptó dos contrataciones dentro del mismo Caso  
+**Cuando** cada Oportunidad aceptada tiene exactamente una Cotización seleccionada  
+**Entonces** el Caso puede avanzar a `En Firma`.
+
+Si falta una selección, la operación se rechaza.
+
+### CV-60 · Sometimiento atómico
+
+**Dado** un Caso en `En Firma` con contratos firmados  
+**Cuando** se registran 76 CNS sometidos y la fecha efectiva  
+**Entonces** el hecho y el cambio a `Sometido` se aplican juntos.
+
+Una interrupción no puede dejar CNS registrados sin etapa ni etapa sin CNS.
+
+### CV-61 · Emisión y Productos Contratados
+
+**Dado** un Caso Sometido con dos Oportunidades aceptadas por la compañía  
+**Cuando** se registran CNS emitidos, fecha efectiva, una Cotización seleccionada y un Producto Contratado por cada Oportunidad ganada  
+**Entonces** el Caso pasa a `Emitido` y queda `Ganado`.
+
+### CV-62 · Cierre Perdido y reapertura
+
+**Dado** un Caso en `Propuesta` que se cierra sin contratación  
+**Entonces** queda `Perdido`, conserva la etapa `Propuesta`, la fecha y el motivo.
+
+**Cuando** se reabre  
+**Entonces** recupera `Propuesta` y conserva el cierre anterior con trazabilidad.
+
+### CV-63 · Corrección posterior a Sometido
+
+**Dado** un Caso en `Sometido`  
+**Cuando** se detecta que el registro fue erróneo  
+**Entonces** sólo puede abandonar la etapa mediante una corrección explícita y motivada que preserve el sometimiento original.
+
+### CV-64 · Evolución de CNS sin saldos parciales
+
+```text
+Proyección: 140 CNS
+Sometimiento: 135 CNS
+Emisión: 128 CNS
+```
+
+**Entonces** los tres valores permanecen como hechos distintos y la posición vigente computa 128 CNS en `Emitido`.
+
+No se crean 5 CNS pendientes de sometimiento ni 7 CNS pendientes de emisión.
+
+### CV-65 · Stock y flujo separados
+
+**Dado** que un Caso fue sometido en agosto y emitido en agosto  
+**Entonces** el flujo histórico puede mostrar ambos hechos.
+
+El stock vigente lo cuenta una sola vez en `Emitido`, sin sumar sometimiento y emisión como producción adicional.
+
+### CV-66 · Tarea sin Caso
+
+**Dado** que Ana es Persona y Guillermo Asesor  
+**Cuando** se crea una Tarea de llamada exploratoria sin Caso ni Oportunidad  
+**Entonces** la Tarea es válida.
+
+Crear o vincular la Tarea no crea automáticamente una Relación, Caso u Oportunidad.
+
+### CV-67 · Contexto real distinto del previsto
+
+**Dado** que una Tarea estaba prevista para el Caso A  
+**Cuando** la llamada real trató el Caso B  
+**Entonces** la Actividad registra el Caso B y la Tarea conserva el Caso A como planificación original.
+
+El sistema advierte la diferencia y no sobrescribe silenciosamente la Tarea.
+
+### CV-68 · Historial reconstruido
+
+**Dado** que un Caso posee descripción vigente, notas, Actividades, cambios de etapa, una revisión de proyección y un sometimiento  
+**Cuando** se abre su historial  
+**Entonces** la cronología se reconstruye desde esos antecedentes.
+
+Editar la descripción vigente no modifica los hechos previos ni crea una entidad Historial.
+
+### CV-69 · Separación sin duplicación
+
+**Dado** un Caso con Oportunidades A y B  
+**Cuando** B necesita tiempos independientes  
+**Entonces** B se traslada a un nuevo Caso, conserva identidad y Cotizaciones y deja de pertenecer al Caso original.
+
+Ambos Casos conservan origen, destino, fecha y actor.
+
+### CV-70 · Revisión de proyecciones al separar
+
+**Dado** un Caso con proyección de 100 CNS  
+**Cuando** una Oportunidad se separa  
+**Entonces** el Asesor debe revisar la proyección de ambos Casos.
+
+La suma o distribución resultante no puede conservar 100 CNS en ambos Casos por duplicación automática.
+
+### CV-71 · Selección única al ganar
+
+**Dado** una Oportunidad con tres Cotizaciones  
+**Cuando** la Oportunidad resulta ganada  
+**Entonces** queda exactamente una Cotización seleccionada y las otras dos permanecen descartadas históricamente.
+
+### CV-72 · Un Producto por Oportunidad ganada
+
+**Dado** un Caso Emitido con dos Oportunidades ganadas  
+**Entonces** existen exactamente dos Productos Contratados, cada uno vinculado a su Oportunidad y Cotización de origen.
+
+### CV-73 · Coherencia Ganado y Perdido
+
+**Dado** un Caso `Emitido`  
+**Entonces** posee al menos una Oportunidad ganada.
+
+**Dado** un Caso `Perdido`  
+**Entonces** no posee ninguna Oportunidad ganada ni Producto Contratado originado por ese cierre.
+
+### CV-74 · Evolución posterior del contrato
+
+**Dado** un Producto Contratado que posteriormente se modifica o termina  
+**Entonces** conserva su Cotización y Oportunidad de origen.
+
+El cambio posterior no convierte retroactivamente el Caso Ganado en Perdido.
+
+### CV-75 · Invariante, advertencia y recomendación
+
+**Dado** un Caso sin Asesor  
+**Entonces** la creación se bloquea por invariante.
+
+**Dado** un Caso que avanza a `Propuesta` sin Cotización, pero con proyección y fechas  
+**Entonces** se exige confirmación por advertencia.
+
+**Dado** un Caso en `Pendiente` sin descripción suficiente  
+**Entonces** se recomienda completar el contexto, pero no se bloquea ni exige confirmación.
+
+### CV-76 · Salto válido de etapa
+
+**Dado** un Caso en `Nuevo` que ya cumple todos los requisitos de `En Firma`  
+**Cuando** se intenta mover directamente  
+**Entonces** el sistema advierte el salto y permite confirmarlo.
+
+No puede omitir los requisitos obligatorios de la etapa de destino.
+
+### CV-77 · Compatibilidad aparente de productos
+
+**Dado** que una combinación parece incoherente según una taxonomía todavía incompleta  
+**Entonces** el sistema advierte y permite confirmar, reclasificar o separar trazablemente.
+
+No rechaza automáticamente salvo que se viole una invariante aprobada.
+
+### CV-78 · Flujo normal sin separación visible
+
+**Dado** un Caso frecuente con una Oportunidad que avanza como unidad  
+**Cuando** el Asesor lo gestiona  
+**Entonces** no debe resolver controles de separación ni múltiples Casos.
+
+La separación permanece como acción secundaria excepcional.
+
 ## 4. Clasificación de decisiones
 
 ### Confirmadas para `next_v03`
@@ -624,7 +857,7 @@ La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurri
 - ejecución completa la Tarea aunque no alcance el objetivo comercial;
 - cada nuevo intento requiere una nueva Tarea;
 - resultado estructurado y nota libre de Actividad separados;
-- creación de Tareas, Relaciones u Oportunidades como hechos separados de la Actividad que los origina;
+- creación de Tareas, Relaciones, Casos u Oportunidades como hechos separados de la Actividad que los origina;
 - llamada efectiva, agendamiento y seguimiento como métricas derivadas;
 - reprogramación y cancelación no constituyen Actividades;
 - reasignación de Tarea explícita y con historial;
@@ -633,13 +866,32 @@ La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurri
 - Actividad anulada excluida de métricas y de justificación de consecuencias;
 - consecuencias de una Actividad corregida o anulada sujetas a revisión, no a borrado automático;
 - cambios sustantivos de Tarea Pendiente con historial y rectificación explícita de Tareas cerradas;
-- flujo habitual optimizado para una Persona, una Tarea y una Actividad;
+- flujo habitual optimizado para una Persona, una Tarea, una Actividad y un Caso;
 - capacidades excepcionales expuestas sólo mediante divulgación progresiva;
 - nuevos casos hipotéticos incorporados al dominio sólo cuando alteren cardinalidad, invariantes, fuente de verdad o trazabilidad relevante;
 - cargas TOTAL sucesivas e incrementales;
 - comparación de ausencias sólo dentro del mismo período y Campaña activa comparable;
 - cambio de período sin incidencias masivas;
-- linaje mínimo e historial sólo ante cambios efectivos.
+- linaje mínimo e historial sólo ante cambios efectivos;
+- Caso Comercial como negocio indivisible y unidad canónica del Pipeline;
+- Caso inicialmente válido sin Oportunidades;
+- Oportunidad como contratación potencial individualizable y perteneciente exactamente a un Caso;
+- Cotización como configuración específica de una Oportunidad;
+- Propuesta como conocimiento descriptivo y no entidad estructurada;
+- una única etapa y tarjeta por Caso;
+- etapas `Nuevo`, `Pendiente`, `Propuesta`, `En Firma`, `Sometido` y `Emitido`;
+- `Ganado` y `Perdido` como resultados, con `Perdido` fuera del catálogo de etapas;
+- requisitos obligatorios por etapa y atomicidad de Sometido y Emitido;
+- correcciones factuales y reaperturas trazables;
+- proyección vigente, sometimiento real y emisión real como conocimientos distintos;
+- ausencia de doble conteo y saldos parciales automáticos de CNS;
+- Personas y Asesor como vínculos esenciales de Tareas y Actividades y contexto comercial opcional;
+- Tarea como contexto previsto y Actividad como contexto real;
+- historial del Caso como vista derivada y notas sin ciclo de vida propio;
+- separación de Oportunidad como traslado excepcional sin duplicación;
+- una Cotización seleccionada y un Producto Contratado por cada Oportunidad ganada;
+- evolución posterior del Producto Contratado sin reescritura de antecedentes;
+- clasificación explícita de invariantes, advertencias y recomendaciones.
 
 ### Pendientes de diseño lógico o técnico
 
@@ -649,9 +901,9 @@ La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurri
 - catálogo inicial de Tipos y Resultados de Actividad;
 - regla exacta cuando el Tipo realizado difiere del Tipo previsto;
 - criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
-- experiencia asistida y simple para asociar opcionalmente varias Tareas o Personas a una Actividad;
+- experiencia asistida y simple para asociar opcionalmente varias Tareas, Personas, Casos u Oportunidades a una Actividad;
 - mecanismo de divulgación progresiva para crear una Tarea hacia otra Persona desde una Actividad;
-- representación física de la relación muchos-a-muchos entre Personas, Actividades y Tareas;
+- representación física de las relaciones muchos-a-muchos entre Personas, Actividades, Tareas, Casos y Oportunidades;
 - necesidad de atributos de participación, como rol o participante principal;
 - derivación de métricas por acción y por Persona en Actividades grupales;
 - representación física del historial de reprogramaciones;
@@ -663,9 +915,15 @@ La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurri
 - representación física y UX de Asignaciones pendientes de conciliación;
 - representación física de los estados de Ejecución de Importación;
 - mecanismo transaccional y de recuperación ante fallos técnicos;
-- formato y límites de objetivo, contexto y nota de ejecución;
+- formato y límites de objetivo, contexto, descripción, notas y evidencia documental;
 - umbral de archivo incompleto;
 - estructura del historial de datos de contacto;
+- representación física de Caso, Oportunidad, Cotización, etapa y resultado;
+- representación física del historial de etapas, proyecciones, sometimientos, emisiones, correcciones y reaperturas;
+- mecanismo técnico de advertencias confirmables y recomendaciones;
+- mecanismo transaccional de separación de una Oportunidad sin duplicación;
+- representación física del origen del Producto Contratado;
+- reglas particulares y ciclo posterior de Productos Contratados;
 - nombres de tablas y columnas;
 - restricciones SQL;
 - índices;
@@ -676,11 +934,14 @@ La aplicación anterior no se borra ni se reescribe como si nunca hubiera ocurri
 
 El diseño físico puede comenzar sólo cuando:
 
-1. esta matriz sea aprobada;
-2. el Modelo Comercial sea aprobado;
-3. el Modelo Operacional sea aprobado;
+1. esta matriz ampliada sea aprobada;
+2. el Modelo Comercial ampliado sea aprobado;
+3. el Modelo Operacional sea aprobado y permanezca coherente con estas reglas;
 4. las contradicciones con documentos superiores estén resueltas;
 5. los pendientes técnicos estén claramente separados de las reglas del dominio;
-6. un LCD posterior apruebe el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline, junto con los límites de vinculación opcional de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+6. ADR-025 y LCD-20260802-01 completen revisión, equivalencia documental y aprobación formal;
+7. las transiciones y casos conceptuales aquí descritos puedan expresarse mediante pruebas reproducibles sin introducir estados o entidades no aprobados.
 
-No es necesario completar antes de ese diseño la experiencia de usuario detallada, los nombres definitivos de todas las etapas, las probabilidades, colores, automatizaciones, dashboards ni reglas particulares de cada producto.
+Mientras LCD-20260802-01 permanezca en revisión, `next_v03` continúa bloqueado para diseño físico y SQL.
+
+No es necesario completar antes de ese diseño la experiencia de usuario detallada, probabilidades, colores, automatizaciones, dashboards ni reglas particulares de cada producto.
