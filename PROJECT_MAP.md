@@ -1,8 +1,9 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 Estado: Vigente  
-Último LCD aprobado: LCD-20260801-02  
-Lotes pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
+Último LCD aprobado: LCD-20260802-01  
+Lote en revisión: ninguno  
+Otros pendientes relevantes: LCD-20260712-01, cierre documental/visual de LCD-20260715-01 y LCD-20260716-01
 
 ## Propósito
 
@@ -50,6 +51,21 @@ ADR-024 establece la separación entre:
 - Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
 
 La decisión y sus documentos fueron aprobados mediante LCD-20260801-02 y Pull Requests #32 y #33.
+
+## Desarrollo comercial aprobado
+
+LCD-20260802-01 y ADR-025 consolidan el modelo mínimo de:
+
+- Caso Comercial como negocio indivisible y unidad del Pipeline;
+- Oportunidad como contratación potencial individualizable;
+- Cotización como configuración específica de una Oportunidad;
+- Propuesta e historial del Caso como conocimiento descriptivo y vistas derivadas;
+- etapas, resultados, transiciones y CNS del Caso;
+- Producto Contratado y su origen en una Oportunidad ganada;
+- vínculos opcionales de Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad;
+- clasificación de reglas en invariantes, advertencias y recomendaciones.
+
+Las decisiones estructurales y su equivalencia histórica quedaron aprobadas en ADR-025, el Modelo Comercial y la Matriz de Validación. El lote no autoriza SQL, diseño físico definitivo ni cambios de runtime.
 
 ## Contextos de dominio candidatos
 
@@ -140,7 +156,7 @@ LCD-20260801-02 incorporó como documentos canónicos, únicos y versionados:
 - `docs/domain/validation-matrix-next-v03.md`;
 - `docs/adr/ADR-024-limites-modelo-comercial-operacional.md`.
 
-Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, Relación Comercial, Responsabilidad del Asesor, Actividad, Tarea, importaciones y conciliaciones. No autorizan todavía SQL ni cambios de runtime.
+Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, Relación Comercial, Responsabilidad del Asesor, Actividad, Tarea, importaciones y conciliaciones. LCD-20260802-01 amplía en revisión el Modelo Comercial y la Matriz con Caso, Oportunidad, Cotización, Pipeline, CNS y Producto Contratado. Ninguno de estos documentos autoriza todavía SQL ni cambios de runtime.
 
 ## Estado actual de la transición
 
@@ -157,11 +173,12 @@ Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, R
 - registros únicos de LCD y ADR;
 - catálogo de autoridad documental;
 - laboratorio local PostgreSQL y experimentación conceptual de Next iniciados;
-- Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados.
+- Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados;
+- cierre conceptual de las decisiones estructurales de ADR-025;
+- consolidación de ADR-025 en el Modelo Comercial y la Matriz de Validación.
 
 ### En curso
 
-- preparación del LCD para definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline;
 - revisión del material educativo del PR #21;
 - cierre documental y visual de LCD-20260715-01;
 - migración progresiva de documentos superiores de Drive a Markdown.
@@ -191,5 +208,6 @@ Issue → reserva de LCD/ADR → rama → documentación → diseño → impleme
 - `LCD-20260716-01`: guías educativas de base de datos; PR #21, pendiente.
 - `LCD-20260801-01`: reconciliación documental y prevención de colisiones; Issue #28, PR #29 y #30.
 - `LCD-20260801-02`: modelos Comercial y Operacional mínimos y Matriz de Validación Next v03; Issue #31 y Pull Requests #32 y #33, aprobado.
+- `LCD-20260802-01`: modelo mínimo de desarrollo comercial; Issue #34 y PR #35, aprobado con equivalencia histórica resuelta.
 
 El detalle autoritativo vive en `docs/governance/lcd-registry.md`.
