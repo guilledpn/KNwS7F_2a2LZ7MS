@@ -404,7 +404,45 @@ Resultado: Ganado
 
 La posición vigente computa 128 CNS en `Emitido`. Los 140 CNS proyectados y los 135 CNS sometidos se conservan como antecedentes para medir desviaciones, pero no permanecen ocupando columnas anteriores.
 
-### 8. Oportunidades y Cotizaciones al resolverse el negocio
+### 8. Vinculación contextual de Tareas y Actividades
+
+Las Personas y el Asesor son vínculos esenciales de toda Tarea y Actividad. La Relación Comercial, los Casos Comerciales y las Oportunidades constituyen contexto comercial opcional.
+
+Reglas:
+
+- toda Tarea conserva una o más Personas objetivo y un Asesor responsable;
+- toda Actividad conserva una o más Personas participantes y un Asesor ejecutor;
+- una Tarea o Actividad puede existir sin estar vinculada a un Caso ni a una Oportunidad;
+- la vinculación con una Relación Comercial, uno o más Casos o una o más Oportunidades no crea automáticamente esos conceptos;
+- una Oportunidad vinculada debe pertenecer a uno de los Casos vinculados o permitir derivar inequívocamente su Caso actual;
+- la Relación Comercial no se duplica como una verdad independiente cuando puede derivarse inequívocamente desde las Personas y los Casos vinculados;
+- la Tarea conserva el contexto previsto al planificar la acción;
+- la Actividad conserva el contexto real de lo ocurrido;
+- al ejecutar una Tarea, la Actividad puede proponer inicialmente los mismos vínculos, pero puede conservar un contexto distinto cuando la acción real trató otro Caso u Oportunidad;
+- una diferencia entre el contexto previsto y el contexto real no sobrescribe silenciosamente la Tarea y debe permanecer trazable;
+- una sola Tarea o Actividad puede involucrar varios Casos u Oportunidades cuando una única acción real los trate conjuntamente;
+- el flujo habitual prioriza una Persona y un Caso; las vinculaciones múltiples se mantienen como capacidad excepcional mediante divulgación progresiva.
+
+Ejemplos:
+
+```text
+Tarea: llamar a Ana
+Caso: APV jubilación
+Oportunidad: APV Prime
+```
+
+```text
+Actividad: llamada sin interés
+Persona: Ana
+Caso: ninguno
+Oportunidad: ninguna
+```
+
+La regla consolidada es:
+
+> Las Personas y el Asesor son vínculos esenciales de Tareas y Actividades. La Relación Comercial, los Casos y las Oportunidades son vínculos contextuales opcionales. El contexto previsto de una Tarea no obliga a que la Actividad ejecutada conserve exactamente los mismos vínculos, pero toda diferencia debe representar lo que realmente ocurrió y no sobrescribir silenciosamente la planificación.
+
+### 9. Oportunidades y Cotizaciones al resolverse el negocio
 
 Cuando el Caso se gana:
 
@@ -427,7 +465,7 @@ Reglas:
 - una Oportunidad descartada sólo puede continuar comercialmente si se separa trazablemente en un nuevo Caso;
 - el Producto Contratado, cuando corresponda, será el resultado persistente de la Oportunidad ganada y no será sustituido por la Cotización.
 
-### 9. Decisiones sustituidas dentro de este mismo borrador
+### 10. Decisiones sustituidas dentro de este mismo borrador
 
 Las decisiones aprobadas en este ADR reemplazan expresamente las hipótesis intermedias del presente LCD que proponían:
 
@@ -442,7 +480,7 @@ Las decisiones aprobadas en este ADR reemplazan expresamente las hipótesis inte
 
 Esas hipótesis quedan descartadas y no deben trasladarse al Modelo Comercial, a la Matriz de Validación ni al diseño físico.
 
-### 10. Criterio de seguridad antes del diseño físico
+### 11. Criterio de seguridad antes del diseño físico
 
 Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`, el modelo deberá demostrar mediante transiciones deterministas y pruebas reproducibles que mantiene simultáneamente estas invariantes:
 
@@ -462,6 +500,10 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - existe una sola proyección vigente del Caso, cuyas revisiones conservan historia;
 - el sometimiento real y la emisión real son hechos distintos que no se sobrescriben entre sí ni reescriben la proyección;
 - corregir o anular un sometimiento o una emisión conserva el hecho original y la trazabilidad de la corrección;
+- toda Tarea o Actividad conserva sus Personas y su Asesor esenciales aunque no posea contexto comercial adicional;
+- los vínculos con Relación Comercial, Caso u Oportunidad son opcionales y no crean automáticamente esos conceptos;
+- el contexto real de una Actividad puede diferir del contexto previsto de la Tarea sin reescribirla ni perder trazabilidad;
+- una Oportunidad contextual sólo puede referir a su Caso actual o permitir derivarlo inequívocamente;
 - el stock vigente computa cada Caso y sus CNS en una sola etapa;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - las diferencias entre proyección, sometimiento y emisión no crean saldos parciales;
@@ -476,11 +518,10 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 
 ## Preguntas pendientes del lote
 
-1. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
-2. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
-3. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
-4. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
-5. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
+1. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+2. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
+3. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
+4. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
 
@@ -519,6 +560,8 @@ No se decidirán todavía:
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
 - el Caso conserva una proyección vigente con historial de revisiones, un sometimiento real y una emisión real como hechos distintos;
 - la proyección, el sometimiento y la emisión no se sobrescriben ni se duplican en la posición vigente;
+- Tareas y Actividades conservan siempre Personas y Asesor, mientras Relación Comercial, Casos y Oportunidades funcionan como contexto opcional;
+- el contexto previsto y el contexto real pueden diferir con trazabilidad, sin sobrescribir la planificación;
 - una Oportunidad que necesite tiempos independientes origina un nuevo Caso en vez de fragmentar el Pipeline;
 - las situaciones extraordinarias se resuelven mediante una capacidad excepcional trazable y no mediante complejidad permanente del modelo;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
