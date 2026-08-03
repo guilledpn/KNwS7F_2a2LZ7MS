@@ -1,7 +1,7 @@
-const APP_VERSION='App_llamados_v1.05-ui-20260803-01';
-const PATCH_ID='UI-20260803-01';
+const APP_VERSION='App_llamados_v1.05-ui-20260803-02';
+const PATCH_ID='UI-20260803-02';
 const METRICS_PATCH_ID='LCD-20260713-01';
-const METRICS_PATCH_TAG='<script src="./assets/app/features/stats-metrics-patch-prod.js?v='+METRICS_PATCH_ID+'" data-crm-stats-metrics-patch="'+METRICS_PATCH_ID+'"></script>';
+const METRICS_PATCH_TAG='<script src="./assets/app/features/stats-metrics-patch-prod.js?v='+PATCH_ID+'" data-crm-stats-metrics-patch="'+PATCH_ID+'"></script>';
 const NAVIGATION_PATCH_TAG='<script src="./assets/app/features/stats-navigation-patch-prod.js?v='+PATCH_ID+'" data-crm-stats-navigation-patch="'+PATCH_ID+'"></script>';
 
 self.addEventListener('install',event=>{
@@ -60,5 +60,5 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  event.respondWith(fetch(req).catch(()=>caches.match(req)));
+  event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>caches.match(req)));
 });
