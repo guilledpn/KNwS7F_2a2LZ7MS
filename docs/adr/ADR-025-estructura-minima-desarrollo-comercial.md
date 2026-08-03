@@ -244,6 +244,34 @@ Proyección vigente revisada: 138 CNS
 CNS emitidos reales: 138 CNS
 ```
 
+#### Etapas factuales respaldadas por hechos reales
+
+Las etapas `Sometida` y `Emitida` representan hechos ocurridos y no simples apreciaciones comerciales del Asesor.
+
+Reglas:
+
+- una Oportunidad no puede permanecer en `Sometida` sin un sometimiento real registrado;
+- una Oportunidad no puede permanecer en `Emitida` sin una emisión real registrada;
+- ingresar a `Sometida` exige registrar al menos la cantidad de CNS sometidos y la fecha efectiva del sometimiento;
+- ingresar a `Emitida` exige registrar al menos la cantidad de CNS emitidos y la fecha efectiva de la emisión;
+- arrastrar una tarjeta hacia una etapa factual constituye una sola operación de negocio: registra el hecho, actualiza la etapa, consume o reemplaza la porción correspondiente de la proyección vigente y conserva la trazabilidad;
+- si cualquiera de esos efectos falla, la transición completa debe considerarse no aplicada;
+- las etapas anteriores a `Sometida` pueden representar apreciaciones o avances comerciales, pero no deben inventar sometimientos ni emisiones;
+- un monto real puede diferir del proyectado; la diferencia se conserva como información comercial y no genera automáticamente una nueva proyección residual;
+- cualquier expectativa restante debe ser confirmada explícitamente por el Asesor.
+
+Conceptualmente:
+
+```text
+Mover a Sometida
+= registrar sometimiento real + actualizar etapa
+
+Mover a Emitida
+= registrar emisión real + actualizar etapa
+```
+
+Esta regla impide que el Kanban y las estadísticas describan realidades diferentes.
+
 La representación física de los componentes temporales de proyección y de los hechos reales de sometimiento y emisión se definirá durante el diseño lógico, no en este ADR.
 
 #### Criterio de seguridad antes del diseño físico
@@ -259,6 +287,8 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - un mismo monto esperado no se computa simultáneamente en más de una condición del stock vigente;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - proyección, sometimiento y emisión no se sobrescriben entre sí;
+- una etapa factual no puede existir sin el hecho real que la fundamenta;
+- la transición hacia una etapa factual se aplica de forma íntegra o no se aplica;
 - los totales por etapa y período pueden reconstruirse exclusivamente desde hechos canónicos.
 
 Si estas reglas no pueden expresarse mediante un conjunto pequeño de transiciones deterministas y pruebas reproducibles, el diseño físico deberá detenerse y simplificarse antes de crear tablas.
@@ -303,7 +333,8 @@ No se decidirán todavía:
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
 - la proyección inicial se conserva como antecedente histórico, pero no se duplica con CNS sometidos o emitidos en la posición vigente;
 - proyección, sometimiento y emisión se conservan como conceptos distintos;
-- el diseño físico deberá probar las invariantes de movimiento, distribución, consumo y reconstrucción antes de crear tablas;
+- `Sometida` y `Emitida` requieren hechos reales consistentes con sus cantidades y fechas;
+- el diseño físico deberá probar las invariantes de movimiento, distribución, consumo, transición factual y reconstrucción antes de crear tablas;
 - el futuro diseño lógico no podrá convertir heurísticas evolutivas en bloqueos irreversibles sin una decisión posterior explícita;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
