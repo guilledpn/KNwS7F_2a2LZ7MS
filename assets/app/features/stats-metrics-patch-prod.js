@@ -50,6 +50,10 @@
       setTimeout(installStatsNavigation,50);
       return;
     }
+    if(global.CRM_STATS_NAVIGATION_PATCH===NAVIGATION_PATCH_ID){
+      navigationInstalled=true;
+      return;
+    }
 
     const originalSetScreen=global.setScreen;
     global.setScreen=function patchedSetScreen(screen,button){
