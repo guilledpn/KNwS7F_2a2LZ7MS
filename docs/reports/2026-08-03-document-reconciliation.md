@@ -12,7 +12,7 @@
 La conciliación quedó completada con una regla verificable: **cada artefacto vive en una sola ubicación**.
 
 - GitHub contiene todo el conocimiento propio, publicable y versionable.
-- Drive conserva exclusivamente datos reales, respaldos, fuentes externas/corporativas y evidencia no apta para el repositorio público.
+- La raíz de Drive conserva exclusivamente datos reales, respaldos, fuentes externas/corporativas y evidencia no apta para el repositorio público; queda una copia residual del normalizador por un bloqueo de permisos específico.
 - Se eliminó el Registro Maestro paralelo y toda copia documental migrada de Drive.
 - Se fusionaron funciones documentales duplicadas: autoridad y catálogo ahora son un solo documento; ADR-001…020 forman una sola bitácora histórica.
 - Dos documentos de Drive no se migraron como archivos nuevos porque duplicaban el modelo y el backlog: su conocimiento válido fue absorbido.
@@ -115,15 +115,20 @@ El validador ahora falla si los archivos rectores vuelven a referenciar el catá
 | Acuerdos funcionales y backlog vivo | Absorbido; no se creó otro archivo | Reglas operativas en `AGENTS.md`; pendientes vigentes en Roadmap |
 | Registro Maestro Sheet | Retirado sin reemplazo paralelo | Sus funciones las cumplen los registros Git y el índice de autoridad |
 
-Después del merge validado se eliminaron permanentemente de Drive los once documentos propios, el Sheet paralelo y el normalizador migrado. Git conserva el contenido conciliado y su historia futura; Drive no conserva copia recuperable de esos archivos retirados.
+Después del merge validado se eliminaron permanentemente de Drive los diez Google Docs propios y el Registro Maestro Sheet. Git conserva el contenido conciliado y su historia futura; Drive no conserva copia recuperable de esos once objetos retirados.
 
-Las carpetas `Modelo del dominio` y `Modelo de Productos` se renombraron como carpetas de fuentes para que no aparenten contener modelos canónicos.
+La subcarpeta `Modelo de Productos` se renombró `Fuentes de productos`. Drive rechazó con `403 appNotAuthorizedToFile` dos escrituras sobre objetos no autorizados para la aplicación:
+
+1. eliminar `Bases_maestras/normalizar_bases_campanas.py` (ID `1ytKRhDZRRRPzvInFzUTxTk-FNIjVVq9V`);
+2. renombrar `Modelo del dominio` (ID `1dZjlZlJvnb3A8D0Cqf5au96uSgO6F14t`) como `Fuentes y evidencia del dominio`.
+
+La copia residual del normalizador no tiene autoridad: gobierna `tools/normalize_campaign_bases.py`. Issue #40 quedó reabierto hasta que el usuario complete esas dos acciones manuales.
 
 ## 5. Contenido que permanece exclusivamente en Drive
 
 ### Datos y operación
 
-- `Bases_maestras`: originales `.xls/.xlsx`, normalizados y archivos históricos con datos reales.
+- `Bases_maestras`: originales `.xls/.xlsx`, normalizados y archivos históricos con datos reales; contiene temporalmente la copia sin autoridad del normalizador que debe eliminarse manualmente.
 - `Backup_bases_maestras` y `Backup_producción`.
 - `CARGA_CONTROLADA_JULIO_AGOSTO_2026_V2`, ZIP, manifiesto, script específico, log, resultados y tres bases normalizadas.
 - carpetas/ZIP de correcciones históricas de cargas.
@@ -241,6 +246,7 @@ Son fuentes corporativas/terceras. El modelo propio está en GitHub y enlaza con
 - `tools/run_legacy_safety_checks.py`: PASS.
 - validaciones de shell PROD, build/aislamiento DEV y PWA: PASS.
 - `tools/normalize_campaign_bases.py`: compila sin dependencias externas y fue migrado sin modificar su lógica.
+- verificación Drive: once objetos documentales retirados; una eliminación y un renombre bloqueados por permisos y registrados en Issue #40.
 - `git diff --check`: PASS.
 - no se accedió ni modificó ningún ambiente Supabase.
 
@@ -268,9 +274,10 @@ Son fuentes corporativas/terceras. El modelo propio está en GitHub y enlaza con
 ## 9. Pendientes reales después de la conciliación
 
 - Issue #38: exclusión persistente de campañas inválidas, primero en DEV.
+- Issue #40: eliminar manualmente la copia residual del normalizador y renombrar su carpeta contenedora en Drive.
 - defecto semántico de metadatos de `get_contacts_v2`: crear Issue y corregir.
 - PR #21: decidir integración, reducción o cierre.
 - diseño físico `next_v03`: abrir un LCD propio con pruebas reproducibles.
 - completar auditoría del catálogo Consorcio y verificación normativa de rentabilidades APV.
 
-No queda pendiente ninguna migración de documentos propios entre Drive y GitHub.
+No queda pendiente contenido por conciliar ni migrar. Sí quedan las dos acciones manuales de higiene de Drive registradas en Issue #40; hasta completarlas existe una copia residual sin autoridad del normalizador.

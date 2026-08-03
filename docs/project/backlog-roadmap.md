@@ -116,9 +116,10 @@ Estado: pendiente y no prioritario.
 
 ## Prioridad recomendada
 
-1. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-2. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
-3. Definir el LCD de diseño físico mínimo `next_v03`.
-4. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
+1. Completar las dos acciones manuales de Drive registradas en Issue #40.
+2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
+3. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
+4. Definir el LCD de diseño físico mínimo `next_v03`.
+5. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
 
 Toda iniciativa debe demostrar que representa negocio real, reduce carga, protege continuidad, puede probarse en DEV y evita crear otra fuente de verdad.
