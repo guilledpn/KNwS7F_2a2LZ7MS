@@ -182,45 +182,48 @@ Reglas:
 - por defecto, la proyección se maneja como un único monto con una fecha prevista de sometimiento y una fecha prevista de emisión;
 - cuando el Caso realmente requiera más de un monto o más de una fecha, el Asesor puede dividir manualmente la proyección en componentes temporales;
 - al separar Oportunidades entre etapas, el sistema debe solicitar únicamente la distribución necesaria para evitar atribuir el mismo monto a más de una tarjeta;
-- la suma de las distribuciones vigentes debe coincidir con el total manual proyectado del Caso;
+- la suma de las distribuciones vigentes debe coincidir con el total manual proyectado del Caso mientras todas las Oportunidades permanecen en etapas proyectivas;
 - una separación redistribuye la proyección: no la recalcula desde productos, Cotizaciones ni probabilidades;
-- CNS sometidos y CNS emitidos son hechos reales distintos de la proyección y conservan sus propias cantidades y fechas;
-- una misma contratación puede registrar un sometimiento y una emisión en fechas diferentes, y un Caso puede contener varios sometimientos o emisiones;
+- los CNS sometidos y los CNS emitidos son hechos reales distintos de la proyección y conservan sus propias cantidades y fechas;
+- una Oportunidad ocupa íntegramente una sola etapa actual;
+- un Caso puede contener varias Oportunidades y, por ello, varios sometimientos o emisiones independientes;
 - los indicadores por etapa y por período son cálculos derivados; nunca constituyen la fuente de verdad.
 
 Conceptualmente deben distinguirse:
 
 ```text
-Proyección manual vigente
-≠ CNS efectivamente sometidos
-≠ CNS efectivamente emitidos
+Proyección manual del Caso
+≠ CNS efectivamente sometidos por una Oportunidad
+≠ CNS efectivamente emitidos por una Oportunidad
 ```
 
 #### Consumo de la proyección por el avance real
 
 La proyección inicial se conserva como antecedente histórico de lo que el Asesor estimó para el Caso, pero no permanece sumándose íntegramente con los CNS sometidos o emitidos.
 
-Para representar la posición vigente del Pipeline, cada porción económica del negocio ocupa una sola condición operativa:
+Para representar la posición vigente del Pipeline, cada Oportunidad aporta una sola magnitud según su etapa actual:
 
 ```text
-Pendiente de sometimiento
-→ CNS todavía proyectados que no han sido sometidos
+Oportunidad en etapa proyectiva
+→ CNS proyectados vigentes atribuidos a esa Oportunidad o grupo todavía no factual
 
-Sometida pendiente de emisión
-→ CNS sometidos que todavía no han sido emitidos ni descartados
+Oportunidad Sometida
+→ CNS efectivamente sometidos
 
-Emitida
+Oportunidad Emitida
 → CNS efectivamente emitidos
 ```
 
 Reglas:
 
-- un mismo monto esperado no puede computarse simultáneamente en más de una condición del stock vigente;
-- cuando una porción avanza, deja de computarse en la condición anterior;
-- la proyección inicial permanece disponible para comparación histórica, pero no constituye un componente adicional del total vigente;
+- una Oportunidad no puede aportar CNS simultáneamente a más de una etapa del stock vigente;
+- cuando una Oportunidad avanza, abandona completamente la etapa anterior;
+- la magnitud correspondiente a la nueva etapa reemplaza a la anterior sólo para efectos de la posición vigente;
+- los valores anteriores permanecen disponibles como antecedentes históricos;
+- la proyección inicial permanece disponible para comparación, pero no constituye un componente adicional del total vigente;
 - la proyección vigente puede revisarse con trazabilidad cuando la expectativa comercial cambie;
 - los valores reales pueden superar o quedar bajo la proyección; esa diferencia es información comercial y no debe forzarse artificialmente para conservar igualdad;
-- los reportes de flujo pueden mostrar CNS sometidos y emitidos durante un mismo período, porque representan hechos distintos, pero no deben sumarlos como si fueran producción adicional independiente;
+- los reportes de flujo pueden mostrar CNS sometidos y emitidos durante un mismo período porque representan hechos distintos, pero no deben sumarlos como si fueran producción adicional independiente;
 - la posición vigente y el flujo histórico responden preguntas diferentes y deben mantenerse separados.
 
 Ejemplo:
@@ -228,21 +231,20 @@ Ejemplo:
 ```text
 Proyección inicial del Caso: 140 CNS
 
+Oportunidades actuales:
+- Vida Ahorro · Propuesta · 100 CNS proyectados
+- APV · Emitida · 38 CNS emitidos
+
 Posición vigente:
-- pendiente de sometimiento: 100 CNS
-- sometida pendiente de emisión: 2 CNS
-- emitida: 38 CNS
+- Propuesta: 100 CNS
+- Sometida: 0 CNS
+- Emitida: 38 CNS
 
-Total representado en la posición vigente: 140 CNS
+Total representado en la posición vigente: 138 CNS
+Desviación respecto de la proyección inicial: -2 CNS
 ```
 
-Si la realidad posterior difiere de la estimación, pueden coexistir sin contradicción:
-
-```text
-Proyección inicial: 140 CNS
-Proyección vigente revisada: 138 CNS
-CNS emitidos reales: 138 CNS
-```
+La diferencia no deja CNS suspendidos entre etapas. Expresa que la realidad comercial terminó siendo distinta de la estimación original.
 
 #### Etapas factuales respaldadas por hechos reales
 
@@ -254,23 +256,50 @@ Reglas:
 - una Oportunidad no puede permanecer en `Emitida` sin una emisión real registrada;
 - ingresar a `Sometida` exige registrar al menos la cantidad de CNS sometidos y la fecha efectiva del sometimiento;
 - ingresar a `Emitida` exige registrar al menos la cantidad de CNS emitidos y la fecha efectiva de la emisión;
-- arrastrar una tarjeta hacia una etapa factual constituye una sola operación de negocio: registra el hecho, actualiza la etapa, consume o reemplaza la porción correspondiente de la proyección vigente y conserva la trazabilidad;
+- arrastrar una tarjeta hacia una etapa factual constituye una sola operación de negocio: registra el hecho, actualiza la etapa, reemplaza para el stock vigente la magnitud de la etapa anterior y conserva la trazabilidad;
 - si cualquiera de esos efectos falla, la transición completa debe considerarse no aplicada;
 - las etapas anteriores a `Sometida` pueden representar apreciaciones o avances comerciales, pero no deben inventar sometimientos ni emisiones;
-- un monto real puede diferir del proyectado; la diferencia se conserva como información comercial y no genera automáticamente una nueva proyección residual;
-- cualquier expectativa restante debe ser confirmada explícitamente por el Asesor.
+- un monto real puede diferir del proyectado o del sometido; la diferencia se conserva como información comercial y no genera automáticamente una proyección residual ni un saldo pendiente.
 
 Conceptualmente:
 
 ```text
 Mover a Sometida
-= registrar sometimiento real + actualizar etapa
+= registrar sometimiento real + mover íntegramente la Oportunidad
 
 Mover a Emitida
-= registrar emisión real + actualizar etapa
+= registrar emisión real + mover íntegramente la Oportunidad
 ```
 
 Esta regla impide que el Kanban y las estadísticas describan realidades diferentes.
+
+#### Integridad indivisible de la Oportunidad por etapa
+
+Una Oportunidad representa un único producto potencial. Por ello, no puede vivir parcialmente en dos etapas ni conservar saldos económicos en una etapa anterior después de avanzar.
+
+Reglas:
+
+- cada Oportunidad posee exactamente una etapa actual;
+- toda la Oportunidad avanza conjuntamente;
+- una diferencia entre CNS proyectados, sometidos y emitidos representa una modificación, ajuste o edición del producto durante su desarrollo;
+- esa diferencia no representa CNS pendientes, rechazados parcialmente, suspendidos ni trasladables entre etapas;
+- no se crean saldos de `CNS sometidos pendientes de emisión` para una misma Oportunidad;
+- no se divide una Oportunidad por diferencias entre sus magnitudes históricas;
+- si existen dos productos que pueden avanzar o concluir en momentos distintos, deben representarse mediante dos Oportunidades, aunque pertenezcan al mismo Caso;
+- la etapa actual determina qué magnitud participa en el stock vigente, mientras las magnitudes de etapas anteriores permanecen sólo como historia.
+
+Ejemplo:
+
+```text
+Oportunidad APV
+
+Proyección atribuida: 40 CNS
+Sometimiento real: 40 CNS
+Emisión real: 38 CNS
+Etapa actual: Emitida
+```
+
+La posición vigente computa 38 CNS en `Emitida`. Los 40 CNS sometidos se conservan como antecedente, y la diferencia de -2 CNS describe la modificación del producto; no crea 2 CNS pendientes en `Sometida`.
 
 La representación física de los componentes temporales de proyección y de los hechos reales de sometimiento y emisión se definirá durante el diseño lógico, no en este ADR.
 
@@ -283,12 +312,14 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - mover una tarjeta no duplica ni pierde Oportunidades;
 - separar y volver a unificar conserva historia;
 - la proyección manual no se duplica al aparecer el Caso en varias columnas;
-- la suma de distribuciones de proyección coincide con el total vigente del Caso;
-- un mismo monto esperado no se computa simultáneamente en más de una condición del stock vigente;
+- la distribución proyectiva no atribuye el mismo monto a más de una tarjeta;
+- una Oportunidad aporta una sola magnitud a una sola etapa del stock vigente;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - proyección, sometimiento y emisión no se sobrescriben entre sí;
 - una etapa factual no puede existir sin el hecho real que la fundamenta;
 - la transición hacia una etapa factual se aplica de forma íntegra o no se aplica;
+- una diferencia de CNS entre etapas no crea saldos ni permanencias parciales;
+- dos productos que avanzan separadamente se representan mediante dos Oportunidades;
 - los totales por etapa y período pueden reconstruirse exclusivamente desde hechos canónicos.
 
 Si estas reglas no pueden expresarse mediante un conjunto pequeño de transiciones deterministas y pruebas reproducibles, el diseño físico deberá detenerse y simplificarse antes de crear tablas.
@@ -334,7 +365,9 @@ No se decidirán todavía:
 - la proyección inicial se conserva como antecedente histórico, pero no se duplica con CNS sometidos o emitidos en la posición vigente;
 - proyección, sometimiento y emisión se conservan como conceptos distintos;
 - `Sometida` y `Emitida` requieren hechos reales consistentes con sus cantidades y fechas;
-- el diseño físico deberá probar las invariantes de movimiento, distribución, consumo, transición factual y reconstrucción antes de crear tablas;
+- una Oportunidad ocupa íntegramente una sola etapa y no conserva saldos parciales en etapas anteriores;
+- las diferencias entre CNS proyectados, sometidos y emitidos expresan modificaciones del producto y no fracciones pendientes;
+- el diseño físico deberá probar las invariantes de movimiento, distribución, reemplazo, transición factual, indivisibilidad y reconstrucción antes de crear tablas;
 - el futuro diseño lógico no podrá convertir heurísticas evolutivas en bloqueos irreversibles sin una decisión posterior explícita;
 - el Modelo Comercial y la Matriz de Validación incorporarán estas decisiones durante la consolidación del LCD;
 - las demás hipótesis de este borrador no constituyen reglas del dominio hasta su aprobación explícita.
