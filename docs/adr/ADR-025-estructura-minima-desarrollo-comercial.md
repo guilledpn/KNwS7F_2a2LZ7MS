@@ -1,9 +1,10 @@
 # ADR-025 · Estructura mínima del desarrollo comercial
 
 - Fecha: 2026-08-02
-- Estado: <span style="color:red">Borrador · pendiente de revisión</span>
+- Estado: <span style="color:red">Consolidado · pendiente de revisión final</span>
 - LCD: LCD-20260802-01
 - Issue: #34
+- Última actualización: 2026-08-03
 
 ## Contexto
 
@@ -510,14 +511,12 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 
 No quedan preguntas estructurales pendientes para el modelo mínimo de desarrollo comercial.
 
-Antes de cerrar el LCD corresponde:
+La consolidación en `docs/domain/commercial-model.md` y `docs/domain/validation-matrix-next-v03.md` fue completada el 2026-08-03. Antes de cerrar el LCD corresponde:
 
-1. consolidar estas decisiones en `docs/domain/commercial-model.md`;
-2. ampliar `docs/domain/validation-matrix-next-v03.md` con reglas y casos de prueba;
-3. revisar equivalencia con los antecedentes canónicos y registrar cualquier refinamiento explícito;
-4. aprobar ADR-025 y los documentos derivados;
-5. actualizar registros, catálogo y espejos documentales aplicables;
-6. fusionar el PR y cerrar el Issue.
+1. revisar equivalencia con los antecedentes canónicos y registrar cualquier refinamiento explícito;
+2. aprobar ADR-025 y los documentos derivados;
+3. actualizar registros, catálogo y espejos documentales aplicables;
+4. fusionar el PR y cerrar el Issue mediante autorización explícita.
 
 ## Límites del lote
 
@@ -551,11 +550,4 @@ No se deciden todavía:
 - una Oportunidad puede separarse trazablemente en un nuevo Caso sin duplicación;
 - cada Oportunidad ganada origina un Producto Contratado y selecciona una única Cotización;
 - invariantes, advertencias y recomendaciones quedan diferenciados;
-- `next_v03` continúa bloqueado para diseño físico hasta consolidar el Modelo Comercial y la Matriz de Validación;
-- no se modificó APP LLAMADOS Legacy ni ningún ambiente.
-
-## Documentos asociados
-
-- `docs/domain/commercial-model.md`;
-- `docs/domain/validation-matrix-next-v03.md`;
-- `docs/adr/ADR-024-limites-modelo-comercial-operacional.md`.
+- `next_v03` continúa bloqueado para diseño físico hasta aprobar el lote completo y demostrar estas reglas mediante pruebas reproducibles.
