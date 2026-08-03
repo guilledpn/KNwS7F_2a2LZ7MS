@@ -327,6 +327,28 @@ Resultado: Perdido
 Motivo: cliente desistió
 ```
 
+#### Movimientos, correcciones y reapertura
+
+El modelo distingue entre movimiento operativo normal y corrección de un hecho factual.
+
+Reglas:
+
+- un Caso puede avanzar o retroceder normalmente entre `Nuevo`, `Pendiente`, `Propuesta` y `En Firma`, siempre que cumpla los requisitos de la etapa de destino;
+- estos movimientos conservan etapa anterior, etapa nueva, fecha y actor, pero no requieren un motivo obligatorio;
+- ingresar a `Sometido` exige registrar el sometimiento real y ambos efectos forman una sola operación de negocio;
+- ingresar a `Emitido` exige registrar la emisión real, ambos efectos forman una sola operación y el Caso queda `Ganado`;
+- abandonar `Sometido` hacia una etapa anterior es una corrección excepcional y exige motivo;
+- el sometimiento histórico permanece registrado salvo que el propio hecho sea corregido o anulado explícitamente;
+- un Caso `Emitido` no puede moverse mediante el flujo ordinario;
+- corregir o anular una emisión exige una operación explícita, con motivo y trazabilidad, que preserve el hecho original y sus consecuencias;
+- un Caso `Perdido` puede reabrirse dejando sin efecto su resultado vigente y recuperando la última etapa alcanzada;
+- la reapertura conserva el cierre anterior y registra fecha, actor y motivo;
+- no se crean estados adicionales ni una maquinaria paralela de versiones para representar estas correcciones.
+
+La regla consolidada es:
+
+> Los Casos pueden avanzar y retroceder normalmente entre Nuevo, Pendiente, Propuesta y En Firma, conservando historial. Sometido y Emitido requieren los hechos reales que los fundamentan. Abandonar una etapa factual constituye una corrección explícita y trazable, no un movimiento ordinario. Un Caso Perdido puede reabrirse recuperando su última etapa, mientras un Caso Emitido sólo puede modificarse mediante rectificación o anulación de la emisión.
+
 ### 7. Proyección y hechos reales de CNS
 
 Los CNS constituyen una magnitud comercial y no una entidad autónoma. El Caso conserva la posición operativa de CNS correspondiente a su etapa actual y mantiene separados los antecedentes históricos de proyección, sometimiento y emisión.
@@ -410,8 +432,12 @@ Esta decisión no autoriza todavía tablas ni SQL. Antes de diseñar `next_v03`,
 - cada Caso aparece una sola vez en el Pipeline;
 - mover un Caso no duplica ni pierde Oportunidades, Cotizaciones o CNS;
 - `Propuesta`, `En Firma`, `Sometido` y `Emitido` poseen los requisitos mínimos aprobados;
+- los movimientos ordinarios entre `Nuevo`, `Pendiente`, `Propuesta` y `En Firma` conservan historia y respetan los requisitos de destino;
 - una etapa factual no existe sin el hecho real que la fundamenta;
 - la transición hacia una etapa factual se aplica íntegramente o no se aplica;
+- abandonar `Sometido` exige una corrección explícita y motivada;
+- un Caso `Emitido` sólo puede cambiar mediante rectificación o anulación explícita de la emisión;
+- reabrir un Caso `Perdido` recupera su última etapa y conserva íntegramente el cierre anterior;
 - el stock vigente computa cada Caso y sus CNS en una sola etapa;
 - la proyección inicial se conserva como antecedente y no se suma como producción adicional;
 - las diferencias entre proyección, sometimiento y emisión no crean saldos parciales;
@@ -426,13 +452,12 @@ Si estas reglas no pueden expresarse mediante un conjunto pequeño de transicion
 
 ## Preguntas pendientes del lote
 
-1. Cómo se corrigen, retroceden, anulan o reabren etapas y resultados sin borrar historia.
-2. Cómo se representa lógicamente la proyección manual, sus revisiones y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
-3. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
-4. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
-5. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
-6. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
-7. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
+1. Cómo se representa lógicamente la proyección manual, sus revisiones y los hechos reales de sometimiento y emisión con el menor número de conceptos posible.
+2. Cómo se vinculan opcionalmente Tareas y Actividades con Relación Comercial, Caso Comercial y Oportunidad.
+3. Cómo representar el historial descriptivo del Caso sin crear entidades artificiales ni perder trazabilidad.
+4. Cómo se materializa la separación trazable de una Oportunidad en un nuevo Caso.
+5. Cómo se relacionan la Oportunidad ganada, la Cotización seleccionada y el Producto Contratado.
+6. Cómo distinguir en el diseño lógico las restricciones verdaderamente invariantes de las advertencias o heurísticas de compatibilidad.
 
 ## Límites del lote
 
@@ -464,6 +489,8 @@ No se decidirán todavía:
 - `En Firma`, `Sometido` y `Emitido` exigen evidencia creciente de aceptación del cliente y de la compañía;
 - `Emitido` determina el resultado `Ganado`;
 - `Perdido` es un resultado de cierre y conserva la última etapa alcanzada;
+- los movimientos ordinarios previos a `Sometido` son reversibles con historial, mientras las etapas factuales sólo se corrigen mediante operaciones explícitas;
+- un Caso `Perdido` puede reabrirse sin borrar su cierre anterior y un Caso `Emitido` sólo puede rectificarse o anularse de forma trazable;
 - las Oportunidades ganadas identifican las contrataciones obtenidas y las demás quedan descartadas;
 - las Cotizaciones no seleccionadas permanecen como antecedentes históricos;
 - los CNS proyectados son una estimación manual del Caso y no una fórmula automática;
