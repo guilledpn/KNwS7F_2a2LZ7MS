@@ -174,7 +174,8 @@ Estos documentos organizan Persona, Campaña, Aparición, Asignación, Asesor, R
 - catálogo de autoridad documental;
 - laboratorio local PostgreSQL y experimentación conceptual de Next iniciados;
 - Modelo Comercial, Modelo Operacional, ADR-024 y Matriz de Validación aprobados y versionados;
-- cierre conceptual de las decisiones estructurales de ADR-025.
+- cierre conceptual de las decisiones estructurales de ADR-025;
+- consolidación de ADR-025 en el Modelo Comercial y la Matriz de Validación.
 
 ### En curso
 
