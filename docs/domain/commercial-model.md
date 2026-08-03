@@ -1,17 +1,19 @@
 # Modelo Comercial del CRM Patrimonial
 
-- Versión: 0.1
-- Estado: Aprobado
-- Fecha: 2026-08-01
-- LCD: LCD-20260801-02
-- ADR: ADR-024
-- Issue: #31
+- Versión: 0.2
+- Estado: <span style="color:red">Extensión pendiente de revisión · LCD-20260802-01</span>
+- Fecha: 2026-08-03
+- LCD aprobado de origen: LCD-20260801-02
+- LCD en revisión: <span style="color:red">LCD-20260802-01</span>
+- ADR: ADR-024 y <span style="color:red">ADR-025</span>
+- Issues: #31 y #34
+- Motivo del cambio: incorporar el modelo mínimo aprobado de Caso Comercial, Oportunidad, Cotización, Propuesta, Pipeline, CNS y Producto Contratado.
 
 ## 1. Propósito
 
-Describir los conceptos y reglas comerciales mínimos necesarios para representar la transición desde una Persona observada en campañas corporativas hasta una relación comercial propia, sin confundir hechos corporativos, gestión interna ni procesos técnicos de importación.
+Describir los conceptos y reglas comerciales mínimos necesarios para representar la transición desde una Persona observada en campañas corporativas hasta una relación comercial propia, su desarrollo mediante Casos y Oportunidades y la eventual existencia de Productos Contratados, sin confundir hechos corporativos, gestión interna ni procesos técnicos de importación.
 
-Este documento desarrolla y organiza conceptos ya definidos en el Diccionario del Dominio y en `APP LLAMADOS · Modelo de negocio`. No reemplaza el Modelo Patrimonial, el Modelo de Productos ni los futuros modelos de Casos, Oportunidades y Productos Contratados.
+Este documento desarrolla y organiza conceptos ya definidos en el Diccionario del Dominio y en `APP LLAMADOS · Modelo de negocio`. No reemplaza el Modelo Patrimonial ni el Modelo de Productos. ADR-025 amplía el alcance aprobado mediante ADR-024 y sustituye expresamente las hipótesis intermedias incompatibles surgidas durante su descubrimiento.
 
 ## 2. Alcance de esta versión
 
@@ -30,19 +32,24 @@ Incluye:
 - Tipo de Actividad;
 - Resultado de Actividad;
 - Actividad;
-- Tarea.
-
-No incluye todavía el diseño detallado de:
-
+- Tarea;
 - Caso Comercial;
 - Oportunidad;
 - Cotización;
-- Propuesta;
-- Producto Contratado;
+- Propuesta como conocimiento descriptivo;
+- Pipeline y etapas del Caso;
+- CNS proyectados, sometidos y emitidos;
+- historial descriptivo del Caso como vista derivada;
+- Producto Contratado y su origen comercial.
+
+No incluye todavía el diseño detallado de:
+
 - Perfil patrimonial;
-- productos, capitales y CNS;
+- catálogo y reglas particulares de productos;
+- modificaciones, vigencia, término y postventa de Productos Contratados;
 - autenticación, cuentas de usuario y permisos técnicos;
-- tablas, columnas, índices o RLS.
+- tablas, columnas, índices o RLS;
+- UX detallada, colores, dashboards o automatizaciones.
 
 ## 3. Vista conceptual
 
@@ -57,6 +64,10 @@ flowchart LR
     RELACION[Relación Comercial]
     RESPONSABILIDAD[Responsabilidad del Asesor]
     AUTORIZACION[Autorización Excepcional]
+    CASO[Caso Comercial]
+    OPORTUNIDAD[Oportunidad]
+    COTIZACION[Cotización]
+    PRODUCTO[Producto Contratado]
     TIPO[Tipo de Actividad]
     RESACT[Resultado de Actividad]
     ACTIVIDAD[Actividad realizada]
@@ -73,6 +84,11 @@ flowchart LR
     RESPONSABILIDAD --> ASESOR
     AUTORIZACION -. habilita excepción .-> RESPONSABILIDAD
 
+    RELACION --> CASO
+    CASO --> OPORTUNIDAD
+    OPORTUNIDAD --> COTIZACION
+    OPORTUNIDAD -->|si se gana| PRODUCTO
+
     TIPO --> TAREA
     TIPO --> RESACT
     RESACT --> ACTIVIDAD
@@ -83,9 +99,15 @@ flowchart LR
     ASESOR -->|responsable| TAREA
     ACTIVIDAD -. puede originar .-> TAREA
     TAREA -. se ejecuta como .-> ACTIVIDAD
+    TAREA -. contexto opcional .-> RELACION
+    TAREA -. contexto opcional .-> CASO
+    TAREA -. contexto opcional .-> OPORTUNIDAD
+    ACTIVIDAD -. contexto real opcional .-> RELACION
+    ACTIVIDAD -. contexto real opcional .-> CASO
+    ACTIVIDAD -. contexto real opcional .-> OPORTUNIDAD
 ```
 
-El diagrama representa relaciones conceptuales, no tablas ni cardinalidades físicas definitivas. `Lead` y `Cliente del Asesor` son condiciones derivadas de la Relación Comercial, no entidades adicionales del diagrama.
+El diagrama representa relaciones conceptuales, no tablas ni cardinalidades físicas definitivas. `Lead` y `Cliente del Asesor` son condiciones derivadas de la Relación Comercial. La Propuesta y el historial del Caso son conocimiento descriptivo y vistas derivadas, no entidades adicionales del diagrama.
 
 ## 4. Conceptos
 
@@ -102,7 +124,7 @@ Reglas:
 
 ### 4.2 Asesor
 
-Actor comercial que puede recibir asignaciones corporativas, realizar actividades y asumir responsabilidad sobre una Relación Comercial.
+Actor comercial que puede recibir asignaciones corporativas, realizar actividades y asumir responsabilidad sobre una Relación Comercial o propiedad operativa sobre un Caso.
 
 En esta versión, Asesor representa la identidad comercial necesaria para el dominio. La cuenta de acceso, autenticación y roles técnicos pertenecen a una capa posterior.
 
@@ -203,12 +225,11 @@ No nace por:
 Reglas:
 
 - una Persona tiene como máximo una Relación Comercial persistente dentro del CRM;
-- la Relación puede existir sin oportunidades abiertas;
-- una Oportunidad presupone una Relación Comercial existente;
+- la Relación puede existir sin Casos ni Oportunidades abiertas;
+- un Caso y una Oportunidad presuponen una Relación Comercial existente;
 - no se reemplaza cuando cambia el Asesor responsable;
 - no desaparece porque termine una Campaña;
-- el cierre y posterior existencia de un Producto Contratado convierten a la Persona en Cliente del Asesor, sin crear otra Relación;
-- su futura relación detallada con Casos y Oportunidades se incorporará en versiones posteriores.
+- el cierre y posterior existencia de un Producto Contratado convierten a la Persona en Cliente del Asesor, sin crear otra Relación.
 
 #### 4.7.1 Lead y otras condiciones de la Relación
 
@@ -219,7 +240,7 @@ Inicialmente deben poder distinguirse, al menos, estas situaciones conceptuales:
 - Lead sin Oportunidad: existe continuidad comercial, pero todavía no se identifica un producto concreto;
 - Lead con Oportunidad: existe una necesidad o contratación potencial identificable;
 - Cliente del Asesor: existe al menos un Producto Contratado vigente asociado al Asesor;
-- Relación dormida o inactiva: la Relación persiste, pero no hay Oportunidad ni actividad vigente que requiera atención inmediata.
+- Relación dormida o inactiva: la Relación persiste, pero no hay Caso, Oportunidad ni actividad vigente que requiera atención inmediata.
 
 Estas condiciones pueden derivarse de hechos persistentes y no deben convertirse prematuramente en una secuencia rígida de estados manuales. Una Persona puede avanzar, retroceder o reactivar su gestión sin perder la identidad de la Relación Comercial.
 
@@ -295,7 +316,7 @@ Reglas:
 - el Resultado pertenece a una Actividad y debe ser compatible con su Tipo;
 - describe únicamente lo ocurrido durante esa Actividad;
 - puede complementarse con una nota libre, pero no ser reemplazado por ella;
-- no incorpora como parte de su significado la creación de una Tarea, Relación Comercial, Oportunidad u otro hecho posterior;
+- no incorpora como parte de su significado la creación de una Tarea, Relación Comercial, Caso, Oportunidad u otro hecho posterior;
 - expresiones como `Agenda reunión`, `Volver a llamar` o `Información enviada` no deben mezclar acción, resultado y próximo paso en una sola etiqueta;
 - las consecuencias se registran como hechos independientes y trazables.
 
@@ -329,12 +350,12 @@ Reglas:
 - una Actividad puede constituir la ejecución de cero, una o varias Tareas compatibles;
 - cuando ejecuta una o varias Tareas, todas sus Personas objetivo deben estar comprendidas entre las Personas participantes de la Actividad y el Asesor ejecutor debe ser el responsable vigente de cada Tarea;
 - el Tipo realmente realizado se conserva aunque difiera del Tipo previsto; esa diferencia no modifica retroactivamente la Tarea;
-- una Actividad puede existir sin Caso u Oportunidad;
-- la posibilidad y cardinalidad de vincular una Actividad con Relación Comercial, Caso u Oportunidad serán definidas por el futuro modelo mínimo de desarrollo comercial;
+- una Actividad puede existir sin Relación Comercial, Caso u Oportunidad;
+- puede vincularse opcionalmente a una Relación Comercial y a uno o varios Casos u Oportunidades cuando ese contexto represente lo que realmente ocurrió;
 - una gestión corporativa externa no se registra automáticamente como Actividad propia;
 - un evento técnico de guardado no equivale por sí solo a una Actividad significativa;
 - la nota libre complementa, pero no sustituye, el resultado estructurado;
-- una consecuencia posterior, como crear una Tarea, una Relación Comercial o una Oportunidad, se registra separadamente y puede conservar referencia a la Actividad que la originó;
+- una consecuencia posterior, como crear una Tarea, una Relación Comercial, un Caso o una Oportunidad, se registra separadamente y puede conservar referencia a la Actividad que la originó;
 - una Actividad registrada no puede eliminarse ni sobrescribirse silenciosamente;
 - una corrección o anulación debe conservar el contenido original y su trazabilidad.
 
@@ -362,7 +383,7 @@ Reglas:
 - para la operación y las métricas gobierna la versión corregida vigente;
 - una Actividad anulada permanece en la trazabilidad, pero no cuenta para métricas;
 - una Actividad anulada no puede justificar el nacimiento de una Relación Comercial ni completar Tareas;
-- la corrección o anulación no elimina automáticamente las Tareas, Relaciones Comerciales, Oportunidades u otras consecuencias previamente originadas;
+- la corrección o anulación no elimina automáticamente las Tareas, Relaciones Comerciales, Casos, Oportunidades u otras consecuencias previamente originadas;
 - las consecuencias potencialmente afectadas deben quedar advertidas para revisión, porque pueden haber sido confirmadas posteriormente por otros hechos;
 - en una Actividad con varias Personas, la revisión de consecuencias se realiza individualmente para cada Persona afectada;
 - una anulación no debe convertirse en una eliminación física silenciosa.
@@ -383,7 +404,8 @@ Puede conservar además:
 
 - contexto o instrucciones opcionales;
 - fecha y hora prevista de ejecución;
-- fecha límite.
+- fecha límite;
+- vínculos contextuales opcionales con Relación Comercial, Casos u Oportunidades.
 
 No existe una `Nota de programación` separada: el contexto concentra los antecedentes, instrucciones o razones relevantes para ejecutar la Tarea.
 
@@ -411,13 +433,13 @@ Reglas:
 - si después de ejecutar se requiere otro intento o acción, se crea una nueva Tarea;
 - cancelar una Tarea no genera una Actividad, pero debe conservar fecha, actor o usuario y motivo de cancelación;
 - reprogramar una Tarea no genera una Actividad y debe conservar trazabilidad del cambio temporal;
-- la ejecución no sobrescribe el Tipo previsto, el objetivo ni el contexto originales;
+- la ejecución no sobrescribe el Tipo previsto, el objetivo, el contexto ni los vínculos comerciales previstos;
 - la Actividad de ejecución debe ser realizada por el Asesor responsable vigente de la Tarea en ese momento;
 - las consecuencias comerciales de ejecutar una Tarea grupal se determinan individualmente para cada Persona;
 - una Tarea Pendiente puede modificarse, pero los cambios que alteren el compromiso futuro deben conservar trazabilidad;
 - una Tarea Completada o Cancelada no puede reescribirse como si continuara Pendiente; cualquier rectificación posterior debe registrarse explícitamente.
 
-La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles, incorporar varias Personas o crear una Tarea para una Persona distinta de quienes participaron en la Actividad de origen debe presentarse sólo mediante divulgación progresiva y cuando el usuario lo necesite.
+La experiencia normal debe seguir siendo simple: al ejecutar una Tarea, ésta se completa automáticamente. La posibilidad de asociar la misma Actividad a otras Tareas compatibles, incorporar varias Personas o vincular varios Casos u Oportunidades debe presentarse sólo mediante divulgación progresiva y cuando el usuario lo necesite.
 
 #### 4.12.1 Reasignación de Tarea
 
@@ -449,9 +471,234 @@ Una Tarea Pendiente representa un compromiso futuro todavía modificable. Debe c
 - objetivo;
 - fecha y hora prevista;
 - fecha límite;
-- cancelación.
+- cancelación;
+- contexto comercial previsto cuando su cambio altera sustancialmente el compromiso.
 
 Los ajustes menores de redacción del contexto pueden tratarse como edición ordinaria cuando no alteran el compromiso. Una Tarea Completada o Cancelada conserva su estado histórico y no se modifica silenciosamente. Toda rectificación posterior debe registrar actor o usuario, fecha, motivo y contenido corregido.
+
+#### 4.12.3 Vinculación contextual de Tareas y Actividades
+
+Las Personas y el Asesor son vínculos esenciales de toda Tarea y Actividad. La Relación Comercial, los Casos y las Oportunidades son contexto opcional.
+
+Reglas:
+
+- una Tarea o Actividad puede existir sin Caso ni Oportunidad;
+- vincular contexto comercial no crea automáticamente Relaciones, Casos ni Oportunidades;
+- una Oportunidad vinculada debe pertenecer a uno de los Casos vinculados o permitir derivar inequívocamente su Caso actual;
+- la Relación Comercial no se duplica como fuente de verdad cuando puede derivarse inequívocamente;
+- la Tarea conserva el contexto previsto;
+- la Actividad conserva el contexto real de lo ocurrido;
+- al ejecutar una Tarea, la Actividad puede heredar sus vínculos como propuesta inicial, pero debe corregirlos cuando la acción real trató otro contexto;
+- una diferencia entre planificación y ejecución no sobrescribe silenciosamente la Tarea;
+- una acción puede tratar excepcionalmente varios Casos u Oportunidades, manteniendo simple el flujo habitual.
+
+### 4.13 Caso Comercial
+
+Negocio concreto dentro de una Relación Comercial: un proceso de decisión que el Asesor administra y espera resolver como una unidad indivisible.
+
+Reglas:
+
+- una Relación Comercial puede existir sin Casos y contener varios Casos simultáneos o sucesivos;
+- un Caso puede nacer en `Nuevo` antes de identificar una Oportunidad concreta;
+- para nacer, debe estar vinculado a una Persona, a su Relación Comercial y poseer un Asesor propietario;
+- puede contener cero, una o varias Oportunidades;
+- varias Oportunidades pueden permanecer en un mismo Caso cuando son alternativas o componentes cuya decisión y avance se administran conjuntamente;
+- dos desarrollos que necesiten etapas, tiempos, sometimientos, emisiones o resultados independientes constituyen Casos distintos;
+- la coincidencia de Persona, objetivo, fecha o producto no basta por sí sola para unir Casos;
+- posee una única etapa actual, una sola tarjeta operativa y un resultado final de `Ganado` o `Perdido`;
+- organiza el desarrollo comercial propio y no reemplaza oportunidades formales exigidas por sistemas corporativos.
+
+### 4.14 Oportunidad
+
+Contratación potencial individualizable de un producto concreto evaluado dentro de un Caso.
+
+Reglas:
+
+- una necesidad general o conversación exploratoria sin producto potencial concreto no crea una Oportunidad;
+- nace cuando existe un producto potencial concreto y una posibilidad comercial que justifica evaluarlo;
+- presupone una Relación Comercial y un Caso existentes;
+- pertenece exactamente a un Caso actual y no existe suelta;
+- conserva la identidad de la contratación potencial, mientras el Caso conserva la identidad del negocio;
+- mientras el Caso permanece activo, las Oportunidades son alternativas o componentes candidatos y no unidades independientes del Pipeline;
+- al ganarse el Caso, las contratadas quedan identificadas como ganadas y las restantes descartadas históricamente;
+- al perderse el Caso, ninguna Oportunidad resulta ganada;
+- todo traslado entre Casos conserva origen, destino, fecha, actor e historia.
+
+### 4.15 Cotización
+
+Configuración específica de una Oportunidad.
+
+Reglas:
+
+- una Oportunidad puede existir antes de su primera Cotización y luego tener una o varias;
+- varias Cotizaciones pertenecen a la misma Oportunidad cuando son configuraciones mutuamente excluyentes de una única contratación potencial;
+- diferencias de capital, prima, cobertura, régimen, aporte, costo, plazo u otra configuración no crean por sí solas una Oportunidad distinta;
+- existen Oportunidades distintas cuando representan contratos individualizables que podrían celebrarse y persistir simultáneamente;
+- pueden existir varias Oportunidades del mismo producto;
+- una diferencia impuesta por un CRM corporativo no redefine automáticamente el dominio propio;
+- cada Cotización pertenece exactamente a una Oportunidad;
+- una Cotización no sustituye al Producto Contratado ni demuestra que la contratación ocurrió;
+- cuando una Oportunidad se gana, se identifica una única Cotización seleccionada y las restantes quedan como antecedentes históricos.
+
+Una taxonomía todavía incompleta no debe convertirse prematuramente en una restricción física irreversible. Las combinaciones aparentemente incoherentes se tratan como advertencias confirmables mientras no contradigan una invariante aprobada.
+
+### 4.16 Propuesta
+
+Conocimiento descriptivo de lo que el Asesor decide presentar al cliente dentro de un Caso.
+
+Reglas:
+
+- vive como descripción comprensible dentro del Caso;
+- puede apoyarse en Oportunidades, Cotizaciones, Tareas, Actividades, notas y documentos;
+- no constituye una entidad estructurada independiente;
+- no se crean entidades `Propuesta`, `Alternativa de Propuesta`, `Versión de Propuesta`, `Composición de Propuesta` ni `Historial de Propuesta`;
+- preparar, enviar o presentar información puede registrarse mediante Tareas y Actividades vinculadas al Caso;
+- un documento, correo, simulación o PDF puede conservarse como evidencia, pero no convierte automáticamente la Propuesta en entidad;
+- la etapa `Propuesta` expresa el grado de elaboración del negocio y no altera esta decisión;
+- si la operación futura exige identidad, versionado, aceptación, vigencia, reutilización o trazabilidad regulatoria propia, su promoción a entidad requiere otro LCD.
+
+### 4.17 Pipeline, etapa y resultado del Caso
+
+El Caso es la unidad canónica del Pipeline, la navegación operativa y la medición de CNS por etapa.
+
+Etapas mínimas:
+
+```text
+Nuevo
+→ Pendiente
+→ Propuesta
+→ En Firma
+→ Sometido
+→ Emitido
+```
+
+Reglas generales:
+
+- cada Caso activo posee exactamente una etapa actual;
+- el Kanban muestra una sola tarjeta por Caso;
+- mover la tarjeta cambia la etapa del Caso completo;
+- las Oportunidades no poseen etapas independientes;
+- un Caso no aparece simultáneamente en dos columnas;
+- la tarjeta y los totales son vistas derivadas;
+- todo cambio conserva etapa anterior, etapa nueva, fecha y actor.
+
+Requisitos por etapa:
+
+- `Nuevo`: Persona, Relación Comercial y Asesor propietario; no exige Oportunidades, Cotizaciones, CNS ni fechas;
+- `Pendiente`: los mismos requisitos estructurales; se recomienda descripción suficiente, sin bloqueo adicional;
+- `Propuesta`: proyección vigente de CNS, fecha estimada de sometimiento y fecha estimada de emisión; la ausencia de Cotizaciones genera advertencia confirmable, no bloqueo;
+- `En Firma`: una o más Oportunidades aceptadas por el cliente y una Cotización vigente seleccionada para cada una, además de proyección y fechas;
+- `Sometido`: una o más Oportunidades con documentación contractual firmada, CNS sometidos y fecha efectiva; registrar el hecho y cambiar de etapa es una única operación;
+- `Emitido`: una o más Oportunidades aceptadas por la compañía, Cotización seleccionada y Producto Contratado para cada Oportunidad ganada, CNS emitidos y fecha efectiva; registrar la emisión y cambiar de etapa es una única operación que determina `Ganado`.
+
+Resultado:
+
+- `Ganado`: el Caso alcanzó `Emitido` y obtuvo al menos una contratación;
+- `Perdido`: cierre antes de `Emitido` sin ninguna contratación; no es una etapa y conserva la última etapa alcanzada, fecha y motivo;
+- no existe `parcialmente ganado`;
+- un Caso Ganado identifica Oportunidades ganadas y descarta históricamente las restantes;
+- un Caso Perdido no posee Oportunidades ganadas;
+- una Oportunidad que conserve posibilidad independiente después del cierre debe separarse antes en otro Caso.
+
+Movimientos:
+
+- los Casos pueden avanzar o retroceder normalmente entre `Nuevo`, `Pendiente`, `Propuesta` y `En Firma`, cumpliendo requisitos de destino y conservando historial;
+- los saltos de etapas anteriores son advertencias confirmables cuando se cumplen los requisitos de destino;
+- ingresar a `Sometido` o `Emitido` exige registrar el hecho real en la misma operación;
+- abandonar `Sometido` es una corrección excepcional y motivada;
+- un Caso `Emitido` sólo cambia mediante rectificación o anulación explícita de la emisión;
+- un Caso `Perdido` puede reabrirse recuperando su última etapa sin borrar el cierre anterior.
+
+### 4.18 CNS del Caso
+
+CNS es una magnitud comercial y no una entidad autónoma.
+
+El Caso conserva tres clases de conocimiento:
+
+1. **Proyección vigente:** monto manual de CNS proyectados, fecha estimada de sometimiento y fecha estimada de emisión. La revisión más reciente gobierna la operación y las anteriores permanecen trazables con fecha y actor.
+2. **Sometimiento real:** monto efectivamente sometido y fecha efectiva. Fundamenta `Sometido` y no reescribe la proyección.
+3. **Emisión real:** monto efectivamente emitido y fecha efectiva. Fundamenta `Emitido`, determina `Ganado` y no reescribe el sometimiento.
+
+Reglas:
+
+- la proyección pertenece al Caso completo y no se distribuye entre Oportunidades;
+- proyección, sometimiento y emisión no se sobrescriben;
+- una revisión modifica la expectativa actual, no hechos reales ya ocurridos;
+- sometimiento y emisión sólo se corrigen o anulan mediante operaciones explícitas y trazables;
+- para el stock operativo, el Caso aporta CNS únicamente a su etapa actual;
+- los valores previos permanecen como historia, pero no se suman nuevamente;
+- las diferencias expresan la evolución real del mismo negocio y no crean saldos parciales;
+- los reportes de flujo pueden mostrar hechos ocurridos en un período, pero no sumarlos como producción independiente;
+- una misma magnitud no puede computarse simultáneamente en varias etapas.
+
+### 4.19 Historial descriptivo del Caso
+
+No se crea una entidad independiente llamada `Historial`.
+
+El Caso conserva:
+
+- una descripción o resumen vigente, editable por el Asesor;
+- notas descriptivas fechadas cuando sea necesario conservar contexto;
+- Tareas y Actividades vinculadas;
+- cambios de etapa y resultado;
+- revisiones de proyección;
+- hechos de sometimiento y emisión;
+- referencias documentales cuando correspondan.
+
+La vista histórica se deriva cronológicamente de esos antecedentes.
+
+Reglas:
+
+- editar la descripción vigente no altera los hechos históricos;
+- una nota complementa el contexto, pero no sustituye una Actividad, un cambio de etapa ni otro hecho estructurado;
+- las notas no poseen estados, aprobaciones ni ciclo de vida propio;
+- la Propuesta continúa siendo conocimiento descriptivo y no una entidad;
+- documentos o correos pueden conservarse como evidencia sin transformarse en la fuente de verdad del Caso.
+
+### 4.20 Separación de una Oportunidad en un nuevo Caso
+
+Operación excepcional y explícita.
+
+Reglas:
+
+- la Oportunidad se traslada y no se copia;
+- conserva identidad y Cotizaciones;
+- el nuevo Caso pertenece a la misma Persona y Relación Comercial;
+- conserva por defecto el mismo Asesor propietario;
+- comienza por defecto en la etapa del Caso original al momento de la separación;
+- debe cumplir los requisitos de esa etapa;
+- las proyecciones del Caso original y del nuevo Caso se revisan expresamente para impedir duplicación de CNS;
+- los hechos anteriores permanecen en el contexto donde ocurrieron y no se reescriben retroactivamente;
+- ambos Casos conservan referencia de separación, fecha, actor, origen y destino;
+- después de la separación, cada Caso avanza, se gana o se pierde independientemente;
+- la capacidad se expone mediante divulgación progresiva y no complica el flujo habitual.
+
+### 4.21 Producto Contratado
+
+Contrato efectivamente vigente originado por una Oportunidad ganada.
+
+Cadena de origen:
+
+```text
+Caso Emitido y Ganado
+└── Oportunidad ganada
+    └── Cotización seleccionada
+        └── Producto Contratado
+```
+
+Reglas:
+
+- un Caso `Emitido` posee al menos una Oportunidad ganada;
+- cada Oportunidad ganada representa una contratación obtenida;
+- cada Oportunidad ganada identifica exactamente una Cotización seleccionada;
+- las demás Cotizaciones quedan descartadas históricamente;
+- cada Oportunidad ganada origina exactamente un Producto Contratado;
+- varias Oportunidades ganadas originan varios Productos Contratados;
+- nace cuando la compañía acepta plenamente el contrato y éste entra en vigencia;
+- conserva referencia al Caso, la Oportunidad y la Cotización de origen;
+- la Cotización permanece como antecedente de lo ofrecido y no se transforma en Producto Contratado;
+- puede evolucionar posteriormente de manera independiente;
+- modificaciones, vigencia o término posteriores no reescriben la Cotización ni cambian retroactivamente el resultado Ganado del Caso.
 
 ## 5. Cardinalidades conceptuales
 
@@ -465,6 +712,14 @@ Los ajustes menores de redacción del contexto pueden tratarse como edición ord
 | Persona → Relación Comercial | 1 → 0..1 |
 | Relación Comercial → Responsabilidad histórica | 1 → 0..N |
 | Asesor → Responsabilidad | 1 → 0..N |
+| Relación Comercial → Caso Comercial | 1 → 0..N |
+| Caso Comercial → Oportunidad | 1 → 0..N |
+| Oportunidad → Caso Comercial actual | 1 → 1 |
+| Oportunidad → Cotización | 1 → 0..N |
+| Cotización → Oportunidad | 1 → 1 |
+| Oportunidad ganada → Cotización seleccionada | 1 → 1 |
+| Oportunidad ganada → Producto Contratado | 1 → 1 |
+| Producto Contratado → Oportunidad de origen | 1 → 1 |
 | Tipo de Actividad → Resultado permitido | 1 → 0..N |
 | Tipo de Actividad → Tarea | 1 → 0..N |
 | Tipo de Actividad → Actividad | 1 → 0..N |
@@ -475,6 +730,9 @@ Los ajustes menores de redacción del contexto pueden tratarse como edición ord
 | Persona → Tarea | 1 → 0..N |
 | Tarea → Personas objetivo | 1 → 1..N |
 | Asesor → Tarea | 1 → 0..N |
+| Tarea o Actividad → Relación Comercial contextual | 1 → 0..1 |
+| Tarea o Actividad → Casos contextuales | 1 → 0..N |
+| Tarea o Actividad → Oportunidades contextuales | 1 → 0..N |
 | Actividad → Tareas originadas | 1 → 0..N |
 | Tarea → Actividad de origen | 1 → 0..1 |
 | Tarea → Actividad de ejecución | 1 → 0..1 |
@@ -489,7 +747,11 @@ La cardinalidad histórica `0..N` de Asignación permite conservar cambios y té
 
 La cardinalidad histórica `0..N` de Responsabilidad permite representar una Relación recién reconocida, una transferencia incompleta o una inconsistencia heredada. Operacionalmente, una Relación debe tender a un responsable principal vigente; la ausencia temporal es una excepción visible y controlada.
 
+Una Relación puede existir sin Casos. Un Caso puede existir inicialmente sin Oportunidades, pero toda Oportunidad pertenece exactamente a un Caso actual. Una Oportunidad puede tener varias Cotizaciones, mientras una Cotización pertenece exactamente a una Oportunidad.
+
 Actividad–Persona y Tarea–Persona son relaciones de muchos a muchos. Cada Actividad y cada Tarea deben incluir al menos una Persona, mientras una Persona puede participar en muchas de ellas. La representación física de esta participación se definirá durante el diseño lógico.
+
+Los vínculos de Tareas y Actividades con Relación Comercial, Casos y Oportunidades son contextuales y opcionales. No sustituyen los vínculos esenciales con Personas y Asesor ni crean automáticamente entidades comerciales.
 
 La Actividad que origina una Tarea y la Actividad que ejecuta una Tarea cumplen funciones diferentes. La Actividad de origen explica el nacimiento del compromiso y puede involucrar a Personas distintas; la Actividad de ejecución debe incluir a todas las Personas objetivo de la Tarea. Una misma Actividad puede originar varias Tareas futuras y también ejecutar varias Tareas compatibles, pero cada Tarea completada por ejecución se vincula a una sola Actividad de ejecución.
 
@@ -536,7 +798,7 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 33. Una referencia de origen no convierte retroactivamente a una Persona en participante ni crea para ella una Relación Comercial.
 34. El resultado estructurado y la nota libre de una Actividad son conocimientos distintos.
 35. Reprogramar o cancelar una Tarea no constituye una Actividad.
-36. La creación de Tareas, Relaciones Comerciales u Oportunidades derivadas de una Actividad se registra como hechos independientes.
+36. La creación de Tareas, Relaciones Comerciales, Casos u Oportunidades derivadas de una Actividad se registra como hechos independientes.
 37. Las métricas de llamada efectiva, agendamiento y seguimiento se derivan de Actividades, Resultados y Tareas, no de etiquetas que mezclen varios conocimientos.
 38. La reasignación de una Tarea pendiente es explícita y conserva Asesor anterior, Asesor nuevo, fecha y motivo.
 39. Transferir una Relación Comercial no reasigna automáticamente sus Tareas pendientes.
@@ -557,21 +819,70 @@ Las restricciones temporales y de consistencia se validarán mediante reglas y p
 54. Una ausencia en ASIGNADOS comparable dentro de una Campaña activa deja la vigencia pendiente de conciliación; no termina la Asignación automáticamente ni mantiene a la Aparición en la cola normal de gestionables.
 55. Un retiro corporativo confirmado en TOTAL conserva la Aparición histórica y el último Resultado Corporativo conocido.
 56. Un retiro de Asignación confirmado en ASIGNADOS termina la Asignación vigente y conserva su historial.
+57. Un Caso siempre pertenece a una Persona, su Relación Comercial y un Asesor propietario.
+58. Una Relación puede existir sin Casos y un Caso puede existir inicialmente sin Oportunidades.
+59. Toda Oportunidad pertenece exactamente a un Caso actual.
+60. Toda Cotización pertenece exactamente a una Oportunidad.
+61. El Caso es la unidad indivisible del Pipeline y posee exactamente una etapa actual cuando está activo.
+62. Las Oportunidades no poseen etapas independientes ni generan tarjetas propias del Pipeline.
+63. `Perdido` es un resultado de cierre y no una etapa.
+64. `Emitido` determina `Ganado`; un Caso Perdido no posee Oportunidades ganadas.
+65. Ingresar a `Propuesta`, `En Firma`, `Sometido` o `Emitido` exige los antecedentes definidos para la etapa de destino.
+66. Sometimiento y emisión se registran atómicamente con sus cambios de etapa.
+67. Los hechos de etapa, resultado, sometimiento y emisión no se sobrescriben silenciosamente.
+68. CNS proyectados, sometidos y emitidos son conocimientos distintos y no se sustituyen entre sí.
+69. La proyección pertenece al Caso completo y no se distribuye entre Oportunidades.
+70. Una misma magnitud de CNS no se computa simultáneamente en varias etapas.
+71. La Propuesta y el Historial del Caso no constituyen entidades estructuradas independientes.
+72. Personas y Asesor son vínculos esenciales de Tareas y Actividades; Relación, Casos y Oportunidades son contexto opcional.
+73. La Tarea conserva el contexto previsto y la Actividad el contexto real sin sobrescribir la planificación.
+74. Separar una Oportunidad la traslada sin copiarla y conserva trazabilidad de origen y destino.
+75. La separación no duplica Oportunidades, Cotizaciones, CNS ni hechos históricos.
+76. Cada Oportunidad ganada identifica exactamente una Cotización seleccionada.
+77. Cada Oportunidad ganada origina exactamente un Producto Contratado.
+78. Un Caso Emitido posee al menos una Oportunidad ganada y un Producto Contratado por cada una.
+79. La Cotización permanece como antecedente y no se transforma en Producto Contratado.
+80. La evolución posterior del Producto Contratado no reescribe su Cotización ni cambia retroactivamente el resultado del Caso.
 
-## 7. Principio de simplicidad operativa y UX
+## 7. Advertencias confirmables y recomendaciones
+
+### Advertencias confirmables
+
+El sistema advierte, pero permite continuar con confirmación, ante:
+
+- mover un Caso a `Propuesta` sin ninguna Cotización;
+- combinación aparentemente incoherente de productos o configuraciones dentro de una Oportunidad;
+- salto de etapas anteriores cuando se cumplen los requisitos de destino;
+- modificación importante de proyección o fechas;
+- Tarea o Actividad cuyo contexto real difiere del previsto;
+- separación que podría duplicar inicialmente la proyección entre dos Casos.
+
+### Recomendaciones operativas
+
+No bloquean ni exigen confirmación:
+
+- dejar una descripción suficiente al pasar a `Pendiente`;
+- registrar proyección y fechas desde `Nuevo` o `Pendiente`;
+- vincular Tareas y Actividades al Caso u Oportunidad cuando aporte contexto;
+- separar una Oportunidad sólo cuando necesite tiempos independientes;
+- dejar una nota breve que explique decisiones comerciales relevantes.
+
+Los invariantes gobiernan la validez del dominio. Las advertencias detectan situaciones dudosas que pueden confirmarse. Las recomendaciones orientan una operación de calidad sin transformarse en restricciones rígidas.
+
+## 8. Principio de simplicidad operativa y UX
 
 El Modelo del Dominio debe representar correctamente hechos excepcionales que afecten identidad, cardinalidad, trazabilidad o fuentes de verdad. Sin embargo, los casos de baja recurrencia no deben dominar el flujo habitual ni convertirse en formularios obligatorios.
 
 Reglas de diseño:
 
-- el flujo principal debe optimizar el caso más frecuente: una Persona, una Tarea y una Actividad;
-- las capacidades grupales, de ejecución múltiple o de origen hacia otra Persona deben aparecer sólo mediante divulgación progresiva;
+- el flujo principal debe optimizar el caso más frecuente: una Persona, una Tarea, una Actividad y un Caso;
+- las capacidades grupales, de ejecución múltiple, de origen hacia otra Persona o de separación de Oportunidades deben aparecer sólo mediante divulgación progresiva;
 - la aplicación debe proponer valores por defecto coherentes y resolver automáticamente los casos inequívocos;
 - las excepciones deben poder registrarse sin exigir al usuario comprender la estructura interna del modelo;
 - no se incorporarán nuevos casos hipotéticos al dominio salvo que cambien una cardinalidad, una invariante, una fuente de verdad o una necesidad de trazabilidad relevante;
 - los casos raros que no alteren la estructura se postergarán al diseño de UX, al backlog o a validación empírica.
 
-## 8. Vistas y clasificaciones derivadas
+## 9. Vistas y clasificaciones derivadas
 
 No constituyen fuente de verdad:
 
@@ -590,32 +901,53 @@ No constituyen fuente de verdad:
 - agendamiento;
 - seguimiento;
 - métricas diarias;
-- pipeline y proyección futura.
+- Kanban del Pipeline;
+- tarjeta del Caso;
+- historial cronológico presentado al usuario;
+- totales de CNS por etapa o período;
+- proyecciones agregadas y estadísticas.
 
-Se calculan desde hechos persistentes y reglas aprobadas.
+Se calculan desde hechos persistentes y reglas aprobadas. La etapa actual del Caso, su proyección vigente, el sometimiento real y la emisión real sí son conocimiento canónico; sus representaciones agregadas no lo son.
 
-## 9. Pendientes para versiones futuras
+## 10. Decisiones expresamente sustituidas
+
+Quedan descartadas las hipótesis que proponían:
+
+- exigir al menos una Oportunidad para crear un Caso;
+- mantener etapas individuales por Oportunidad;
+- mostrar varias tarjetas del mismo Caso en distintas columnas;
+- dividir o reunir tarjetas según etapas de Oportunidades;
+- distribuir la proyección entre tarjetas u Oportunidades;
+- mantener saldos parciales de CNS entre etapas;
+- derivar el cierre desde una mezcla de resultados independientes de Oportunidades;
+- considerar `Perdido` como etapa;
+- crear entidades estructuradas para Propuesta o Historial;
+- duplicar una Oportunidad al separarla en otro Caso.
+
+Estas hipótesis no deben trasladarse a la Matriz de Validación ni al diseño físico.
+
+## 11. Pendientes para versiones futuras
 
 - definir la identidad lógica exacta de Campaña;
 - precisar cuándo una Relación Comercial termina o sólo cambia de condición;
 - definir las reglas exactas para derivar Lead, Cliente del Asesor y Relación dormida;
-- definir mediante un LCD posterior el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline y sus vínculos opcionales con Tareas y Actividades;
-- incorporar posteriormente Cotizaciones y Productos Contratados;
 - modelar roles, usuarios y autorizaciones técnicas;
 - decidir la representación física de la Autorización Excepcional;
 - definir el catálogo inicial controlado de Tipos y Resultados de Actividad;
 - decidir la regla operativa exacta cuando el Tipo realizado difiere del Tipo previsto;
 - definir los criterios exactos de compatibilidad para que una Actividad ejecute varias Tareas;
-- diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas o Personas a una Actividad;
-- definir la representación física de la relación muchos-a-muchos entre Personas, Actividades y Tareas;
+- diseñar una experiencia asistida y simple para asociar opcionalmente varias Tareas, Personas, Casos u Oportunidades a una Actividad;
+- definir la representación física de las relaciones muchos-a-muchos involucradas;
 - decidir si una participación necesita atributos propios, como rol o condición de participante principal;
 - definir cómo se derivan las métricas por acción y por Persona en Actividades grupales;
-- definir la representación física del historial de reprogramaciones;
-- definir la representación física del historial de responsables de Tarea;
+- definir la representación física del historial de reprogramaciones y responsables de Tarea;
 - definir la representación física de correcciones y anulaciones de Actividad;
 - definir la revisión operativa de consecuencias originadas por una Actividad posteriormente corregida o anulada;
 - definir la representación física de cambios significativos y rectificaciones de Tarea;
 - definir la UX y la representación física de Asignaciones pendientes de conciliación;
-- definir formato y límites de objetivo, contexto y nota de ejecución;
+- definir formato y límites de objetivo, contexto, descripción, notas y evidencia documental;
 - validar el historial individual de teléfonos y correos;
-- diseñar `next_v03` y probar estas invariantes con datos ficticios sólo después de aprobar el modelo mínimo de desarrollo comercial.
+- definir nombres físicos, restricciones y transacciones para Caso, Oportunidad, Cotización, etapas, CNS y Producto Contratado;
+- definir el mecanismo técnico de advertencias confirmables y operaciones de corrección;
+- modelar el ciclo posterior de Productos Contratados y sus reglas particulares por producto;
+- diseñar `next_v03` y probar estas invariantes con datos ficticios sólo después de aprobar LCD-20260802-01 y su Matriz de Validación actualizada.
