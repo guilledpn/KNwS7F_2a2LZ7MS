@@ -1,7 +1,7 @@
 # Modelo Comercial del CRM Patrimonial
 
 - Versión: 0.2
-- Estado: <span style="color:red">Extensión pendiente de revisión · LCD-20260802-01</span>
+- Estado: <span style="color:red">Extensión consolidada · pendiente de revisión final · LCD-20260802-01</span>
 - Fecha: 2026-08-03
 - LCD aprobado de origen: LCD-20260801-02
 - LCD en revisión: <span style="color:red">LCD-20260802-01</span>
