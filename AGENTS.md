@@ -1,51 +1,55 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
-Estado: Vigente  
-Último LCD aprobado: LCD-20260803-01
-Gobernanza documental: ADR-023 y ADR-026
-Última conciliación total: 2026-08-03
+- Estado: Vigente
+- Último LCD aprobado: LCD-20260804-02
+- Gobernanza documental: ADR-023 y ADR-026
+- Última conciliación: 2026-08-04
 
 ## Propósito
 
-Este archivo orienta a cualquier asistente de IA o colaborador que trabaje en el repositorio. No reemplaza la Constitución, la Arquitectura ni el Modelo del Dominio.
+Este archivo orienta a agentes y colaboradores. No reemplaza la Constitución, la Arquitectura, el Modelo del Dominio ni los Estándares de Desarrollo.
 
-## Jerarquía documental
+## Lectura obligatoria
+
+Antes de trabajar, consultar desde `main`:
+
+1. `docs/governance/document-authority.md`;
+2. `docs/project/constitution.md`;
+3. `docs/architecture/crm-patrimonial.md`;
+4. `docs/domain/README.md`;
+5. `docs/project/backlog-roadmap.md`;
+6. `docs/engineering/development-standards.md` para código, SQL, pruebas o configuración;
+7. los documentos especializados del alcance.
+
+Las instrucciones de ChatGPT son una puerta de entrada. La autoridad vive en el repositorio.
+
+Si falta una fuente obligatoria o existe una divergencia, detener sólo el trabajo dependiente y advertirla.
+
+## Jerarquía
 
 1. Constitución.
 2. Arquitectura.
 3. Modelo del Dominio.
 4. Backlog y Roadmap.
-5. Bitácora Arquitectónica y ADR.
-6. Instrucciones operativas.
+5. ADR, LCD y registros.
+6. Estándares, procedimientos e instrucciones.
 
-La ubicación técnica de un documento no altera su jerarquía semántica.
+La ubicación técnica no altera la jerarquía semántica.
 
-## Flujo obligatorio
+## Flujo
 
-Descubrir → Validar → Documentar → Diseñar → Implementar.
+Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover.
 
-Antes de modificar código:
+Antes de modificar:
 
-1. comprender el problema de negocio;
-2. identificar conceptos o reglas afectados;
-3. determinar qué documentos canónicos deben cambiar;
-4. registrar la decisión cuando corresponda;
-5. diseñar el cambio;
-6. implementar y probar.
+- comprender causa y alcance;
+- identificar conceptos, contratos y ambientes;
+- buscar solución canónica;
+- determinar Issue, LCD, ADR y documentos;
+- diseñar el mínimo cambio completo y correcto;
+- implementar, probar y dejar trazabilidad.
 
-## Identificadores y control documental
-
-Antes de crear una rama, documento, ADR o lote:
-
-1. revisar `docs/governance/lcd-registry.md`;
-2. revisar `docs/governance/adr-registry.md` cuando exista una decisión;
-3. reservar el identificador único en la rama del lote;
-4. verificar que no exista con otro significado en Drive ni GitHub;
-5. usar el mismo identificador en todos los artefactos del cambio.
-
-Nunca se inventa un LCD o ADR desde una conversación, un archivo aislado o el número de un Pull Request. Un identificador reservado no se reutiliza.
-
-Una colisión o divergencia documental bloquea el trabajo dependiente hasta ser reconciliada.
+En una emergencia productiva se puede restaurar primero la continuidad mediante el cambio seguro más pequeño. La documentación y el cierre siguen siendo obligatorios.
 
 ## Autoridad documental
 
@@ -55,80 +59,82 @@ Gobiernan:
 - `docs/governance/lcd-registry.md`;
 - `docs/governance/adr-registry.md`.
 
-Reglas:
+GitHub es canónico para conocimiento propio versionable, código, migraciones, pruebas y herramientas.
 
-- cada artefacto tiene una sola ubicación editable canónica;
-- GitHub es canónico para conocimiento propio versionable, ingeniería, código, migraciones, pruebas y registros maestros;
-- Drive es canónico para fuentes originales, bases de campaña, evidencia externa, archivos sensibles y material no apto para Git;
-- no se mantienen copias editables paralelas;
-- no existen registros, catálogos ni documentos espejo en Drive;
-- una exportación o copia no cambia por sí sola la autoridad;
-- los borradores documentales viven en ramas/PR, no en Drive;
-- después de una migración validada se retira la copia anterior.
+Drive es canónico para datos reales, PII, fuentes externas o corporativas, respaldos y evidencia no publicable.
 
-## Estrategia del producto
+Cada artefacto tiene una única ubicación editable canónica. Una copia operativa puede existir si identifica su fuente y no evoluciona como autoridad paralela.
 
-- El repositorio evolucionará como monorepo.
-- APP LLAMADOS se mantiene como aplicación Legacy operativa.
-- CRM Patrimonial Next se desarrolla como nueva generación.
-- La transición se realizará gradualmente mediante Strangler Fig Pattern.
-- La arquitectura objetivo es DDD + arquitectura hexagonal + monolito modular.
+No eliminar herramientas operativas antes de comprobar uso, equivalencia y reemplazo.
 
-Decisiones canónicas: ADR-021 y ADR-022. Los archivos históricos nombrados ADR-018 y ADR-019 son sólo aliases de compatibilidad.
+## Producto y arquitectura
 
-Documentos rectores:
+- APP LLAMADOS Legacy permanece operativo y se protege con parches pequeños, caracterización, regresión y smoke tests.
+- CRM Patrimonial Next evoluciona gradualmente mediante monorepo y Strangler Fig.
+- Arquitectura objetivo: DDD, arquitectura hexagonal y monolito modular.
+- Dependencias: Adaptadores → Aplicación → Dominio.
+- El dominio no depende de UI, Supabase, PostgreSQL ni APIs externas.
 
-- Constitución: `docs/project/constitution.md`;
-- Arquitectura: `docs/architecture/crm-patrimonial.md`;
-- Modelo del Dominio: `docs/domain/README.md`;
-- Roadmap: `docs/project/backlog-roadmap.md`.
+No crear tablas, estados, procesos o pantallas que no representen conceptos reales.
 
-## Reglas Git
-
-- `main` debe permanecer estable y revisable.
-- No experimentar directamente en `main`.
-- Cada cambio comienza en un Issue y una rama breve.
-- Usar Conventional Commits.
-- Abrir Pull Request antes de fusionar.
-- El merge autorizado representa la aprobación técnica del lote.
-- Un commit registra cambios; no equivale por sí solo a aprobación.
-- No reescribir historia publicada para corregir referencias: usar aliases y registros explícitos.
-
-## Seguridad y ambientes
-
-- PROD contiene datos reales y no se usa para experimentar.
-- DEV nunca apunta a PROD y PROD nunca apunta a DEV.
-- No usar `service_role`, JWT Secret ni claves privadas en código o documentación.
-- No almacenar datos reales de clientes, bases de campaña ni información patrimonial sensible en Git.
-- El repositorio es público mientras no se apruebe otra decisión; todo contenido debe ser publicable.
-- Toda operación destructiva o promoción requiere autorización explícita.
-
-## Dependencias arquitectónicas
-
-El dominio no debe depender de UI, Supabase, PostgreSQL, APIs externas ni detalles de infraestructura.
-
-Las dependencias deben apuntar hacia adentro:
-
-Adaptadores → Aplicación → Dominio.
-
-Si el dominio necesita acceso externo, debe expresarlo mediante un puerto.
+Las entidades almacenan hechos. Colas, dashboards, estadísticas y proyecciones son derivados.
 
 ## Calidad
 
-- Todo bug corregido debe considerar una prueba de regresión o caracterización.
-- Toda regla de dominio nueva debe contar con pruebas de comportamiento.
-- Toda promoción debe incluir validación y smoke test.
-- La interfaz no debe ser la única autoridad de una regla crítica.
-- Todo lote documental debe comprobar unicidad de identificadores y ausencia de duplicados canónicos.
+Cumplir `docs/engineering/development-standards.md`.
 
-## Aprendizaje
+Reglas no negociables:
 
-Durante el trabajo se enseñarán y registrarán competencias en cinco niveles:
+- no refactorizar ampliamente como efecto secundario de un fix;
+- no cambiar contratos o comportamiento sin declarar impacto;
+- no crear implementaciones paralelas sin revisar la solución canónica;
+- no duplicar reglas semánticas;
+- no introducir deuda técnica silenciosa;
+- no ocultar errores con tipos amplios, supresiones, casts o fallbacks;
+- todo bug debe considerar regresión o caracterización;
+- toda regla de dominio nueva debe tener pruebas de comportamiento;
+- todo control omitido se informa como `No aplica` con motivo;
+- no declarar `PASS` sin evidencia.
 
-1. Git y repositorio.
-2. Colaboración y gestión.
-3. Desarrollo y calidad.
-4. Arquitectura y dominio.
-5. Operación.
+## Git
 
-La matriz se actualiza por evidencia práctica, no sólo por exposición teórica.
+- `main` permanece estable.
+- No experimentar directamente en `main`.
+- Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
+- Usar Conventional Commits.
+- Abrir Pull Request antes de fusionar.
+- Un commit no equivale por sí solo a aprobación.
+- No reescribir historia publicada para ocultar errores.
+
+## Seguridad y ambientes
+
+- LOCAL/DEV: datos ficticios o sanitizados.
+- STAGING: candidato validado en DEV.
+- PROD: datos reales; nunca experimentar.
+- Una autorización para DEV no autoriza STAGING ni PROD.
+- Toda operación destructiva o promoción requiere autorización explícita.
+- No usar `service_role`, JWT Secret ni claves privadas.
+- No almacenar PII, bases reales ni información patrimonial sensible en Git.
+- Tratar el repositorio como público.
+
+Antes de PROD: estado estable, autorización, diff, rollback, cambio mínimo, validación, smoke test y trazabilidad.
+
+## Control documental
+
+Antes de crear LCD o ADR, revisar sus registros y reservar el identificador libre.
+
+El rojo significa exclusivamente contenido pendiente de revisión del último LCD.
+
+Una conversación descubre; los documentos conservan las decisiones aprobadas.
+
+## Cierre
+
+Informar:
+
+- qué cambió y qué no;
+- qué se validó y qué no;
+- ambientes afectados;
+- evidencia;
+- riesgos, limitaciones y pendientes.
+
+Verificar si cambiaron Constitución, Arquitectura, Dominio, Roadmap, ADR, LCD, registros, `PROJECT_MAP.md`, `AGENTS.md`, contratos o deuda técnica.
