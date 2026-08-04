@@ -175,6 +175,14 @@ create table issue63_ops.snapshot_import_progress (
   primary key (operation_key, file_name, load_type, period)
 );
 
+create table issue63_ops.snapshot_sequences (
+  operation_key text not null,
+  sequence_name text not null,
+  last_value bigint not null,
+  is_called boolean not null,
+  primary key (operation_key, sequence_name)
+);
+
 alter table issue63_ops.operation enable row level security;
 alter table issue63_ops.file_manifest enable row level security;
 alter table issue63_ops.stage_rows enable row level security;
@@ -185,6 +193,7 @@ alter table issue63_ops.snapshot_monthly_order enable row level security;
 alter table issue63_ops.snapshot_work_queue enable row level security;
 alter table issue63_ops.snapshot_import_runs enable row level security;
 alter table issue63_ops.snapshot_import_progress enable row level security;
+alter table issue63_ops.snapshot_sequences enable row level security;
 
 revoke all on all tables in schema issue63_ops from public, anon, authenticated;
 revoke all on all sequences in schema issue63_ops from public, anon, authenticated;
