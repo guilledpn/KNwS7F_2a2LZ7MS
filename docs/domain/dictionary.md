@@ -1,9 +1,9 @@
 # Diccionario del Dominio del CRM Patrimonial
 
 - Estado: Aprobado y evolutivo
-- Versión: 1.1 candidata
-- Última reconciliación aprobada: 2026-08-03
-- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
+- Versión: 1.1
+- Última reconciliación aprobada: 2026-08-04
+- LCD: LCD-20260803-01 y LCD-20260804-01
 
 Las definiciones extensas y reglas completas viven en los modelos especializados.
 
