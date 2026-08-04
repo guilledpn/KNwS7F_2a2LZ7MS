@@ -111,7 +111,7 @@ Antes de modificar PROD:
 7. ejecutar smoke test;
 8. dejar trazabilidad.
 
-Nunca usar credenciales privilegiadas, claves privadas ni secretos. DEV nunca apunta a PROD y PROD nunca apunta a DEV. No almacenar PII, bases reales ni información patrimonial sensible en Git. Tratar el repositorio como público.
+Nunca usar `service_role`, secretos JWT, claves privadas ni otros secretos. DEV nunca apunta a PROD y PROD nunca apunta a DEV. No almacenar PII, bases reales ni información patrimonial sensible en Git. Tratar el repositorio como público.
 
 No ejecutar operaciones destructivas sin autorización explícita, alcance verificado y estrategia de recuperación.
 
