@@ -1,9 +1,9 @@
 # Carga controlada de agosto 2026 · revisión 02
 
-- Estado: candidato listo para auditoría; PROD no ejecutado
+- Estado: candidato en auditoría; PROD no ejecutado
 - Issue: #63
 - Rama: `ops/issue63-carga-202608-revision-02`
-- Base: `main@969a40ba2c438455c34e3954870c4747fdc13bd4`
+- Base auditada inicialmente: `main@969a40ba2c438455c34e3954870c4747fdc13bd4`
 - Período: `2026-08`
 
 ## Propósito
@@ -44,7 +44,9 @@ Estado PROD de referencia, obtenido sólo por lectura:
 - 54 asignados;
 - 4 campañas;
 - staging público 0;
-- contención Issue #43: evento 7960, snapshot `ISSUE43-PROD-2026-08-V1`, 286 Personas ocultas.
+- runs 17 y 18 en `done` para TOTAL 01 y ASIGNADO 01;
+- contención Issue #43: evento 7960, snapshot `ISSUE43-PROD-2026-08-V1`, 286 Personas ocultas;
+- 0 referencias de agosto desde `crm_analysis_sample_items` hacia `work_queue`.
 
 Cualquier divergencia aborta la aplicación antes de modificar datos canónicos.
 
@@ -71,20 +73,35 @@ Las RPC públicas verifican rol `anon`, token SHA-256, expiración, período, no
 `issue63_ops.apply_operation()`:
 
 1. valida staging y estado previo exactos;
-2. bloquea las tablas afectadas;
-3. captura snapshots de rollback;
+2. bloquea tablas canónicas, historia y referencias externas relevantes;
+3. captura snapshots de rollback y la secuencia de runs;
 4. actualiza Personas y cinco campañas;
 5. reemplaza exactamente Apariciones, estados y asignaciones, incluida la retirada;
 6. reemplaza `monthly_source_order` con el orden TOTAL;
 7. reconstruye la cola sin usar `rebuild_work_queue_for_period`;
-8. conserva estados internos, comentarios, recordatorios, ingreso y `created_at` existentes;
+8. conserva `work_item_id`, estados internos, comentarios, recordatorios, ingreso y `created_at` existentes;
 9. mantiene ocultas las 286 Personas del Issue #43, salvo que ahora estén asignadas;
 10. registra runs, progreso y guardrail;
 11. valida conjuntos exactos antes de confirmar.
 
-## Secuencia posterior a auditoría y autorización
+### Rollback
 
-### 1. Validación local
+El rollback:
+
+- se ejecuta sólo mientras la PWA continúa cerrada;
+- bloquea las mismas superficies antes de comprobar escrituras posteriores;
+- restaura por snapshots, incluidos IDs, timestamps, `search_text`, `telefono_activo_idx`, runs, progreso y secuencia;
+- elimina sólo Personas creadas por esta operación y sin referencias externas;
+- compara el estado restaurado contra los snapshots antes de confirmar;
+- conserva intencionalmente los eventos de guardrail como auditoría de la operación y del rollback.
+
+Por ello, “rollback exacto” significa identidad exacta de las tablas operativas afectadas y de su secuencia; el historial de auditoría es deliberadamente aditivo.
+
+## Secuencia posterior a auditoría y nueva autorización PROD
+
+La PWA puede permanecer operativa durante validación, instalación y staging. Debe cerrarse antes del preflight final y mantenerse cerrada, sin excepción, hasta decidir aceptación o rollback y terminar el cleanup.
+
+### 1. Validar archivos localmente
 
 ```powershell
 python tools/issue63_stage_revision_02.py validate `
@@ -95,11 +112,15 @@ python tools/issue63_stage_revision_02.py validate `
 
 Esperado: hashes y conteos exactos; `network_used=false`; `prod_modified=false`.
 
-### 2. Instalar setup en PROD
+### 2. Instalar las seis migraciones exactas
 
-Aplicar administrativamente las seis migraciones sólo tras aprobación. Verificar que las tablas canónicas no cambian, que `anon` sólo ejecuta staging/status y que no existe acceso directo a `issue63_ops`.
+Aplicar administrativamente y byte por byte las seis migraciones del PR, en orden. No ejecutar todavía configuración ni aplicación.
 
-### 3. Preparar runtime local
+### 3. Confirmar que la instalación no cambió estado canónico
+
+Repetir conteos y fingerprints de Personas, Apariciones, campañas, orden, cola, historia, runs, progreso y staging. Comprobar RLS, permisos, exposición Data API y ausencia de DML de roles cliente.
+
+### 4. Crear token y runtime local
 
 ```powershell
 python tools/issue63_stage_revision_02.py prepare-runtime `
@@ -111,9 +132,11 @@ python tools/issue63_stage_revision_02.py prepare-runtime `
 
 Genera un token temporal, SQL con sólo su hash y un manifiesto agregado. Ninguno se incorpora a Git.
 
-### 4. Configurar y cargar sólo a staging
+### 5. Configurar administrativamente
 
-Ejecutar administrativamente `issue63_configure_runtime.sql`. Luego:
+Ejecutar `issue63_configure_runtime.sql`. Confirmar operación única, período, expiración y manifiesto hash-locked.
+
+### 6. Cargar sólo a staging
 
 ```powershell
 $env:ISSUE63_SUPABASE_URL = "https://<proyecto>.supabase.co"
@@ -126,43 +149,73 @@ python tools/issue63_stage_revision_02.py stage `
   --report "C:\ruta-segura\issue63_stage_report.json"
 ```
 
-Durante esta fase sólo cambia `issue63_ops`; la carga es reanudable y la PWA puede seguir operativa.
+Durante esta fase sólo cambia `issue63_ops`; la carga es reanudable.
 
-### 5. Aplicación
+### 7. Validar staging
 
-Cerrar la PWA en computador y teléfono, repetir el preflight y ejecutar:
+Ejecutar `crm_issue63_status` mediante la CLI y confirmar `stage_complete=true`, `stage_valid=true`, hashes, conteos y relación ASIGNADO ⊂ TOTAL.
+
+### 8. Cerrar la PWA
+
+Cerrar completamente la PWA en computador y teléfono. No reabrirla hasta terminar el paso 14.
+
+### 9. Repetir preflight PROD
+
+Repetir todas las consultas independientes de sólo lectura. Deben coincidir con el contrato, incluida la contención #43, staging público 0 y referencias externas 0. Una divergencia produce NO-GO.
+
+### 10. Ejecutar aplicación atómica
 
 ```sql
 select issue63_ops.apply_operation();
 ```
 
-Esperado:
+### 11. Validar mediante consultas independientes
+
+No basta `validate_applied()`. Comparar de forma independiente:
 
 - 84.912 Apariciones visibles y totales;
-- 198 asignados exactos;
-- 5 campañas;
-- 84.912 órdenes TOTAL;
-- 0 duplicados, referencias rotas o alteraciones de contexto existente;
-- 0 Personas no asignadas de la contención visibles.
+- 198 asignados exactos, con delta 145/53/1;
+- 5 campañas y conteos por campaña/estado;
+- 84.912 órdenes TOTAL, sin discrepancias;
+- orden ASIGNADO independiente;
+- membresía de cola según política canónica y contención #43;
+- 0 duplicados, CMS inexistentes o pérdida de `work_item_id` y contexto;
+- fingerprints de `crm_log` y `crm_events` sin cambios.
 
-### 6. Smoke test
+### 12. Realizar smoke test autenticado
 
-Ejecutar `issue63_ops.validate_applied()`, lecturas de asignados y primera página, filtros de campaña/mes/origen, ficha no destructiva, Stats, Importar, conteos independientes y revisión visual autenticada.
+Probar primera página, asignados, filtros de campaña/mes/origen, ficha no destructiva, Stats e Importar en escritorio y teléfono, sin generar una gestión.
 
-### 7. Rollback o aceptación
+### 13. Decidir rollback o aceptación
 
-Antes de reanudar escrituras, cualquier falla obliga a:
+La PWA continúa cerrada. Ante cualquier falla:
 
 ```sql
 select issue63_ops.rollback_operation();
 ```
 
-El rollback usa snapshots y se bloquea si hubo actividad posterior. Tras aceptación, ejecutar `supabase/operations/issue63_cleanup.sql` y versionar la migración de retiro realmente aplicada antes del merge.
+Confirmar el resultado de `validate_rollback()` y los fingerprints previos. Sólo si toda validación y smoke test pasan se acepta la carga.
+
+### 14. Ejecutar cleanup
+
+Aplicar `supabase/operations/issue63_cleanup.sql`. Confirmar ausencia de `issue63_ops` y `crm_issue63_*`. Recién entonces puede reanudarse la operación normal.
+
+### 15. Versionar el retiro realmente aplicado
+
+Agregar la migración de retiro con el SQL exacto ejecutado en PROD. No fusionar antes de que GitHub reproduzca el backend final.
+
+### 16. Actualizar Issue y PR
+
+Registrar commit, comandos, resultados, tiempos, fingerprints, smoke test, decisión de aceptación o rollback, cleanup y riesgo residual, sin PII.
+
+### 17. Fusionar sólo después del cierre completo
+
+Mantener el PR en borrador hasta terminar la operación. Fusionar únicamente cuando PROD esté validado, el cleanup esté versionado y la autorización utilizada quede cerrada.
 
 ## Limitaciones
 
 - No resuelve la causa estructural del Issue #43; preserva su contención.
-- El rollback exacto exige mantener la PWA cerrada hasta aceptar o revertir.
 - No existe STAGING independiente; los XLSX reales nunca se prueban en DEV.
-- No cambia frontend, arquitectura ni Modelo del Dominio; no corresponde ADR ni LCD.
+- Los eventos de guardrail son trazabilidad intencional y no se eliminan en rollback.
+- No cambia frontend, Arquitectura, Modelo del Dominio ni Roadmap; no corresponde ADR ni LCD.
 - PROD permanece intacto mientras este documento esté en estado candidato para auditoría.
