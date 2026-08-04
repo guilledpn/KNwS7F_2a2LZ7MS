@@ -1,0 +1,63 @@
+name: Close LCD-20260804-01 metadata
+
+on:
+  push:
+    branches:
+      - docs/close-lcd-20260804-01
+
+permissions:
+  contents: write
+
+jobs:
+  close-metadata:
+    if: ${{ !contains(github.event.head_commit.message, '[lcd-close-bot]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/close-lcd-20260804-01
+          fetch-depth: 0
+
+      - name: Reconcile approved metadata
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              Path('docs/domain/commercial-model.md'): [
+                  ('- Versión: 0.3 candidata', '- Versión: 0.3'),
+                  ('- Estado: Aprobado hasta LCD-20260802-01 · <span style="color:red">extensión LCD-20260804-01 pendiente de revisión</span>', '- Estado: Aprobado hasta LCD-20260804-01'),
+                  ('- LCD aprobado de extensión: LCD-20260802-01', '- LCD aprobado de extensión: LCD-20260802-01 y LCD-20260804-01'),
+                  ('- ADR: ADR-024, ADR-025 y <span style="color:red">ADR-027 pendiente de revisión</span>', '- ADR: ADR-024, ADR-025 y ADR-027'),
+              ],
+              Path('docs/CHANGELOG.md'): [
+                  ('## App_llamados_v1.05-ui-20260804-10 · candidata DEV', '## App_llamados_v1.05-ui-20260804-10 · 2026-08-04'),
+                  ('<span style="color:red">Cockpit motivacional de estadísticas pendiente de revisión.</span>', 'Cockpit motivacional de estadísticas aprobado y promovido.'),
+                  ('Implementado y probado en DEV mediante Issue #52. PROD permanece en `UI-20260804-09` hasta revisión y autorización explícita.', 'Implementado, probado y promovido a PROD mediante Issue #52 y PR #53. La aceptación visual autenticada postdespliegue queda separada en Issue #54.'),
+              ],
+          }
+
+          for path, pairs in replacements.items():
+              text = path.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  count = text.count(old)
+                  if count != 1:
+                      raise SystemExit(f'{path}: expected exactly one occurrence of {old!r}, found {count}')
+                  text = text.replace(old, new)
+              path.write_text(text, encoding='utf-8')
+
+          for path in replacements:
+              text = path.read_text(encoding='utf-8')
+              if 'LCD-20260804-01 pendiente de revisión' in text or 'ADR-027 pendiente de revisión' in text:
+                  raise SystemExit(f'{path}: stale pending marker remains')
+
+          Path('.github/workflows/close-lcd-20260804-01.yml').unlink()
+
+      - name: Commit exact metadata reconciliation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/domain/commercial-model.md docs/CHANGELOG.md .github/workflows/close-lcd-20260804-01.yml
+          git diff --cached --check
+          git commit -m "docs: reconciliar metadatos finales de LCD-20260804-01 [lcd-close-bot]"
+          git push origin HEAD:docs/close-lcd-20260804-01
