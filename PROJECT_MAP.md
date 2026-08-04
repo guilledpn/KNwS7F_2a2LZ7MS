@@ -1,9 +1,9 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-01
+- Último LCD aprobado: LCD-20260804-02
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
-- Pendientes abiertos relevantes: Issues #38, #40 y #54; PR #21
+- Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
 
 ## Productos
 
@@ -23,15 +23,28 @@ La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monoli
 | 3 | `docs/domain/README.md` y modelos especializados |
 | 4 | `docs/project/backlog-roadmap.md` |
 | 5 | `docs/adr/` y registros de gobernanza |
-| 6 | `AGENTS.md`, procedimientos y documentación técnica |
+| 6 | `AGENTS.md`, `docs/engineering/development-standards.md`, procedimientos e instrucciones |
 
 El índice detallado vive en `docs/governance/document-authority.md`.
 
 ## Autoridad documental
 
-- GitHub: única ubicación de documentos propios, ADR/LCD, procedimientos, código, migraciones, pruebas y herramientas.
+- GitHub: única ubicación de documentos propios, ADR/LCD, estándares, procedimientos, código, migraciones, pruebas y herramientas.
 - Drive: única ubicación de datos reales, bases, respaldos, fuentes de terceros, manuales, PDFs y material reservado.
-- No existen espejos ni copias editables paralelas. ADR-026.
+- No existen espejos ni copias editables paralelas. Una copia operativa puede existir si identifica su fuente y no evoluciona como autoridad.
+- La carpeta de Drive se denomina `Fuentes y evidencia del dominio`.
+
+ADR-026 y LCD-20260804-02 gobiernan esta separación.
+
+## Ingeniería y agentes
+
+- `AGENTS.md` es el punto de entrada para agentes y colaboradores.
+- `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
+- `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
+- Issue #56 gobierna la automatización gradual de quality gates.
+- Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
+
+Las instrucciones de ChatGPT no reemplazan las fuentes del repositorio.
 
 ## Modelo de Next
 
@@ -78,7 +91,7 @@ La matriz detallada está en `docs/architecture/product-environment-deployment-m
 ## Flujo
 
 ```text
-Descubrir → Validar → Documentar → Diseñar → Implementar
+Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover
 ```
 
 Ejecución trazable:
@@ -89,11 +102,12 @@ Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge a
 
 ## Próximos pasos
 
-1. Completar manualmente las tres acciones de Drive registradas en Issue #40.
-2. Ejecutar la aceptación visual autenticada de Issue #54.
-3. Resolver Issue #38 en DEV.
-4. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
-5. Abrir el lote de diseño físico mínimo `next_v03`.
-6. Decidir el destino del PR educativo #21.
+1. Ejecutar la aceptación visual autenticada de Issue #54.
+2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
+3. Auditar las copias operativas de normalizadores mediante Issue #57.
+4. Automatizar gradualmente quality gates mediante Issue #56.
+5. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
+6. Abrir el lote de diseño físico mínimo `next_v03`.
+7. Decidir el destino del PR educativo #21.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.
