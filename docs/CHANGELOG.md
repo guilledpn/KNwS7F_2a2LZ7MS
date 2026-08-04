@@ -2,11 +2,11 @@
 
 Registro humano y tecnico de versiones.
 
-## App_llamados_v1.05-ui-20260804-10 · candidata DEV
+## App_llamados_v1.05-ui-20260804-10 · 2026-08-04
 
 ### Tipo
 
-<span style="color:red">Cockpit motivacional de estadísticas pendiente de revisión.</span>
+Cockpit motivacional de estadísticas aprobado y promovido.
 
 ### Cambios
 
@@ -19,7 +19,7 @@ Registro humano y tecnico de versiones.
 
 ### Estado
 
-Implementado y probado en DEV mediante Issue #52. PROD permanece en `UI-20260804-09` hasta revisión y autorización explícita.
+Implementado, probado y promovido a PROD mediante Issue #52 y PR #53. La aceptación visual autenticada postdespliegue queda separada en Issue #54.
 
 ## App_llamados_v1.05-ui-20260803-07 · 2026-08-03
 

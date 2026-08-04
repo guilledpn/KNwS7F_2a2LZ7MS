@@ -1,11 +1,11 @@
 # Modelo Comercial del CRM Patrimonial
 
-- Versión: 0.3 candidata
-- Estado: Aprobado hasta LCD-20260802-01 · <span style="color:red">extensión LCD-20260804-01 pendiente de revisión</span>
+- Versión: 0.3
+- Estado: Aprobado hasta LCD-20260804-01
 - Fecha: 2026-08-04
 - LCD aprobado de origen: LCD-20260801-02
-- LCD aprobado de extensión: LCD-20260802-01
-- ADR: ADR-024, ADR-025 y <span style="color:red">ADR-027 pendiente de revisión</span>
+- LCD aprobado de extensión: LCD-20260802-01 y LCD-20260804-01
+- ADR: ADR-024, ADR-025 y ADR-027
 - Issues: #31, #34 y #52
 - Motivo del cambio: incorporar el modelo mínimo aprobado de Caso Comercial, Oportunidad, Cotización, Propuesta, Pipeline, CNS y Producto Contratado, y separar la equivalencia motivacional por Agendamiento de los hechos comerciales.
 
