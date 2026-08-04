@@ -3,6 +3,7 @@
 - Estado: Aprobado
 - Fecha: 2026-08-04
 - Issue: #59
+- Pull Request: #60
 - ADR: No corresponde
 
 ## Motivo
