@@ -1,7 +1,7 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-02
+- Último LCD aprobado: LCD-20260804-03
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
 - Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
 
