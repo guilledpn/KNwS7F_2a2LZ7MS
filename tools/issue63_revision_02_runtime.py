@@ -20,6 +20,7 @@ def _manifest(total: ParsedFile, assigned: ParsedFile) -> list[dict[str,object]]
       "expected_campaign_counts":p.campaign_counts} for p in (total,assigned)]
 def _sql_literal(value: object) -> str: return "'"+json.dumps(value,ensure_ascii=False,separators=(",",":" )).replace("'","''")+"'::jsonb"
 def prepare_runtime(total: ParsedFile, assigned: ParsedFile, output: Path, hours: int) -> dict[str,object]:
+    if not 1<=hours<=72: raise ValueError("La expiración del runtime debe estar entre 1 y 72 horas")
     output.mkdir(parents=True,exist_ok=True); token_path=output/".issue63_token"
     sql_path=output/"issue63_configure_runtime.sql"; manifest_path=output/"issue63_runtime_manifest.json"
     if any(p.exists() for p in (token_path,sql_path,manifest_path)): raise ValueError("El runtime ya existe; no se sobrescribe")
