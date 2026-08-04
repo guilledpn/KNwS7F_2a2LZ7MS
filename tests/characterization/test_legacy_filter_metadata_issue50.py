@@ -71,7 +71,7 @@ class LegacyFilterMetadataIssue50Tests(unittest.TestCase):
     def test_campaign_detail_wraps_and_ui_version_is_consistent(self) -> None:
         self.assertIn(".info-value.campaign-full", self.html)
         self.assertIn("'campaign-full'", self.html)
-        self.assertIn("UI-20260804-09", self.worker)
+        self.assertIn("UI-20260804-10", self.worker)
         self.assertNotIn("UI-20260803-08", self.worker)
 
 

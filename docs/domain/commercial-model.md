@@ -1,13 +1,13 @@
 # Modelo Comercial del CRM Patrimonial
 
-- Versión: 0.2
-- Estado: Aprobado · LCD-20260802-01
-- Fecha: 2026-08-03
+- Versión: 0.3 candidata
+- Estado: Aprobado hasta LCD-20260802-01 · <span style="color:red">extensión LCD-20260804-01 pendiente de revisión</span>
+- Fecha: 2026-08-04
 - LCD aprobado de origen: LCD-20260801-02
 - LCD aprobado de extensión: LCD-20260802-01
-- ADR: ADR-024 y ADR-025
-- Issues: #31 y #34
-- Motivo del cambio: incorporar el modelo mínimo aprobado de Caso Comercial, Oportunidad, Cotización, Propuesta, Pipeline, CNS y Producto Contratado.
+- ADR: ADR-024, ADR-025 y <span style="color:red">ADR-027 pendiente de revisión</span>
+- Issues: #31, #34 y #52
+- Motivo del cambio: incorporar el modelo mínimo aprobado de Caso Comercial, Oportunidad, Cotización, Propuesta, Pipeline, CNS y Producto Contratado, y separar la equivalencia motivacional por Agendamiento de los hechos comerciales.
 
 ## 1. Propósito
 
@@ -632,6 +632,23 @@ Reglas:
 - una misma magnitud no puede computarse simultáneamente en varias etapas.
 
 Los CNS reconocidos con posterioridad y el capital asociado a la contratación son hechos distintos de los CNS emitidos. Este modelo mínimo no los implementa todavía, pero tampoco los equipara ni los elimina.
+
+### 4.18.1 Equivalencia motivacional desde Agendamientos
+
+<span style="color:red">APP LLAMADOS puede mostrar una expectativa motivacional derivada de los Agendamientos. Esta proyección parte de dos parámetros configurables para el mes: CNS esperados por Agendamiento y pesos esperados por CNS.</span>
+
+<span style="color:red">Para el mes vigente al abrir este lote, la Meta Mensual configurada por el Asesor es de **189 Agendamientos**, la equivalencia es de **2,5 CNS esperados por Agendamiento** y el valor de referencia es de **$10.000 CLP por CNS**. Por tanto, la meta equivale a **472,5 CNS esperados** y **$4.725.000 CLP esperados**.</span>
+
+<span style="color:red">Reglas:</span>
+
+- <span style="color:red">la Meta Mensual se lee del valor que el Asesor guarda en Ajustes; ningún valor local obsoleto ni una meta histórica del contrato Legacy puede reemplazarla;</span>
+- <span style="color:red">un Agendamiento real continúa siendo el Resultado Diario final `Agenda` de una Persona y fecha local;</span>
+- <span style="color:red">los CNS y pesos mostrados por el cockpit se calculan al leer los Agendamientos de la ventana seleccionada;</span>
+- <span style="color:red">la equivalencia esperada es un supuesto de planificación y motivación, no una Cotización, una proyección de Caso, CNS sometidos, CNS emitidos, CNS reconocidos, remuneración ni ingreso devengado;</span>
+- <span style="color:red">las ventanas deben declarar su alcance exacto: últimos 60 minutos, hoy, semana calendario y mes calendario;</span>
+- <span style="color:red">el pulso se actualiza al registrar un nuevo Resultado Diario; no se prorratea una ganancia ficticia por minuto;</span>
+- <span style="color:red">la próxima Agenda puede expresarse como `+2,5 CNS / +$25.000 esperados` para mantener visible el incentivo inmediato;</span>
+- <span style="color:red">la futura proyección comercial de CRM Patrimonial Next continuará derivándose de Casos, Oportunidades, Cotizaciones y hechos de producción, sin reutilizar esta equivalencia como fuente de verdad.</span>
 
 ### 4.19 Historial descriptivo del Caso
 

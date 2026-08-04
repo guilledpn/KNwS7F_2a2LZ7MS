@@ -2,6 +2,25 @@
 
 Registro humano y tecnico de versiones.
 
+## App_llamados_v1.05-ui-20260804-10 · candidata DEV
+
+### Tipo
+
+<span style="color:red">Cockpit motivacional de estadísticas pendiente de revisión.</span>
+
+### Cambios
+
+- Unifica la lectura estadística en el contrato `get_stats_cockpit_v1`.
+- Toma la Meta Mensual exclusivamente desde Ajustes; `localStorage` queda como fallback offline.
+- Incorpora CNS y pesos esperados configurables, separados de CNS e ingresos reales.
+- Expone última hora, hoy, semana calendario y mes calendario.
+- Corrige la fecha local de Chile, la curva real hasta hoy, la proyección normal y los falsos ceros ante errores.
+- Retira la superficie divergente `stats.html` mediante redirección al cockpit integrado.
+
+### Estado
+
+Implementado y probado en DEV mediante Issue #52. PROD permanece en `UI-20260804-09` hasta revisión y autorización explícita.
+
 ## App_llamados_v1.05-ui-20260803-07 · 2026-08-03
 
 ### Tipo

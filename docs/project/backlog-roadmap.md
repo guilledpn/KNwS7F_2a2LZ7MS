@@ -1,15 +1,15 @@
 # Backlog y Roadmap del CRM Patrimonial
 
 - Estado: Vigente
-- Versión: 2.0
-- Última actualización: 2026-08-03
-- LCD: LCD-20260803-01
+- Versión: 2.1 candidata
+- Última actualización: 2026-08-04
+- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
 
 Este documento ordena resultados y pendientes. Los Issues contienen ejecución y evidencia; el Modelo del Dominio contiene las reglas. No se duplican detalles técnicos aquí.
 
 ## Estado de productos
 
-- APP LLAMADOS Legacy: productivo, versión visible `App_llamados_v1.05-ui-20260803-07`.
+- APP LLAMADOS Legacy: productivo, versión visible `UI-20260804-09`; candidato estadístico `UI-20260804-10` sólo en DEV.
 - CRM Patrimonial Next: modelo conceptual mínimo aprobado; diseño físico aún no autorizado.
 
 ## Fase 0 · Fundamentos y gobernanza
@@ -42,6 +42,7 @@ Estado: sustancialmente completada; quedan dos brechas explícitas.
 | Exclusión persistente de campañas inválidas | Pendiente de diseño e implementación | Issue #38 |
 | Navegación contextual y retorno exacto | Implementado y aprobado en PROD | Issue #39, `UI-20260803-07` |
 | Metadatos semánticos de `get_contacts_v2` | Defecto conocido; pendiente de Issue propio | Hallazgo del Issue #36 |
+| Contrato unificado y cockpit motivacional de estadísticas | <span style="color:red">En implementación en DEV; PROD intacto</span> | Issue #52, ADR-027 |
 
 La antigua regla de “término automático de campaña por primera carga siguiente” no se presume vigente: el Modelo Operacional exige alcance comparable y conciliación explícita. La caducidad temporal de la cola tampoco debe confundirse con el historial de la Persona.
 
@@ -81,12 +82,13 @@ Estado: estructura creada; auditoría de catálogo pendiente.
 
 ## Fase 5 · Proyección y analítica
 
-Estado: pendiente, salvo métricas Legacy.
+Estado: pendiente, salvo métricas Legacy y el <span style="color:red">cockpit motivacional en validación mediante Issue #52</span>.
 
 - proyección por Caso y período;
 - CNS proyectados, sometidos, emitidos y reconocidos;
 - capital esperado y materializado;
 - pipeline y escenarios mensual, trimestral y anual.
+- <span style="color:red">mantener separada la equivalencia operativa por Agendamiento de las proyecciones comerciales por Caso.</span>
 
 ## Fase 6 · Productos Contratados y postventa
 

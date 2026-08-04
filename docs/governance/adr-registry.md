@@ -2,9 +2,9 @@
 
 - Estado: Vigente
 - Fecha de reconciliación: 2026-08-01
-- Última actualización: 2026-08-03
+- Última actualización: 2026-08-04
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260803-01
+- Último LCD: LCD-20260804-01
 - Issue: #28
 
 Este archivo gobierna la asignación de identificadores ADR. Las decisiones ADR-001 a ADR-020 están consolidadas en `docs/adr/ADR-001-020-historical-decisions.md`; los modelos vigentes incorporan sus refinamientos posteriores.
@@ -39,6 +39,7 @@ Este archivo gobierna la asignación de identificadores ADR. Las decisiones ADR-
 | ADR-024 | Límites entre Modelo Comercial y Modelo Operacional de CRM Patrimonial Next | Aprobado | `docs/adr/ADR-024-limites-modelo-comercial-operacional.md` | LCD-20260801-02 |
 | ADR-025 | Estructura mínima del desarrollo comercial | Aprobado; equivalencia histórica resuelta | `docs/adr/ADR-025-estructura-minima-desarrollo-comercial.md` | LCD-20260802-01 |
 | ADR-026 | Ubicación documental única sin espejos | Aprobado | `docs/adr/ADR-026-ubicacion-unica-sin-espejos.md` | LCD-20260803-01 |
+| ADR-027 | Estadísticas motivacionales separadas de hechos comerciales | <span style="color:red">Pendiente de revisión</span> | `docs/adr/ADR-027-estadisticas-motivacionales-y-proyecciones-esperadas.md` | LCD-20260804-01 |
 
 ## Colisiones históricas resueltas
 

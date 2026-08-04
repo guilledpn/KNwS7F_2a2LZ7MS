@@ -294,6 +294,7 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
         <div class="screen-sub" id="stats-sub">Gestión de hoy</div>
       </div>
       <div class="segment" id="stats-segment">
+        <button onclick="setStats('hora',this)">Ahora</button>
         <button class="on" onclick="setStats('hoy',this)">Hoy</button>
         <button onclick="setStats('semana',this)">Semana</button>
         <button onclick="setStats('mes',this)">Mes</button>
@@ -374,10 +375,10 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
   <div class="sheet" id="sheet"><div class="grip"></div><div class="sheet-title">Período activo</div><div id="period-list"></div></div>
   <div class="sheet-bg" id="settings-bg" onclick="closeSettings()"></div>
   <div class="sheet settings-sheet" id="settings-sheet"><div class="grip"></div><div class="sheet-head"><div class="sheet-title">Ajustes</div><button class="sheet-close" onclick="closeSettings()">Listo</button></div><div class="settings-body">
-      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_v1.05 · 2026-07-09 · Graphite · Supabase nuevo</div></div>
+      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_v1.05 · UI-20260804-10 candidata · Cockpit motivacional</div></div>
       <div class="settings-section"><div class="toggle-row"><div class="toggle-main"><div class="toggle-title">Llamado automático</div><div class="toggle-sub">Cuando está activo, el botón de llamar envía el número al webhook MacroDroid en formato 9 dígitos.</div></div><button id="auto-call-switch" class="switch" onclick="toggleAutoCall()" aria-label="Activar llamado automático"></button></div><label class="settings-label" for="auto-call-url">Webhook MacroDroid</label><div class="input-surface compact"><input id="auto-call-url" type="url" inputmode="url" oninput="saveAutoCallUrl(this.value)"></div></div>
       <div class="settings-section"><label class="settings-label" for="tasks-webhook-url">Webhook Google Tasks</label><div class="input-surface compact"><input id="tasks-webhook-url" type="url" inputmode="url" placeholder="Pega aquí el webhook de Tasks" oninput="saveTasksWebhookUrl(this.value)"></div><div class="settings-note" style="margin:8px 2px 0">El recordatorio solo se guarda cuando presionas el botón Tasks en la tarjeta.</div></div>
-      <div class="settings-section"><label class="settings-label" for="monthly-goal-input">Meta mensual de agendas</label><div class="input-surface compact"><input id="monthly-goal-input" type="number" min="0" inputmode="numeric" placeholder="Ej: 160"></div><div style="margin-top:10px"><button class="primary-btn" onclick="saveMonthlyGoal()">Guardar meta mensual</button></div><div class="settings-note" id="monthly-goal-note" style="margin:8px 2px 0"></div></div>
+      <div class="settings-section"><label class="settings-label" for="monthly-goal-input">Meta mensual de agendas</label><div class="input-surface compact"><input id="monthly-goal-input" type="number" min="0" inputmode="numeric" placeholder="Ej: 189"></div><label class="settings-label" for="cns-per-agenda-input" style="margin-top:12px">CNS esperados por agenda</label><div class="input-surface compact"><input id="cns-per-agenda-input" type="number" min="0.01" step="0.1" inputmode="decimal" placeholder="Ej: 2,5"></div><label class="settings-label" for="clp-per-cns-input" style="margin-top:12px">Valor estimado por CNS</label><div class="input-surface compact"><input id="clp-per-cns-input" type="number" min="1" step="1000" inputmode="numeric" placeholder="Ej: 10000"></div><div style="margin-top:10px"><button class="primary-btn" onclick="saveMonthlyGoal()">Guardar meta y equivalencias</button></div><div class="settings-note" id="monthly-goal-note" style="margin:8px 2px 0"></div></div>
       <div class="settings-actions"><button class="sheet-close" style="width:100%;justify-content:center" onclick="signOut()">Cerrar sesión</button></div>
     </div></div>
   <div class="sheet-bg" id="filter-bg" onclick="closeFilterSheet()"></div>
@@ -885,10 +886,12 @@ function currentGoalMonth(){return todayCL().slice(0,7);}
 function workdaysInRange(from,to){let n=0;const f=new Date(from+'T12:00:00'),t=new Date(to+'T12:00:00');for(let d=new Date(f);d<=t;d.setDate(d.getDate()+1)){const w=d.getDay();if(w>=1&&w<=5)n++;}return n;}
 async function goalSettings(m=currentGoalMonth()){
   const local=Number(localStorage.getItem('crm_ffvv_monthly_goal_'+m)||0);
-  if(local>0)return{daily_goal:Math.ceil(local/workdaysInMonthCode(m)),monthly_goal:local,source:'local'};
-  if(!sb)return{daily_goal:0,monthly_goal:0,source:'none'};
-  try{const {data}=await sb.from('crm_goals').select('daily_goal,monthly_goal').eq('goal_month',m).maybeSingle();return Object.assign({daily_goal:0,monthly_goal:0,source:'db'},data||{});} 
-  catch(e){try{const {data}=await sb.from('crm_goals').select('daily_goal').eq('goal_month',m).maybeSingle();return Object.assign({daily_goal:0,monthly_goal:0,source:'db'},data||{});}catch(_){return{daily_goal:0,monthly_goal:0,source:'none'};}}
+  const localCns=Number(localStorage.getItem('crm_ffvv_estimated_cns_per_agenda_'+m)||2.5);
+  const localClp=Number(localStorage.getItem('crm_ffvv_estimated_clp_per_cns_'+m)||10000);
+  const fallback={daily_goal:local>0?Math.ceil(local/workdaysInMonthCode(m)):0,monthly_goal:local,estimated_cns_per_agenda:localCns>0?localCns:2.5,estimated_clp_per_cns:localClp>0?localClp:10000,source:local>0?'local-fallback':'default-fallback'};
+  if(!sb)return fallback;
+  try{const {data,error}=await sb.from('crm_goals').select('daily_goal,monthly_goal,estimated_cns_per_agenda,estimated_clp_per_cns').eq('goal_month',m).maybeSingle();if(error)throw error;return data?Object.assign({},fallback,data,{source:'db'}):fallback;}
+  catch(e){try{const {data,error}=await sb.from('crm_goals').select('daily_goal,monthly_goal').eq('goal_month',m).maybeSingle();if(error)throw error;return data?Object.assign({},fallback,data,{source:'db-legacy'}):fallback;}catch(_){return fallback;}}
 }
 function goalModel(kind,from,to,g){
   const m=from.slice(0,7);
@@ -903,9 +906,21 @@ async function dailyGoal(m=currentGoalMonth()){const g=await goalSettings(m);if(
 function setStats(k,btn){stats=k;document.querySelectorAll('#stats-segment button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderStats()}
 function fmt(v){return Number(v||0).toLocaleString('es-CL')}
 function miniBlocks(n){n=Math.max(0,Number(n||0));const parts=[];let left=n;for(let i=0;i<4;i++){const x=i<3?Math.min(2,left):left;left-=x;parts.push(Math.max(0,x))}return parts.map((x,i)=>`<div><b>${x}</b><span>bloque ${i+1}</span></div>`).join('')}
-function chartMonth(story){const rows=story?.series||[];if(!rows.length)return '<div class="native-chart"><div class="metric-note">Sin calendario todavía.</div></div>';const max=Math.max(1,...rows.map(r=>Number(r.expected_cumulative||0)),...rows.map(r=>Number(r.actual_cumulative||0))),n=rows.length,x=i=>5+(n===1?0:i/(n-1)*90),y=v=>46-(Number(v||0)/max)*38,path=k=>rows.map((r,i)=>(i?'L':'M')+x(i).toFixed(2)+' '+y(r[k]).toFixed(2)).join(' '),idx=Math.max(0,rows.findIndex(r=>r.day===story.today));return '<div class="native-chart"><svg viewBox="0 0 100 56" preserveAspectRatio="none">'+[0,.25,.5,.75,1].map(k=>'<line x1="5" x2="95" y1="'+(46-k*38).toFixed(2)+'" y2="'+(46-k*38).toFixed(2)+'" stroke="rgba(100,116,139,.22)"/>').join('')+'<line x1="'+x(idx).toFixed(2)+'" x2="'+x(idx).toFixed(2)+'" y1="6" y2="50" stroke="#f59e0b" stroke-width=".55"/><path d="'+path('expected_cumulative')+'" fill="none" stroke="rgba(100,116,139,.75)" stroke-width="1.2" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round"/><path d="'+path('actual_cumulative')+'" fill="none" stroke="var(--primary)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="native-legend"><span>— real</span><span>··· ideal</span><span>│ hoy</span></div>'}
+function chartMonth(story,forecastEnd=null){
+  const rows=story?.series||[];
+  if(!rows.length)return '<div class="native-chart"><div class="metric-note">Sin calendario todavía.</div></div>';
+  const realRows=rows.map((row,index)=>({row,index})).filter(x=>x.row.actual_cumulative!=null);
+  const max=Math.max(1,...rows.map(r=>Number(r.expected_cumulative||0)),...realRows.map(x=>Number(x.row.actual_cumulative||0)),Number(forecastEnd||0));
+  const n=rows.length,x=i=>5+(n===1?0:i/(n-1)*90),y=v=>46-(Number(v||0)/max)*38;
+  const path=(items,key)=>items.map((item,j)=>(j?'L':'M')+x(item.index).toFixed(2)+' '+y(item.row[key]).toFixed(2)).join(' ');
+  const allRows=rows.map((row,index)=>({row,index}));
+  const found=rows.findIndex(r=>r.day===story.today),idx=found>=0?found:Math.max(0,realRows.length-1);
+  const actualToday=realRows.length?Number(realRows[realRows.length-1].row.actual_cumulative||0):0;
+  const forecast=forecastEnd!=null&&idx<n-1?`<path d="M${x(idx).toFixed(2)} ${y(actualToday).toFixed(2)} L${x(n-1).toFixed(2)} ${y(forecastEnd).toFixed(2)}" fill="none" stroke="var(--primary)" stroke-opacity=".58" stroke-width="1.35" stroke-dasharray="3 2"/>`:'';
+  return '<div class="native-chart"><svg viewBox="0 0 100 56" preserveAspectRatio="none">'+[0,.25,.5,.75,1].map(k=>'<line x1="5" x2="95" y1="'+(46-k*38).toFixed(2)+'" y2="'+(46-k*38).toFixed(2)+'" stroke="rgba(100,116,139,.22)"/>').join('')+'<line x1="'+x(idx).toFixed(2)+'" x2="'+x(idx).toFixed(2)+'" y1="6" y2="50" stroke="#f59e0b" stroke-width=".55"/><path d="'+path(allRows,'expected_cumulative')+'" fill="none" stroke="rgba(100,116,139,.75)" stroke-width="1.2" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round"/><path d="'+path(realRows,'actual_cumulative')+'" fill="none" stroke="var(--primary)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>'+forecast+'</svg></div><div class="native-legend"><span>— real hasta hoy</span><span>··· ideal</span><span>-- forecast</span><span>│ hoy</span></div>';
+}
 
-function reportCardSkeleton(){return `<div id="crm-report-card" style="background:var(--surface);border:1px solid var(--outline-variant);border-radius:24px;box-shadow:var(--shadow);margin:12px 0 0;overflow:hidden"><div style="height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--outline-variant)"><h3 style="font-size:16px;margin:0;font-weight:800;color:var(--on-surface)">Informe diario</h3><button style="height:36px;border-radius:18px;background:var(--surface-container-low);color:var(--on-surface);font-weight:700;padding:0 13px" onclick="loadDailyReport(true)">Actualizar</button></div><div style="padding:14px 16px"><div class="report-title">Agendamientos</div><div id="crm-report-block1" style="white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;line-height:1.42;color:var(--on-surface-variant);background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:16px;padding:12px;max-height:180px;overflow:auto">Agendamientos\nCargando...</div><div style="display:flex;gap:8px;margin-top:10px"><button style="height:38px;border-radius:19px;background:var(--primary);color:var(--on-primary);font-weight:800;padding:0 14px" onclick="copyReportBlock('crm-report-block1')">Copiar</button></div></div><div style="padding:14px 16px;border-top:1px solid var(--outline-variant)"><div class="report-title">Reporte</div><div id="crm-report-block2" style="white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;line-height:1.42;color:var(--on-surface-variant);background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:16px;padding:12px;max-height:180px;overflow:auto">Reporte\nCargando...</div><div style="display:flex;gap:8px;margin-top:10px"><button style="height:38px;border-radius:19px;background:var(--primary);color:var(--on-primary);font-weight:800;padding:0 14px" onclick="copyReportBlock('crm-report-block2')">Copiar</button></div></div></div>`}
+function reportCardSkeleton(){return `<details id="crm-report-card" style="background:var(--surface);border:1px solid var(--outline-variant);border-radius:24px;box-shadow:var(--shadow);margin:12px 0 0;overflow:hidden"><summary style="min-height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;cursor:pointer;font-weight:800;color:var(--on-surface)"><span>Informe diario</span><span class="metric-note">Ver detalle</span></summary><div style="border-top:1px solid var(--outline-variant)"><div style="padding:14px 16px"><div class="report-title">Agendamientos</div><div id="crm-report-block1" style="white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;line-height:1.42;color:var(--on-surface-variant);background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:16px;padding:12px;max-height:180px;overflow:auto">Agendamientos\nCargando...</div><div style="display:flex;gap:8px;margin-top:10px"><button style="height:38px;border-radius:19px;background:var(--primary);color:var(--on-primary);font-weight:800;padding:0 14px" onclick="copyReportBlock('crm-report-block1')">Copiar</button></div></div><div style="padding:14px 16px;border-top:1px solid var(--outline-variant)"><div class="report-title">Reporte</div><div id="crm-report-block2" style="white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;line-height:1.42;color:var(--on-surface-variant);background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:16px;padding:12px;max-height:180px;overflow:auto">Reporte\nCargando...</div><div style="display:flex;gap:8px;margin-top:10px"><button style="height:38px;border-radius:19px;background:var(--primary);color:var(--on-primary);font-weight:800;padding:0 14px" onclick="copyReportBlock('crm-report-block2')">Copiar</button><button style="height:38px;border-radius:19px;background:var(--surface-container-low);color:var(--on-surface);font-weight:700;padding:0 14px" onclick="loadDailyReport(true)">Actualizar</button></div></div></div></details>`}
 function reportStateKey(label){const s=String(label||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();if(s==='agenda')return'agenda';if(s==='no agenda')return'no_agenda';if(s==='volver a llamar')return'volver';if(s==='no contactado')return'no_contactado';if(s==='contacto invalido'||s==='invalido')return'invalido';if(s==='gestionado')return'gestionado';return s||'pendiente'}
 async function copyReportBlock(id){const el=$(id);if(!el)return;try{await navigator.clipboard.writeText(el.textContent||'');toast('Reporte copiado')}catch(e){copyText(el.textContent||'','Reporte')}}
 async function loadDailyReport(force=false){
@@ -931,7 +946,7 @@ async function loadDailyReport(force=false){
     const efectivas=(counts.agenda||0)+(counts.no_agenda||0);
     b1.textContent='Agendamientos\n'+(agendas.length?agendas.map(x=>'- '+x.nombre+(x.rut?' · '+x.rut:'')).join('\n'):'- Sin agendamientos');
     b2.textContent='Reporte\nLlamadas totales: '+total+'\nLlamadas efectivas: '+efectivas+'\nAgendan: '+(counts.agenda||0)+'\nNo Agenda: '+(counts.no_agenda||0);
-  }catch(e){b1.textContent='Agendamientos\n- Error al cargar datos';b2.textContent='Reporte\nLlamadas totales: 0\nLlamadas efectivas: 0\nAgendan: 0\nNo Agenda: 0';}
+  }catch(e){b1.textContent='Agendamientos\n- Datos no disponibles';b2.textContent='Reporte\nDatos no disponibles por error de carga.';}
 }
 
 async function renderStats(){
@@ -952,11 +967,14 @@ async function renderStats(){
     const rec=Math.max(Number(m.recommended_today_agendas||0),needed,defaultDaily,Number(t.goal_agendas||0));
     const progress=target?Math.min(100,Math.round(actual/target*100)):0,missionPct=rec?Math.min(100,Math.round(todayAg/rec*100)):0;
     const projectedCurrent=Number(m.projected_end_at_current_pace||0);
-    const projectedNormal=Math.max(actual,actual+(defaultDaily*Math.max(0,daysLeft)));
+    const isWorkday=t.is_workday!==false&&target>0;
+    const remainingAfterToday=Math.max(0,daysLeft-(isWorkday?1:0));
+    const remainingToday=isWorkday?Math.max(0,defaultDaily-todayAg):0;
+    const projectedNormal=Math.max(actual,actual+remainingToday+(defaultDaily*remainingAfterToday));
     const paceSentence=remainingAgendas<=0?'Meta mensual cumplida. Ahora la misión es sostener calidad y registrar bien.':(needed>defaultDaily?'La meta normal diaria ya no alcanza: necesitas una recuperación repartida en los días hábiles que quedan.':'Si sostienes la meta normal diaria, todavía estás dentro del camino de cierre.');
     $('stats-sub').textContent='Cockpit de trabajo, ritmo mensual y misiones';
     let html=`<div class="metric-grid"><div class="metric full"><div class="metric-label">Misión útil de hoy</div><div class="metric-number">${fmt(todayAg)} / ${fmt(rec)}</div><div class="progress"><div class="fill" style="width:${missionPct}%"></div></div><div class="metric-note">Meta normal: ${fmt(defaultDaily)}. Para cerrar el mes conviene apuntar a ${fmt(needed)} agenda(s) por día útil restante.</div><div class="native-mini">${miniBlocks(rec)}</div></div><div class="metric"><div class="metric-label">Llamados hoy</div><div class="metric-number">${fmt(todayCalls)}</div><div class="metric-note">Gestiones guardadas hoy.</div></div><div class="metric"><div class="metric-label">Agendas hoy</div><div class="metric-number">${fmt(todayAg)}</div><div class="metric-note">Agendas reales del día.</div></div><div class="metric"><div class="metric-label">Conversión</div><div class="metric-number">${p.agenda_rate==null?'–':p.agenda_rate+'%'}</div><div class="metric-note">Período seleccionado.</div></div><div class="metric"><div class="metric-label">Llamados / agenda</div><div class="metric-number">${p.calls_per_agenda==null?'–':p.calls_per_agenda}</div><div class="metric-note">Mientras más bajo, mejor.</div></div></div>`;
-    html+=`<div class="status-list native-story"><div class="status-list-title">Historia del mes</div><div class="metric-note" style="padding:14px 18px 0">${esc(paceSentence)}</div>${chartMonth(story)}</div>`;
+    html+=`<div class="status-list native-story"><div class="status-list-title">Historia del mes</div><div class="metric-note" style="padding:14px 18px 0">${esc(paceSentence)}</div>${chartMonth(story,projectedCurrent)}</div>`;
     html+=`<div class="native-scenarios"><div class="native-scenario"><div><b>Si sigues igual</b><div class="metric-note">Proyección al cierre.</div></div><strong>${fmt(projectedCurrent)}/${fmt(target)}</strong></div><div class="native-scenario"><div><b>Si haces lo normal</b><div class="metric-note">${fmt(defaultDaily)} por día útil.</div></div><strong>${fmt(projectedNormal)}/${fmt(target)}</strong></div><div class="native-scenario"><div><b>Para llegar</b><div class="metric-note">Días útiles restantes: ${fmt(daysLeft)}</div></div><strong>${fmt(needed)}/día</strong></div></div>`;
     html+=`<div class="metric-grid"><div class="metric full"><div class="metric-label">Mes laboral</div><div class="metric-number">${fmt(actual)} / ${fmt(target)}</div><div class="progress"><div class="fill" style="width:${progress}%"></div></div><div class="metric-note">Faltan ${fmt(remainingAgendas)} agendas. Meta diaria sugerida desde ahora: ${fmt(needed)}.</div></div></div>`;
     html+=reportCardSkeleton();
@@ -1433,19 +1451,22 @@ function applyPalette(k,silent=false){activePalette=k;if(k==='system'){PALETTE_V
 function toggleAutoCall(){autoCallEnabled=!autoCallEnabled;localStorage.setItem('crm_ffvv_auto_call',autoCallEnabled?'1':'0');const sw=$('auto-call-switch');if(sw)sw.classList.toggle('on',autoCallEnabled);renderDetail();toast(autoCallEnabled?'Llamado automático activo':'Llamado automático desactivado')}
 function saveAutoCallUrl(v){autoCallUrl=String(v||'').trim()||DEFAULT_MACRODROID_URL;localStorage.setItem('crm_ffvv_auto_call_url',autoCallUrl)}
 function saveTasksWebhookUrl(v){tasksWebhookUrl=String(v||'').trim();localStorage.setItem('crm_ffvv_tasks_webhook_url',tasksWebhookUrl)}
-async function loadMonthlyGoalInput(){const inp=$('monthly-goal-input'),note=$('monthly-goal-note');if(!inp)return;const m=currentGoalMonth();const g=await goalSettings(m);inp.value=g.monthly_goal||'';if(note)note.textContent=`Mes de gestión: ${monthLabel(m)}. Cuota diaria estimada: ${g.monthly_goal?Math.ceil(Number(g.monthly_goal)/workdaysInMonthCode(m)):0}. Los contactos de otros períodos igual cuentan si se gestionan este mes.`;}
+async function loadMonthlyGoalInput(){const inp=$('monthly-goal-input'),cnsInp=$('cns-per-agenda-input'),clpInp=$('clp-per-cns-input'),note=$('monthly-goal-note');if(!inp)return;const m=currentGoalMonth();const g=await goalSettings(m);const monthly=Number(g.monthly_goal||0),cns=Number(g.estimated_cns_per_agenda||2.5),clp=Number(g.estimated_clp_per_cns||10000);inp.value=monthly||'';if(cnsInp)cnsInp.value=cns;if(clpInp)clpInp.value=clp;if(note)note.textContent=`${monthLabel(m)} · ${monthly.toLocaleString('es-CL')} agendas = ${(monthly*cns).toLocaleString('es-CL',{maximumFractionDigits:2})} CNS esperados = ${(monthly*cns*clp).toLocaleString('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0})} estimados. No son CNS reconocidos ni ingreso devengado.`;}
 async function saveMonthlyGoal(){
   const m=currentGoalMonth();
   const val=Number(($('monthly-goal-input')?.value||'').replace(/\D/g,''))||0;
+  const cns=Number(String($('cns-per-agenda-input')?.value||'2.5').replace(',','.'))||2.5;
+  const clp=Number(String($('clp-per-cns-input')?.value||'10000').replace(/\D/g,''))||10000;
   const daily=val?Math.ceil(val/workdaysInMonthCode(m)):0;
   try{localStorage.setItem('crm_ffvv_monthly_goal_'+m,String(val));}catch(e){}
+  try{localStorage.setItem('crm_ffvv_estimated_cns_per_agenda_'+m,String(cns));localStorage.setItem('crm_ffvv_estimated_clp_per_cns_'+m,String(clp));}catch(e){}
   if(sb){
     try{
-      const {error}=await sb.from('crm_goals').upsert({goal_month:m,monthly_goal:val,daily_goal:daily,updated_at:new Date().toISOString()},{onConflict:'goal_month'});
+      const {error}=await sb.from('crm_goals').upsert({goal_month:m,monthly_goal:val,daily_goal:daily,estimated_cns_per_agenda:cns,estimated_clp_per_cns:clp,updated_at:new Date().toISOString()},{onConflict:'goal_month'});
       if(error)throw error;
-      toast('Meta mensual guardada para '+monthLabel(m));
-    }catch(e){toast('Meta guardada localmente. No se pudo sincronizar: '+(e.message||e));}
-  }else toast('Meta guardada localmente');
+      toast('Meta y equivalencias guardadas para '+monthLabel(m));
+    }catch(e){toast('Meta y equivalencias guardadas localmente. No se pudo sincronizar: '+(e.message||e));}
+  }else toast('Meta y equivalencias guardadas localmente');
   await refreshGoal();
   if(currentScreen==='stats')renderStats();
   await loadMonthlyGoalInput();
@@ -1542,6 +1563,7 @@ async function bootData(){
   const auxPromise=Promise.allSettled([loadCampaigns(),refreshGoal()]).then(()=>{if($('filter-sheet')?.classList.contains('on'))renderFilterSheet();});
   await contactsPromise;
   auxPromise.catch(()=>{});
+  if(new URLSearchParams(location.search).get('screen')==='stats')setScreen('stats');
 }
 async function initAuth(){
   applyPalette(activePalette,true);
