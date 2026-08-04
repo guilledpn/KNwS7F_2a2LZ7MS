@@ -54,6 +54,9 @@ begin
   lock table public.work_queue in share row exclusive mode;
   lock table public.crm_import_runs in share row exclusive mode;
   lock table public.crm_import_progress in share row exclusive mode;
+  lock table public.crm_log in share row exclusive mode;
+  lock table public.crm_events in share row exclusive mode;
+  lock table public.crm_analysis_sample_items in share row exclusive mode;
 
   select count(*)::integer,count(distinct contact_id)::integer,
          count(*) filter(where is_assigned)::integer
@@ -181,7 +184,8 @@ begin
     issue63_ops.snapshot_monthly_order,
     issue63_ops.snapshot_work_queue,
     issue63_ops.snapshot_import_runs,
-    issue63_ops.snapshot_import_progress;
+    issue63_ops.snapshot_import_progress,
+    issue63_ops.snapshot_sequences;
 
   insert into issue63_ops.snapshot_contacts
   select
@@ -222,6 +226,10 @@ begin
   join issue63_ops.file_manifest m
     on m.operation_key=v_operation.operation_key
    and m.file_name=p.file_name and m.load_type=p.load_type and p.period=v_operation.period;
+
+  insert into issue63_ops.snapshot_sequences(operation_key,sequence_name,last_value,is_called)
+  select v_operation.operation_key,'public.crm_import_runs_run_id_seq',s.last_value,s.is_called
+  from public.crm_import_runs_run_id_seq s;
 
   insert into public.contacts(
     rut_norm,rut,nombre,telefono_1,telefono_2,telefono_3,email
