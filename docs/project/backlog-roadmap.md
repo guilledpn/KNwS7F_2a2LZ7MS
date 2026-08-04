@@ -1,15 +1,15 @@
 # Backlog y Roadmap del CRM Patrimonial
 
 - Estado: Vigente
-- Versión: 2.1 candidata
+- Versión: 2.1
 - Última actualización: 2026-08-04
-- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
+- LCD: LCD-20260803-01 y LCD-20260804-01
 
 Este documento ordena resultados y pendientes. Los Issues contienen ejecución y evidencia; el Modelo del Dominio contiene las reglas. No se duplican detalles técnicos aquí.
 
 ## Estado de productos
 
-- APP LLAMADOS Legacy: productivo, versión visible `UI-20260804-09`; candidato estadístico `UI-20260804-10` sólo en DEV.
+- APP LLAMADOS Legacy: productivo, versión visible `UI-20260804-10`; cockpit estadístico y backend asociados promovidos mediante PR #53.
 - CRM Patrimonial Next: modelo conceptual mínimo aprobado; diseño físico aún no autorizado.
 
 ## Fase 0 · Fundamentos y gobernanza
@@ -27,9 +27,9 @@ Pendiente administrativo: revisar o cerrar el material educativo del PR #21.
 
 ## Fase 1 · Corrección de reglas y continuidad del Legacy
 
-Estado: sustancialmente completada; quedan dos brechas explícitas.
+Estado: sustancialmente completada; quedan dos brechas funcionales explícitas y una aceptación visual postdespliegue.
 
-| Resultado | Estado real al 2026-08-03 | Evidencia |
+| Resultado | Estado real al 2026-08-04 | Evidencia |
 |---|---|---|
 | Gestionabilidad por última aparición válida | Implementada y promovida | ADR-020, PR #19 y #20 |
 | Asignados propios visibles | Implementado | Política de elegibilidad y tests |
@@ -42,7 +42,8 @@ Estado: sustancialmente completada; quedan dos brechas explícitas.
 | Exclusión persistente de campañas inválidas | Pendiente de diseño e implementación | Issue #38 |
 | Navegación contextual y retorno exacto | Implementado y aprobado en PROD | Issue #39, `UI-20260803-07` |
 | Metadatos semánticos de `get_contacts_v2` | Defecto conocido; pendiente de Issue propio | Hallazgo del Issue #36 |
-| Contrato unificado y cockpit motivacional de estadísticas | <span style="color:red">En implementación en DEV; PROD intacto</span> | Issue #52, ADR-027 |
+| Contrato unificado y cockpit motivacional de estadísticas | Implementado, probado y promovido a PROD | LCD-20260804-01, ADR-027, Issue #52, PR #53, `UI-20260804-10` |
+| Smoke visual autenticado postdespliegue del cockpit | Pendiente; no reabre el lote aprobado | Issue #54 |
 
 La antigua regla de “término automático de campaña por primera carga siguiente” no se presume vigente: el Modelo Operacional exige alcance comparable y conciliación explícita. La caducidad temporal de la cola tampoco debe confundirse con el historial de la Persona.
 
@@ -82,13 +83,13 @@ Estado: estructura creada; auditoría de catálogo pendiente.
 
 ## Fase 5 · Proyección y analítica
 
-Estado: pendiente, salvo métricas Legacy y el <span style="color:red">cockpit motivacional en validación mediante Issue #52</span>.
+Estado: pendiente para Next, salvo métricas Legacy y cockpit motivacional ya promovidos.
 
 - proyección por Caso y período;
 - CNS proyectados, sometidos, emitidos y reconocidos;
 - capital esperado y materializado;
-- pipeline y escenarios mensual, trimestral y anual.
-- <span style="color:red">mantener separada la equivalencia operativa por Agendamiento de las proyecciones comerciales por Caso.</span>
+- pipeline y escenarios mensual, trimestral y anual;
+- mantener separada la equivalencia operativa por Agendamiento de las proyecciones comerciales por Caso.
 
 ## Fase 6 · Productos Contratados y postventa
 
@@ -118,10 +119,11 @@ Estado: pendiente y no prioritario.
 
 ## Prioridad recomendada
 
-1. Completar las dos acciones manuales de Drive registradas en Issue #40.
-2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-3. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
-4. Definir el LCD de diseño físico mínimo `next_v03`.
-5. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
+1. Completar manualmente las tres acciones de Drive registradas en Issue #40; el conector mantiene `403 appNotAuthorizedToFile`.
+2. Ejecutar el smoke visual autenticado postdespliegue del cockpit mediante Issue #54.
+3. Diseñar y cerrar Issue #38 sin experimentar en PROD.
+4. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
+5. Definir el LCD de diseño físico mínimo `next_v03`.
+6. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
 
 Toda iniciativa debe demostrar que representa negocio real, reduce carga, protege continuidad, puede probarse en DEV y evita crear otra fuente de verdad.
