@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='app-llamados-dev-lcd-20260713-01-stats';
+const CACHE_NAME='app-llamados-dev-lcd-20260804-01-stats';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
 const MODULE_SHELL=[
   './assets/app/config/environment.js',
@@ -26,8 +26,8 @@ self.addEventListener('activate',event=>{
     await Promise.all(clients.map(client=>{
       try{
         const url=new URL(client.url);
-        if(url.searchParams.get('_devsw')!=='LCD-20260713-01'){
-          url.searchParams.set('_devsw','LCD-20260713-01');
+        if(url.searchParams.get('_devsw')!=='LCD-20260804-01'){
+          url.searchParams.set('_devsw','LCD-20260804-01');
           return client.navigate(url.href);
         }
       }catch(_){ }

@@ -1,9 +1,9 @@
 # Autoridad e índice documental del CRM Patrimonial
 
 - Estado: Aprobado
-- Última actualización: 2026-08-03
-- LCD: LCD-20260803-01
-- ADR: ADR-023 y ADR-026
+- Última actualización: 2026-08-04
+- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
+- ADR: ADR-023, ADR-026 y <span style="color:red">ADR-027 pendiente de revisión</span>
 
 ## Regla fundamental
 
@@ -90,7 +90,7 @@ GitHub puede enlazar estas fuentes, pero no copiar su contenido. Drive no copia 
 | Documento | Uso |
 |---|---|
 | `docs/adr/ADR-001-020-historical-decisions.md` | Historia consolidada anterior a Docs-as-Code |
-| `docs/adr/ADR-021-*` a `ADR-026-*` | Decisiones completas actuales |
+| `docs/adr/ADR-021-*` a `ADR-027-*` | Decisiones completas actuales |
 | `docs/governance/adr-registry.md` | Identificadores y estado de ADR |
 | `docs/governance/lcd-registry.md` | Identificadores y estado de LCD |
 | `docs/governance/document-authority.md` | Regla e índice actual; no hay catálogo separado |

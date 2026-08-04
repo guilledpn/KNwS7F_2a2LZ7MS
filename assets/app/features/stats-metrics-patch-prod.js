@@ -1,7 +1,7 @@
 (function installProdStatsMetricsPatch(global){
   'use strict';
 
-  const PATCH_ID='LCD-20260713-01';
+  const PATCH_ID='LCD-20260804-01';
   const NAVIGATION_PATCH_ID='UI-20260803-02';
   let installed=false;
   let navigationInstalled=false;
@@ -10,6 +10,8 @@
   const byId=id=>document.getElementById(id);
   const num=value=>Number(value||0);
   const format=value=>num(value).toLocaleString('es-CL');
+  const decimal=value=>num(value).toLocaleString('es-CL',{maximumFractionDigits:2});
+  const currency=value=>num(value).toLocaleString('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0});
   const percent=value=>value==null?'–':Number(value).toLocaleString('es-CL',{maximumFractionDigits:1})+'%';
   const breakdownValue=(breakdown,label)=>Number((breakdown||{})[label]||0);
   const getClient=()=>typeof sb!=='undefined'?sb:null;
@@ -121,8 +123,8 @@
         'Pendiente: '+format(breakdownValue(breakdown,'Pendiente'))
       ].join('\n');
     }catch(error){
-      blockAgendas.textContent='Agendamientos\n- Error al cargar datos';
-      blockReport.textContent='Reporte\nContactos trabajados: 0\nLlamadas efectivas: 0\nAgendan: 0\nNo agenda: 0';
+      blockAgendas.textContent='Agendamientos\n- Datos no disponibles';
+      blockReport.textContent='Reporte\nDatos no disponibles por error de carga.';
       console.error('PROD stats report patch',error);
     }
   }
@@ -157,62 +159,76 @@
     scroll.innerHTML='<div class="empty">Cargando estadísticas…</div>';
 
     try{
-      const days=stats==='hoy'?1:(stats==='semana'?7:30);
-      const [legacyRes,metricsRes]=await Promise.all([
-        client.rpc('get_stats_v1',{p_days:days,p_goal_agendas:null}),
-        client.rpc('get_management_metrics_v1',{p_days:days})
-      ]);
-      if(legacyRes.error)throw legacyRes.error;
-      if(metricsRes.error)throw metricsRes.error;
+      const {data,error}=await client.rpc('get_stats_cockpit_v1');
+      if(error)throw error;
 
-      const legacy=legacyRes.data||{};
-      const metrics=metricsRes.data||{};
-      const t=metrics.today||{};
-      const p=metrics.period||{};
-      const derivedMonth=metrics.month||{};
-      const m=legacy.month||{};
-      const rawStory=legacy.month_story||{};
-      const story=correctedStory(rawStory,derivedMonth.daily_series);
-      const gs=await goalSettings(currentGoalMonth());
+      const cockpit=data||{};
+      const goal=cockpit.goal||{};
+      const month=cockpit.month||{};
+      const story=cockpit.month_story||{};
+      const periods=cockpit.periods||{};
+      const periodKey=stats==='hora'?'last_hour':(stats==='semana'?'week':(stats==='mes'?'month':'today'));
+      const selected=periods[periodKey]||periods.today||{};
+      const today=periods.today||{};
+      const nextAgenda=cockpit.next_agenda||{};
 
-      const manualAgendas=num(m.manual_agendas??rawStory.manual_agendas);
-      const actual=manualAgendas+num(derivedMonth.agendas);
-      const todayAgendas=num(t.agendas);
-      const todayWorked=num(t.worked_contacts);
-      const todayEffective=num(t.effective_calls);
-      const todayNoAgenda=num(t.no_agenda);
-      const target=num(gs.monthly_goal||m.target_agendas_total);
-      const totalWorkdays=workdaysInMonthCode(currentGoalMonth());
-      const defaultDaily=num(gs.monthly_goal?Math.ceil(target/totalWorkdays):(m.default_daily_target||legacy.today?.goal_agendas));
-      const daysLeft=num(m.business_days_left_including_today);
-      const elapsedDays=num(m.business_days_through_today)||Math.max(1,totalWorkdays-daysLeft+1);
-      const remainingAgendas=Math.max(0,target-actual);
-      const needed=daysLeft?Math.ceil(remainingAgendas/daysLeft):0;
-      const recommended=Math.max(needed,defaultDaily,num(legacy.today?.goal_agendas));
+      const target=num(goal.monthly_agendas);
+      const normalDaily=num(goal.normal_daily_agendas);
+      const todayTarget=num(goal.today_target_agendas);
+      const actual=num(month.actual_agendas);
+      const todayAgendas=num(today.agendas);
+      const remaining=num(month.remaining_agendas);
+      const expectedToday=num(month.expected_through_today);
+      const gap=num(month.gap_to_pace);
+      const daysLeft=num(month.active_days_left_including_today);
+      const needed=num(month.needed_daily_to_finish);
+      const recommended=num(month.recommended_today_agendas);
+      const projectedCurrent=num(month.projected_end_at_current_pace);
+      const projectedNormal=num(month.projected_end_if_normal_from_now);
+      const cnsPerAgenda=num(goal.estimated_cns_per_agenda);
+      const clpPerAgenda=num(goal.estimated_clp_per_agenda);
+      const targetCns=num(goal.target_expected_cns);
+      const targetClp=num(goal.target_expected_clp);
       const progress=target?Math.min(100,Math.round(actual/target*100)):0;
       const missionPct=recommended?Math.min(100,Math.round(todayAgendas/recommended*100)):0;
-      const projectedCurrent=elapsedDays?Math.max(actual,Math.round(actual/elapsedDays*totalWorkdays)):actual;
-      const projectedNormal=Math.max(actual,actual+defaultDaily*Math.max(0,daysLeft));
-      const effectiveRate=p.effective_conversion_rate;
-      const workedPerAgenda=p.worked_per_agenda;
-      const paceSentence=remainingAgendas<=0
-        ?'Meta mensual cumplida. Ahora la misión es sostener calidad y registrar bien.'
-        :(needed>defaultDaily
-          ?'La meta normal diaria ya no alcanza: necesitas una recuperación repartida en los días hábiles que quedan.'
-          :'Si sostienes la meta normal diaria, todavía estás dentro del camino de cierre.');
+      const generated=cockpit.generated_at?new Date(cockpit.generated_at):new Date();
+      const updated=generated.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+
+      const missionValue=recommended?format(todayAgendas)+' / '+format(recommended):format(todayAgendas)+' hoy';
+      const missionNote=target<=0
+        ?'Define la Meta Mensual en Ajustes para activar el ritmo.'
+        :(recommended>todayTarget
+          ?'Meta fijada en Ajustes: '+format(todayTarget)+' hoy. Recuperación sugerida: '+format(recommended)+' para sostener la meta mensual.'
+          :'Meta fijada en Ajustes: '+format(todayTarget)+' hoy. La misión coincide con el ritmo mensual.');
+      const paceSentence=remaining<=0
+        ?'Meta mensual cumplida. Mantén la calidad y el registro correcto.'
+        :(gap<0
+          ?'Vas '+format(Math.abs(gap))+' bajo la línea ideal de '+format(expectedToday)+' agendas a esta fecha.'
+          :'Vas '+format(gap)+' sobre la línea ideal de '+format(expectedToday)+' agendas a esta fecha.');
 
       const sub=byId('stats-sub');
-      if(sub)sub.textContent='Cockpit de trabajo, ritmo mensual y misiones';
+      if(sub)sub.textContent=(selected.label||'Hoy')+' · actualizado '+updated;
 
-      let html=`<div class="metric-grid"><div class="metric full"><div class="metric-label">Misión útil de hoy</div><div class="metric-number">${format(todayAgendas)} / ${format(recommended)}</div><div class="progress"><div class="fill" style="width:${missionPct}%"></div></div><div class="metric-note">Meta normal: ${format(defaultDaily)}. Para cerrar el mes conviene apuntar a ${format(needed)} agenda(s) por día útil restante.</div><div class="native-mini">${miniBlocks(recommended)}</div></div><div class="metric"><div class="metric-label">Trabajados hoy</div><div class="metric-number">${format(todayWorked)}</div><div class="metric-note">Contactos con cambio real de estado.</div></div><div class="metric"><div class="metric-label">Llamadas efectivas</div><div class="metric-number">${format(todayEffective)}</div><div class="metric-note">${format(todayAgendas)} agendan · ${format(todayNoAgenda)} no agendan.</div></div><div class="metric"><div class="metric-label">Agendamientos hoy</div><div class="metric-number">${format(todayAgendas)}</div><div class="metric-note">Resultado final Agenda.</div></div><div class="metric"><div class="metric-label">Conversión efectiva</div><div class="metric-number">${percent(effectiveRate)}</div><div class="metric-note">Agendamientos / llamadas efectivas.</div></div><div class="metric"><div class="metric-label">Trabajados / agenda</div><div class="metric-number">${workedPerAgenda==null?'–':workedPerAgenda}</div><div class="metric-note">Carga operativa por agendamiento.</div></div></div>`;
-      html+=`<div class="status-list native-story"><div class="status-list-title">Historia del mes</div><div class="metric-note" style="padding:14px 18px 0">${paceSentence}</div>${chartMonth(story)}</div>`;
-      html+=`<div class="native-scenarios"><div class="native-scenario"><div><b>Si sigues igual</b><div class="metric-note">Proyección al cierre.</div></div><strong>${format(projectedCurrent)}/${format(target)}</strong></div><div class="native-scenario"><div><b>Si haces lo normal</b><div class="metric-note">${format(defaultDaily)} por día útil.</div></div><strong>${format(projectedNormal)}/${format(target)}</strong></div><div class="native-scenario"><div><b>Para llegar</b><div class="metric-note">Días útiles restantes: ${format(daysLeft)}</div></div><strong>${format(needed)}/día</strong></div></div>`;
-      html+=`<div class="metric-grid"><div class="metric full"><div class="metric-label">Mes laboral</div><div class="metric-number">${format(actual)} / ${format(target)}</div><div class="progress"><div class="fill" style="width:${progress}%"></div></div><div class="metric-note">Faltan ${format(remainingAgendas)} agendas. Meta diaria sugerida desde ahora: ${format(needed)}.</div></div></div>`;
+      let html='<div class="metric-grid">';
+      html+='<div class="metric full"><div class="metric-label">Misión útil de hoy</div><div class="metric-number">'+missionValue+'</div><div class="progress"><div class="fill" style="width:'+missionPct+'%"></div></div><div class="metric-note">'+missionNote+'</div><div class="native-mini">'+miniBlocks(recommended)+'</div><div class="metric-note" style="margin-top:12px"><b>Próxima agenda:</b> +'+decimal(nextAgenda.expected_cns||cnsPerAgenda)+' CNS / +'+currency(nextAgenda.expected_clp||clpPerAgenda)+' esperados.</div></div>';
+      html+='<div class="metric full"><div class="metric-label">Pulso esperado · '+(selected.label||'Hoy')+'</div><div class="metric-number">'+currency(selected.expected_clp)+'</div><div class="metric-note">'+format(selected.agendas)+' agenda(s) = '+decimal(selected.expected_cns)+' CNS esperados. Estimación motivacional; no es producción reconocida ni ingreso devengado.</div></div>';
+      html+='<div class="metric"><div class="metric-label">Trabajados</div><div class="metric-number">'+format(selected.worked_contacts)+'</div><div class="metric-note">Personas con cambio real de estado.</div></div>';
+      html+='<div class="metric"><div class="metric-label">Llamadas efectivas</div><div class="metric-number">'+format(selected.effective_calls)+'</div><div class="metric-note">'+format(selected.agendas)+' agendan · '+format(selected.no_agenda)+' no agendan.</div></div>';
+      html+='<div class="metric"><div class="metric-label">Agendamientos</div><div class="metric-number">'+format(selected.agendas)+'</div><div class="metric-note">Resultado final Agenda en la ventana.</div></div>';
+      html+='<div class="metric"><div class="metric-label">Conversión efectiva</div><div class="metric-number">'+percent(selected.effective_conversion_rate)+'</div><div class="metric-note">Agendamientos / llamadas efectivas.</div></div></div>';
+
+      html+='<div class="status-list native-story"><div class="status-list-title">Ritmo mensual</div><div class="metric-note" style="padding:14px 18px 0">'+paceSentence+'</div>'+chartMonth(story,projectedCurrent)+'</div>';
+      html+='<div class="native-scenarios">';
+      html+='<div class="native-scenario"><div><b>Si sigues igual</b><div class="metric-note">'+currency(projectedCurrent*clpPerAgenda)+' esperados.</div></div><strong>'+format(projectedCurrent)+'/'+format(target)+'</strong></div>';
+      html+='<div class="native-scenario"><div><b>Si haces lo normal</b><div class="metric-note">'+format(normalDaily)+' por día útil · '+currency(projectedNormal*clpPerAgenda)+' esperados.</div></div><strong>'+format(projectedNormal)+'/'+format(target)+'</strong></div>';
+      html+='<div class="native-scenario"><div><b>Para llegar</b><div class="metric-note">'+format(daysLeft)+' días útiles · '+decimal(needed*cnsPerAgenda)+' CNS/día.</div></div><strong>'+format(needed)+'/día</strong></div></div>';
+
+      html+='<div class="metric-grid"><div class="metric full"><div class="metric-label">Meta del mes desde Ajustes</div><div class="metric-number">'+format(actual)+' / '+format(target)+'</div><div class="progress"><div class="fill" style="width:'+progress+'%"></div></div><div class="metric-note">'+decimal(month.actual_expected_cns)+' / '+decimal(targetCns)+' CNS esperados · '+currency(month.actual_expected_clp)+' / '+currency(targetClp)+'. Faltan '+format(remaining)+' agendas.</div></div></div>';
       html+=reportCardSkeleton();
       scroll.innerHTML=html;
       await patchedLoadDailyReport();
     }catch(error){
-      scroll.innerHTML='<div class="empty">Error al cargar estadísticas<br>'+String(error?.message||error)+'</div>';
+      scroll.innerHTML='<div class="empty">Datos estadísticos no disponibles<br>'+String(error?.message||error)+'</div>';
       console.error('PROD stats render patch',error);
     }
   }

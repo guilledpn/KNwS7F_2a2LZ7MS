@@ -1,9 +1,9 @@
 # Diccionario del Dominio del CRM Patrimonial
 
 - Estado: Aprobado y evolutivo
-- Versión: 1.0
-- Última reconciliación: 2026-08-03
-- LCD: LCD-20260803-01
+- Versión: 1.1 candidata
+- Última reconciliación aprobada: 2026-08-03
+- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
 
 Las definiciones extensas y reglas completas viven en los modelos especializados.
 
@@ -34,6 +34,9 @@ Las definiciones extensas y reglas completas viven en los modelos especializados
 | Resultado Diario de Gestión | Último estado significativo de una Persona en una fecha local |
 | Llamada Efectiva | Contacto Trabajado cuyo Resultado Diario es `Agenda` o `No agenda`; no prueba por sí solo una llamada técnica |
 | Agendamiento | Contacto Trabajado cuyo Resultado Diario es `Agenda` |
+| Meta Mensual de Agendamientos | Objetivo operativo configurable por mes desde Ajustes; gobierna el ritmo y las proyecciones del cockpit, pero no altera Agendamientos reales |
+| Equivalencia Esperada por Agendamiento | Supuesto configurable que expresa CNS y pesos esperados por cada Agendamiento; no constituye CNS sometidos, emitidos o reconocidos ni ingreso devengado |
+| Pulso Pecuniario Esperado | Vista derivada que multiplica Agendamientos por la Equivalencia Esperada vigente para una ventana temporal explícita |
 | Conversión Efectiva | Agendamientos divididos por Llamadas Efectivas |
 | Contactos Trabajados por Agendamiento | Contactos Trabajados divididos por Agendamientos |
 | Ejecución de Importación | Proceso trazable que valida y aplica una fuente sin confundirla con el hecho de negocio |
