@@ -5,12 +5,14 @@ Normalizador de bases de campañas APP LLAMADOS / CRM Patrimonial.
 Entrada esperada:
     AAAAMM_TOTAL_NN.xls
     AAAAMM_ASIGNADO_NN.xls
+    o cualquier .xls con --sin-fechas
 
 El .xls descargado es una tabla HTML. El programa:
 - permite seleccionar varios archivos;
 - extrae únicamente el texto del nombre del contacto;
 - elimina enlaces incompletos;
-- agrega la columna Fecha con formato AAAA-MM;
+- en modo normal agrega la columna Fecha con formato AAAA-MM;
+- en modo sin fechas acepta campañas de distintos períodos y omite Fecha;
 - convierte "nan" en vacío;
 - valida columnas, resultado corporativo y fecha de campaña;
 - genera un .xlsx normalizado sin modificar el original.
@@ -18,6 +20,7 @@ El .xls descargado es una tabla HTML. El programa:
 Salida:
     AAAAMM_TOTAL_NN_NM.xlsx
     AAAAMM_ASIGNADO_NN_NM.xlsx
+    NOMBRE_ORIGINAL_NM_SF.xlsx (modo sin fechas)
 
 No requiere paquetes externos: utiliza únicamente Python estándar.
 """
@@ -202,6 +205,21 @@ def period_from_filename(path: Path) -> tuple[str, str, str]:
     return f"{year:04d}-{month:02d}", match.group("tipo").upper(), match.group("revision")
 
 
+def output_path_for(path: Path, no_dates: bool = False) -> tuple[Path, str | None]:
+    """Resuelve la salida y el período sin mantener dos normalizadores."""
+    if path.suffix.lower() != ".xls":
+        raise NormalizationError("el archivo de entrada debe tener extensión .xls")
+
+    if no_dates:
+        return path.with_name(f"{path.stem}_NM_SF.xlsx"), None
+
+    period, file_type, revision = period_from_filename(path)
+    output = path.with_name(
+        f"{period.replace('-', '')}_{file_type}_{revision}_NM.xlsx"
+    )
+    return output, period
+
+
 def periods_in_campaign_text(*values: str) -> set[str]:
     periods: set[str] = set()
     for value in values:
@@ -301,7 +319,11 @@ def cell_xml(reference: str, value: str, style_id: int = 0) -> str:
     )
 
 
-def write_xlsx_from_csv(csv_path: Path, output_path: Path) -> int:
+def write_xlsx_from_csv(
+    csv_path: Path,
+    output_path: Path,
+    include_date: bool = True,
+) -> int:
     """Genera un XLSX mínimo y compatible usando sólo la biblioteca estándar."""
     temp_dir = Path(tempfile.mkdtemp(prefix="normalizador_xlsx_"))
     worksheet_path = temp_dir / "sheet1.xml"
@@ -321,18 +343,31 @@ def write_xlsx_from_csv(csv_path: Path, output_path: Path) -> int:
                 '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
                 '</sheetView></sheetViews>'
             )
-            target.write(
-                '<cols>'
-                '<col min="1" max="1" width="11" customWidth="1"/>'
-                '<col min="2" max="2" width="34" customWidth="1"/>'
-                '<col min="3" max="3" width="14" customWidth="1"/>'
-                '<col min="4" max="6" width="16" customWidth="1"/>'
-                '<col min="7" max="7" width="32" customWidth="1"/>'
-                '<col min="8" max="8" width="16" customWidth="1"/>'
-                '<col min="9" max="9" width="62" customWidth="1"/>'
-                '<col min="10" max="10" width="34" customWidth="1"/>'
-                '</cols>'
-            )
+            if include_date:
+                target.write(
+                    '<cols>'
+                    '<col min="1" max="1" width="11" customWidth="1"/>'
+                    '<col min="2" max="2" width="34" customWidth="1"/>'
+                    '<col min="3" max="3" width="14" customWidth="1"/>'
+                    '<col min="4" max="6" width="16" customWidth="1"/>'
+                    '<col min="7" max="7" width="32" customWidth="1"/>'
+                    '<col min="8" max="8" width="16" customWidth="1"/>'
+                    '<col min="9" max="9" width="62" customWidth="1"/>'
+                    '<col min="10" max="10" width="34" customWidth="1"/>'
+                    '</cols>'
+                )
+            else:
+                target.write(
+                    '<cols>'
+                    '<col min="1" max="1" width="34" customWidth="1"/>'
+                    '<col min="2" max="2" width="14" customWidth="1"/>'
+                    '<col min="3" max="5" width="16" customWidth="1"/>'
+                    '<col min="6" max="6" width="32" customWidth="1"/>'
+                    '<col min="7" max="7" width="16" customWidth="1"/>'
+                    '<col min="8" max="8" width="62" customWidth="1"/>'
+                    '<col min="9" max="9" width="34" customWidth="1"/>'
+                    '</cols>'
+                )
             target.write("<sheetData>")
 
             for row_count, row in enumerate(reader, start=1):
@@ -345,7 +380,8 @@ def write_xlsx_from_csv(csv_path: Path, output_path: Path) -> int:
 
             target.write("</sheetData>")
             if row_count:
-                target.write(f'<autoFilter ref="A1:J{row_count}"/>')
+                last_column = "J" if include_date else "I"
+                target.write(f'<autoFilter ref="A1:{last_column}{row_count}"/>')
             target.write("</worksheet>")
 
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -442,14 +478,15 @@ def write_xlsx_from_csv(csv_path: Path, output_path: Path) -> int:
             pass
 
 
-def normalize_file(path: Path, overwrite: bool = False) -> FileResult:
+def normalize_file(
+    path: Path,
+    overwrite: bool = False,
+    no_dates: bool = False,
+) -> FileResult:
     result = FileResult(source=path)
 
     try:
-        period, file_type, revision = period_from_filename(path)
-        output = path.with_name(
-            f"{period.replace('-', '')}_{file_type}_{revision}_NM.xlsx"
-        )
+        output, period = output_path_for(path, no_dates=no_dates)
         result.output = output
 
         if output.exists() and not overwrite:
@@ -469,7 +506,8 @@ def normalize_file(path: Path, overwrite: bool = False) -> FileResult:
         )
         temp_csv_path = Path(temp_csv_handle.name)
         writer = csv.writer(temp_csv_handle, lineterminator="\n")
-        writer.writerow(CANONICAL_COLUMNS)
+        output_columns = CANONICAL_COLUMNS[1:] if no_dates else CANONICAL_COLUMNS
+        writer.writerow(output_columns)
 
         validation_errors: list[str] = []
         max_error_examples = 20
@@ -529,35 +567,36 @@ def normalize_file(path: Path, overwrite: bool = False) -> FileResult:
                 if not campaign_name and not campaign_description:
                     raise NormalizationError("nombre y descripción de campaña vacíos")
 
-                internal_periods = periods_in_campaign_text(
-                    campaign_name,
-                    campaign_description,
-                )
-                if not internal_periods:
-                    raise NormalizationError(
-                        "no se pudo identificar mes y año en nombre o descripción de campaña"
-                    )
-                if internal_periods != {period}:
-                    raise NormalizationError(
-                        "fecha interna "
-                        + ", ".join(sorted(internal_periods))
-                        + f" no coincide con {period}"
-                    )
-
-                writer.writerow(
-                    [
-                        period,
-                        name,
-                        rut,
-                        phone_1,
-                        phone_2,
-                        phone_3,
-                        email,
-                        status,
+                if not no_dates:
+                    internal_periods = periods_in_campaign_text(
                         campaign_name,
                         campaign_description,
-                    ]
-                )
+                    )
+                    if not internal_periods:
+                        raise NormalizationError(
+                            "no se pudo identificar mes y año en nombre o descripción de campaña"
+                        )
+                    if internal_periods != {period}:
+                        raise NormalizationError(
+                            "fecha interna "
+                            + ", ".join(sorted(internal_periods))
+                            + f" no coincide con {period}"
+                        )
+
+                normalized_row = [
+                    name,
+                    rut,
+                    phone_1,
+                    phone_2,
+                    phone_3,
+                    email,
+                    status,
+                    campaign_name,
+                    campaign_description,
+                ]
+                if not no_dates:
+                    normalized_row.insert(0, period or "")
+                writer.writerow(normalized_row)
                 result.rows_written += 1
             except NormalizationError as exc:
                 record_error(f"fila {row_number}: {exc}")
@@ -582,7 +621,11 @@ def normalize_file(path: Path, overwrite: bool = False) -> FileResult:
             temp_csv_path.unlink(missing_ok=True)
             return result
 
-        written = write_xlsx_from_csv(temp_csv_path, output)
+        written = write_xlsx_from_csv(
+            temp_csv_path,
+            output,
+            include_date=not no_dates,
+        )
         temp_csv_path.unlink(missing_ok=True)
 
         if written != result.rows_written:
@@ -628,7 +671,7 @@ def format_summary(results: Iterable[FileResult]) -> str:
     return "\n".join(lines).rstrip()
 
 
-def select_files_gui() -> tuple[list[Path], bool]:
+def select_files_gui() -> tuple[list[Path], bool, bool]:
     try:
         import tkinter as tk
         from tkinter import filedialog, messagebox
@@ -651,17 +694,21 @@ def select_files_gui() -> tuple[list[Path], bool]:
 
     if not selected:
         root.destroy()
-        return [], False
+        return [], False, False
+
+    no_dates = messagebox.askyesno(
+        APP_TITLE,
+        "¿El archivo contiene campañas de distintos meses?\n\n"
+        "Sí: modo sin fechas (omite Fecha y genera _NM_SF.xlsx).\n"
+        "No: modo mensual estricto.",
+    )
 
     overwrite = False
     existing_outputs = []
     for item in selected:
         path = Path(item)
         try:
-            period, file_type, revision = period_from_filename(path)
-            output = path.with_name(
-                f"{period.replace('-', '')}_{file_type}_{revision}_NM.xlsx"
-            )
+            output, _ = output_path_for(path, no_dates=no_dates)
             if output.exists():
                 existing_outputs.append(output.name)
         except NormalizationError:
@@ -677,7 +724,7 @@ def select_files_gui() -> tuple[list[Path], bool]:
         )
 
     root.destroy()
-    return [Path(item) for item in selected], overwrite
+    return [Path(item) for item in selected], overwrite, no_dates
 
 
 def show_summary_gui(summary: str, success: bool) -> None:
@@ -700,22 +747,35 @@ def show_summary_gui(summary: str, success: bool) -> None:
 
 def main() -> int:
     overwrite = "--overwrite" in sys.argv[1:]
+    no_dates = any(
+        argument in {"--sin-fechas", "--no-dates"}
+        for argument in sys.argv[1:]
+    )
+    option_names = {"--overwrite", "--sin-fechas", "--no-dates"}
     cli_paths = [
         Path(argument)
         for argument in sys.argv[1:]
-        if argument != "--overwrite"
+        if argument not in option_names
     ]
 
     try:
         if cli_paths:
             paths = cli_paths
         else:
-            paths, gui_overwrite = select_files_gui()
+            paths, gui_overwrite, gui_no_dates = select_files_gui()
             overwrite = overwrite or gui_overwrite
+            no_dates = no_dates or gui_no_dates
             if not paths:
                 return 0
 
-        results = [normalize_file(path, overwrite=overwrite) for path in paths]
+        results = [
+            normalize_file(
+                path,
+                overwrite=overwrite,
+                no_dates=no_dates,
+            )
+            for path in paths
+        ]
         summary = format_summary(results)
         print(summary)
 
@@ -734,4 +794,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
