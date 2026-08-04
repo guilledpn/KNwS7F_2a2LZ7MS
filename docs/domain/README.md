@@ -1,9 +1,9 @@
 # Modelo del Dominio del CRM Patrimonial
 
 - Estado: Vigente
-- Versión: 2.1 candidata
+- Versión: 2.1
 - Última actualización: 2026-08-04
-- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
+- LCD: LCD-20260803-01 y LCD-20260804-01
 
 El Modelo del Dominio gobierna el conocimiento del negocio. Cada concepto debe tener un lugar principal y los documentos especializados deben enlazarse, no copiarse entre sí.
 

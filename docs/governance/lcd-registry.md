@@ -35,7 +35,7 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | Aprobado | Issue #31 y Pull Requests #32 y #33 | — |
 | LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | Aprobado; equivalencia histórica resuelta | Issue #34 y Pull Request #35 | — |
 | LCD-20260803-01 | 2026-08-03 | Conciliar y migrar la documentación a una ubicación única sin espejos | Aprobado | Issue #40, ADR-026, informe de conciliación y Pull Request del lote | — |
-| LCD-20260804-01 | 2026-08-04 | Unificar el contrato de estadísticas y documentar el pulso motivacional de CNS y pesos esperados por Agendamiento | <span style="color:red">Pendiente de revisión</span> | Issue #52, ADR-027, migración y pruebas del cockpit estadístico | — |
+| LCD-20260804-01 | 2026-08-04 | Unificar el contrato de estadísticas y documentar el pulso motivacional de CNS y pesos esperados por Agendamiento | Aprobado y promovido a PROD; aceptación visual postdespliegue separada en Issue #54 | Issue #52, ADR-027, PR #53, commit `d688f6ff1c483b2f8e409165acde3db80644d787` y `docs/governance/LCD-20260804-01-closure.md` | — |
 
 ## Próxima asignación
 

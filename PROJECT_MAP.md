@@ -1,9 +1,9 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260803-01
-- Última entrega Legacy: `App_llamados_v1.05-ui-20260803-07` · Issue #39
-- Pendientes abiertos relevantes: Issues #38 y #40; PR #21
+- Último LCD aprobado: LCD-20260804-01
+- Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
+- Pendientes abiertos relevantes: Issues #38, #40 y #54; PR #21
 
 ## Productos
 
@@ -53,7 +53,7 @@ ADR-025 aprueba:
 
 El diseño físico `next_v03` todavía requiere un LCD propio; la documentación aprobada no autoriza SQL ni cambios de runtime.
 
-## Estado Legacy al 2026-08-03
+## Estado Legacy al 2026-08-04
 
 - política única de gestionabilidad implementada y promovida;
 - métricas por Persona/día en PROD;
@@ -62,7 +62,9 @@ El diseño físico `next_v03` todavía requiere un LCD propio; la documentación
 - carga julio/agosto completada y conciliada;
 - campaña inválida retirada de la cola actual, con solución persistente pendiente en Issue #38;
 - navegación contextual y retorno exacto aprobados mediante Issue #39;
-- defecto semántico conocido en metadatos de `get_contacts_v2`, pendiente de registrar/corregir.
+- filtros mensuales y metadatos de campaña corregidos hasta PR #51, con defecto semántico residual de `get_contacts_v2` aún pendiente de Issue propio;
+- contrato estadístico unificado, equivalencias motivacionales y `UI-20260804-10` promovidos mediante LCD-20260804-01, ADR-027, Issue #52 y PR #53;
+- smoke visual autenticado postdespliegue pendiente en Issue #54, sin reabrir el lote aprobado.
 
 ## Ambientes
 
@@ -87,10 +89,11 @@ Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge a
 
 ## Próximos pasos
 
-1. Completar las dos acciones manuales de Drive registradas en Issue #40.
-2. Resolver Issue #38 en DEV.
-3. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
-4. Abrir el lote de diseño físico mínimo `next_v03`.
-5. Decidir el destino del PR educativo #21.
+1. Completar manualmente las tres acciones de Drive registradas en Issue #40.
+2. Ejecutar la aceptación visual autenticada de Issue #54.
+3. Resolver Issue #38 en DEV.
+4. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
+5. Abrir el lote de diseño físico mínimo `next_v03`.
+6. Decidir el destino del PR educativo #21.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.

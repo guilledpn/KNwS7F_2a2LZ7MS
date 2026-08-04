@@ -2,8 +2,8 @@
 
 - Estado: Aprobado
 - Última actualización: 2026-08-04
-- LCD: LCD-20260803-01 y <span style="color:red">LCD-20260804-01 pendiente de revisión</span>
-- ADR: ADR-023, ADR-026 y <span style="color:red">ADR-027 pendiente de revisión</span>
+- LCD: LCD-20260803-01 y LCD-20260804-01
+- ADR: ADR-023, ADR-026 y ADR-027
 
 ## Regla fundamental
 
@@ -94,6 +94,7 @@ GitHub puede enlazar estas fuentes, pero no copiar su contenido. Drive no copia 
 | `docs/governance/adr-registry.md` | Identificadores y estado de ADR |
 | `docs/governance/lcd-registry.md` | Identificadores y estado de LCD |
 | `docs/governance/document-authority.md` | Regla e índice actual; no hay catálogo separado |
+| `docs/governance/LCD-20260804-01-closure.md` | Cierre y limitación residual del lote estadístico |
 | `PROJECT_MAP.md` | Mapa breve para orientación |
 
 ### Nivel 6 · Operación, aprendizaje e implementación
@@ -118,7 +119,13 @@ La carpeta Drive `App_llamados_crm` es un repositorio de fuentes y evidencia, no
 
 ### Incidencia de permisos pendiente · Issue #40
 
-La raíz ya no contiene documentos rectores ni registros paralelos. Drive rechazó con `403 appNotAuthorizedToFile` la eliminación de `Bases_maestras/normalizar_bases_campanas.py` y el renombre de la carpeta contenedora `Modelo del dominio`. El archivo residual no tiene autoridad —la versión canónica es `tools/normalize_campaign_bases.py`— y debe eliminarse manualmente; la carpeta debe renombrarse `Fuentes y evidencia del dominio`. La subcarpeta `Fuentes de productos` sí fue renombrada.
+La raíz ya no contiene documentos rectores ni registros paralelos. Drive rechazó con `403 appNotAuthorizedToFile` las tres operaciones manuales pendientes, incluido un nuevo intento autorizado el 2026-08-04:
+
+1. eliminar `Bases_maestras/normalizar_bases_campanas.py` (ID `1ytKRhDZRRRPzvInFzUTxTk-FNIjVVq9V`);
+2. eliminar `Bases_maestras/normalizar_bases_campanas_sin_fechas.py` (ID `1CJotsub_-bdtE9EUZa7r1DK4y5Yi4zmL`);
+3. renombrar la carpeta contenedora `Modelo del dominio` (ID `1dZjlZlJvnb3A8D0Cqf5au96uSgO6F14t`) como `Fuentes y evidencia del dominio`.
+
+Ambos scripts residuales carecen de autoridad; el único normalizador canónico es `tools/normalize_campaign_bases.py`. La carpeta conserva únicamente fuentes y evidencia, pero su nombre histórico puede inducir a interpretarla como repositorio canónico. El Issue #40 permanece abierto hasta que el usuario complete las tres acciones manualmente o vuelva a autorizar explícitamente los elementos para la aplicación conectada.
 
 ## Identificadores
 
