@@ -484,11 +484,6 @@ let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[];
 const MES_LABEL=m=>monthLabel(m);
 const QUICK={all:null,pendiente:{estado:['pendiente']},asignado:{tipo_gestionable:['asignado']}};
 const FILTER_SECTIONS=()=>[
- {key:'situacion',title:'Situación actual',mode:'choice',opts:[
-   ['gestionables','Gestionables','Contactos que puedes trabajar ahora: asignados a ti o disponibles por regla.'],
-   ['no_gestionables','No gestionables','Históricos o contactos en campaña activa que no están asignados a ti.'],
-   ['todos','Todos','Incluye gestionables y no gestionables para revisar la base completa.']
- ]},
  {key:'tipo_gestionable',title:'Tipo de gestionable',opts:[['asignado','Asignados a mí'],['regla','Disponibles por regla']],note:'Este filtro solo aplica cuando la situación actual incluye contactos gestionables.'},
  {key:'estado',title:'Estado de gestión',opts:[['agenda','Agenda'],['no_agenda','No agenda'],['volver','Volver a llamar'],['no_contactado','No contactado'],['invalido','Inválido'],['pendiente','Pendiente']],dot:k=>(STATE[k]||{}).color},
  {key:'mes',title:'Apareció en',opts:(AVAILABLE_MONTHS.length?AVAILABLE_MONTHS:recentPeriods(12)).map(m=>[m,MES_LABEL(m)])},
@@ -552,8 +547,7 @@ function mapRow(r){
   };
 }
 
-function filterParamsFromState(state){
-  const situacion=[...state.situacion][0]||'gestionables';
+function filterParamsFromState(state,limit=PAGE,offset=pageOffset){
   const monthMode=[...state.mes_modo][0]||'any';
   const types=[];
   if(state.tipo_gestionable.has('asignado'))types.push('asignado');
@@ -561,14 +555,34 @@ function filterParamsFromState(state){
   return {
     p_active_period: null,
     p_search: search||'',
-    p_situation: situacion,
-    p_pending_only: state.estado.has('pendiente') && state.estado.size===1,
-    p_assigned_only: false,
+    p_states: [...state.estado],
     p_types: types,
     p_months: [...state.mes],
     p_month_mode: monthMode,
-    p_limit: PAGE,
-    p_offset: pageOffset
+    p_campaigns: [...state.campana],
+    p_campaign_desc_keys: [...state.camp_desc],
+    p_reminder: state.recordatorio.size===1?[...state.recordatorio][0]:'',
+    p_limit: limit,
+    p_offset: offset
+  };
+}
+function legacyFilterParamsFromState(state,limit=PAGE,offset=pageOffset){
+  const situacion=[...state.situacion][0]||'gestionables';
+  const monthMode=[...state.mes_modo][0]||'any';
+  const types=[];
+  if(state.tipo_gestionable.has('asignado'))types.push('asignado');
+  if(state.tipo_gestionable.has('regla'))types.push('regla');
+  return {
+    p_active_period:null,
+    p_search:search||'',
+    p_situation:situacion,
+    p_pending_only:state.estado.has('pendiente')&&state.estado.size===1,
+    p_assigned_only:false,
+    p_types:types,
+    p_months:[...state.mes],
+    p_month_mode:monthMode,
+    p_limit:limit,
+    p_offset:offset
   };
 }
 function hasNonV2EstadoFilters(state){
@@ -605,6 +619,21 @@ function isBroadTodosStateQuery(state){
 }
 function isBroadTodosQuery(){return isBroadTodosStateQuery(fstate);}
 
+function isMissingFilteredRpc(error){
+  const msg=String(error?.message||error||'');
+  return /get_contacts_v2_filtered|PGRST202|schema cache|could not find the function/i.test(msg);
+}
+async function fetchContactsPage(state=fstate,limit=PAGE,offset=pageOffset){
+  const modern=await sb.rpc('get_contacts_v2_filtered',filterParamsFromState(state,limit,offset));
+  if(!modern.error)return {data:modern.data,error:null,serverFiltered:true};
+  if(!isMissingFilteredRpc(modern.error))return {data:modern.data,error:modern.error,serverFiltered:true};
+
+  const legacy=isBroadTodosStateQuery(state)
+    ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:limit,p_offset:offset})
+    : await sb.rpc('get_contacts_v2',legacyFilterParamsFromState(state,limit,offset));
+  return {data:legacy.data,error:legacy.error,serverFiltered:false};
+}
+
 
 function renderContactsSkeleton(message='Cargando contactos…'){
   const summary=$('contact-summary'),list=$('contact-list');
@@ -620,20 +649,15 @@ async function loadQueue(reset=true){
   if(reset){pageOffset=0;filtered=[];detailIndex=-1;renderContactsSkeleton('Cargando contactos…');}
   else{const lm=document.querySelector('.load-more');if(lm){lm.classList.add('is-loading');lm.textContent='Cargando más contactos…';}}
   try{
-    const params=filterParamsFromState(fstate);
-    let {data,error}= isBroadTodosQuery()
-      ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:PAGE,p_offset:pageOffset})
-      : await sb.rpc('get_contacts_v2',params);
+    let {data,error,serverFiltered}=await fetchContactsPage();
     if(error)throw error;
     if(data&&data.ok===false&&data.code==='CACHE_NOT_READY'){
       loading=false;
       const ok=await prepareOperationalCacheIfNeeded(false);
       if(!ok)return;
       loading=true;
-      const retry= isBroadTodosQuery()
-        ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:PAGE,p_offset:pageOffset})
-        : await sb.rpc('get_contacts_v2',params);
-      data=retry.data;error=retry.error;
+      const retry=await fetchContactsPage();
+      data=retry.data;error=retry.error;serverFiltered=retry.serverFiltered;
       if(error)throw error;
     }
     loading=false;
@@ -647,7 +671,7 @@ async function loadQueue(reset=true){
       volver:0
     };
     let items=(data?.rows||[]).map(mapRow);
-    if(hasNonV2EstadoFilters(fstate))items=clientPostFilter(items,fstate);
+    if(!serverFiltered&&hasNonV2EstadoFilters(fstate))items=clientPostFilter(items,fstate);
     filtered=reset?items:filtered.concat(items);
     renderFilters();
     renderContacts();
@@ -680,13 +704,26 @@ async function refreshChipCounts(){
 async function loadCampaigns(){
   if(!sb){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};AVAILABLE_MONTHS=recentPeriods(12);return;}
   try{
+    const modern=await sb.rpc('get_contacts_v2_filter_options',{p_active_period:null});
+    if(modern.error)throw modern.error;
+    const data=modern.data||{};
+    const months=(data.months||[]).map(x=>typeof x==='string'?x:x.period).filter(Boolean);
+    AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
+    ALL_CAMPS=[...new Set((data.campaigns||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+    const labels={};DESC_RAW_BY_KEY={};
+    (data.descriptions||[]).forEach(value=>{const raw=String(value||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
+    ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
+    return;
+  }catch(e){ }
+
+  try{
     const mres=await sb.rpc('get_contacts_v2_months');
     const rawMonths=Array.isArray(mres.data)?mres.data:(mres.data?.months||[]);
     const months=rawMonths.map(x=>typeof x==='string'?x:x.period).filter(Boolean);
     AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
   }catch(e){AVAILABLE_MONTHS=recentPeriods(12);}
   try{
-    const {data}=await sb.rpc('get_contacts_v2',{p_active_period:null,p_search:'',p_situation:'todos',p_pending_only:false,p_assigned_only:false,p_types:[],p_months:[],p_month_mode:'any',p_limit:3000,p_offset:0});
+    const {data}=await sb.rpc('get_contacts_v2',{p_active_period:null,p_search:'',p_situation:'todos',p_pending_only:false,p_assigned_only:false,p_types:[],p_months:[],p_month_mode:'any',p_limit:200,p_offset:0});
     const rows=data?.rows||[];
     ALL_CAMPS=[...new Set(rows.map(x=>x.campaign_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
     const labels={};DESC_RAW_BY_KEY={};
@@ -1452,16 +1489,7 @@ let applyBtnTimer;function updateApplyBtn(){
   btn.textContent='Calculando…';
   applyBtnTimer=setTimeout(async()=>{
     try{
-      let data,error;
-      if(isBroadTodosStateQuery(fdraft)){
-        const res=await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:1,p_offset:0});
-        data=res.data;error=res.error;
-      }else{
-        const params=filterParamsFromState(fdraft);
-        params.p_limit=1;params.p_offset=0;
-        const res=await sb.rpc('get_contacts_v2',params);
-        data=res.data;error=res.error;
-      }
+      const {data,error}=await fetchContactsPage(fdraft,1,0);
       if(error)throw error;
       const n=Number(data?.result_total??data?.base_total??data?.total??0);
       btn.textContent='Ver '+n.toLocaleString('es-CL')+(n===1?' contacto':' contactos');
