@@ -59,7 +59,8 @@ class Issue63AugustRevision02Tests(unittest.TestCase):
         self.assertIn("revoke all on schema issue63_ops from public, anon, authenticated", self.sql)
         for table in ("operation", "file_manifest", "stage_rows", "snapshot_contacts",
                       "snapshot_campaigns", "snapshot_cms", "snapshot_monthly_order",
-                      "snapshot_work_queue", "snapshot_import_runs", "snapshot_import_progress"):
+                      "snapshot_work_queue", "snapshot_import_runs", "snapshot_import_progress",
+                      "snapshot_sequences"):
             self.assertIn(f"alter table issue63_ops.{table} enable row level security", self.sql)
         self.assertIn("coalesce(auth.jwt()->>'role','') <> 'anon'", self.sql)
         self.assertIn("grant execute on function public.crm_issue63_stage_chunk", self.sql)
@@ -85,7 +86,30 @@ class Issue63AugustRevision02Tests(unittest.TestCase):
         self.assertIn("is_assigned=excluded.is_assigned", apply_sql)
         self.assertIn("jsonb_array_elements(e.details->'rows')", apply_sql)
         self.assertIn("e.assigned_current or not exists", apply_sql)
+        self.assertIn("lock table public.crm_log in share row exclusive mode", apply_sql)
+        self.assertIn("lock table public.crm_events in share row exclusive mode", apply_sql)
+        self.assertIn("snapshot_sequences", apply_sql)
         self.assertNotIn("rebuild_work_queue_for_period", apply_sql)
+
+    def test_validation_preserves_existing_work_item_identity(self):
+        start = self.sql.index("create or replace function issue63_ops.validate_applied")
+        end = self.sql.index("revoke all on function issue63_ops.validate_applied", start)
+        validation = self.sql[start:end]
+        self.assertIn("left join public.work_queue w on w.work_item_id=s.work_item_id", validation)
+        self.assertIn("w.work_item_id is null", validation)
+        self.assertIn("v_preserved_context_mismatches <> 0", validation)
+
+    def test_rollback_restores_exact_operational_state(self):
+        self.assertIn("create or replace function issue63_ops.validate_rollback", self.sql)
+        self.assertIn("disable trigger trg_contacts_search", self.sql)
+        self.assertIn("disable trigger trg_contacts_updated", self.sql)
+        self.assertIn("search_text=s.search_text", self.sql)
+        self.assertIn("updated_at=s.updated_at", self.sql)
+        self.assertIn("pg_catalog.setval", self.sql)
+        self.assertIn("sequence_mismatch", self.sql)
+        self.assertIn("Rollback blocked: period work items acquired external references", self.sql)
+        self.assertIn("perform issue63_ops.validate_applied()", self.sql)
+        self.assertIn("audit_trail", self.sql)
 
     def test_validation_and_rollback_are_exact(self):
         for check in ("v_assigned_missing <> 0", "v_assigned_extra <> 0",
@@ -94,7 +118,8 @@ class Issue63AugustRevision02Tests(unittest.TestCase):
             self.assertIn(check, self.sql)
         self.assertNotIn("jsonb_object_length", self.sql)
         self.assertIn("Rollback blocked: PROD received writes", self.sql)
-        for snapshot in ("snapshot_contacts", "snapshot_work_queue", "snapshot_cms"):
+        for snapshot in ("snapshot_contacts", "snapshot_work_queue", "snapshot_cms",
+                         "snapshot_sequences"):
             self.assertIn(f"issue63_ops.{snapshot}", self.sql)
 
     def test_normalization_and_subset(self):
@@ -120,8 +145,19 @@ class Issue63AugustRevision02Tests(unittest.TestCase):
             m.prepare_runtime(total, assigned, Path(td), 1)
             with self.assertRaises(ValueError):
                 m.prepare_runtime(total, assigned, Path(td), 1)
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaises(ValueError):
+                m.prepare_runtime(total, assigned, Path(td), 0)
+            with self.assertRaises(ValueError):
+                m.prepare_runtime(total, assigned, Path(td), 73)
         self.assertIn("v_status not in ('applied','rolled_back')", self.cleanup)
         self.assertIn("drop schema if exists issue63_ops cascade", self.cleanup)
+
+    def test_python_cli_cannot_apply_rollback_or_cleanup(self):
+        cli = FILES[0].read_text(encoding="utf-8")
+        for forbidden in ('sub.add_parser("apply")', 'sub.add_parser("rollback")',
+                          'sub.add_parser("cleanup")'):
+            self.assertNotIn(forbidden, cli)
 
 
 if __name__ == "__main__":
