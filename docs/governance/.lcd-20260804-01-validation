@@ -1,7 +1,0 @@
-LCD-20260804-01 closure validation marker
-
-Expected final state:
-- ADR-027 approved and promoted.
-- UI-20260804-10 in PROD.
-- Issue #54 owns authenticated post-deployment visual smoke.
-- Issue #40 remains open because all three Drive writes returned 403 appNotAuthorizedToFile.
