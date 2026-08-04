@@ -1,7 +1,7 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-02
+- Último LCD aprobado: LCD-20260804-03
 - Gobernanza documental: ADR-023 y ADR-026
 - Última conciliación: 2026-08-04
 
@@ -122,8 +122,6 @@ Antes de PROD: estado estable, autorización, diff, rollback, cambio mínimo, va
 ## Control documental
 
 Antes de crear LCD o ADR, revisar sus registros y reservar el identificador libre.
-
-El rojo significa exclusivamente contenido pendiente de revisión del último LCD.
 
 Una conversación descubre; los documentos conservan las decisiones aprobadas.
 
