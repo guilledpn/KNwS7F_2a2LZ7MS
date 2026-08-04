@@ -1,7 +1,7 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-03
+- Último LCD aprobado: LCD-20260804-04
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
 - Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
 
@@ -41,6 +41,7 @@ ADR-026 y LCD-20260804-02 gobiernan esta separación.
 - `AGENTS.md` es el punto de entrada para agentes y colaboradores.
 - `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
 - `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
+- LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina de commits/PR.
 - Issue #56 gobierna la automatización gradual de quality gates.
 - Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
 
