@@ -4,7 +4,7 @@
 - Fecha de reconciliación: 2026-08-01
 - Última actualización: 2026-08-04
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260804-02
+- Último LCD: LCD-20260804-03
 - Issue: #28
 
 Este archivo es la autoridad para asignar y consultar identificadores LCD. Los registros históricos de Drive y los Pull Requests se conservan como evidencia, pero no pueden crear una secuencia paralela.
@@ -36,7 +36,8 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | Aprobado; equivalencia histórica resuelta | Issue #34 y Pull Request #35 | — |
 | LCD-20260803-01 | 2026-08-03 | Conciliar y migrar la documentación a una ubicación única sin espejos | Aprobado | Issue #40, ADR-026, informe de conciliación y Pull Request #41 | — |
 | LCD-20260804-01 | 2026-08-04 | Unificar el contrato de estadísticas y documentar el pulso motivacional de CNS y pesos esperados por Agendamiento | Aprobado y promovido a PROD; aceptación visual postdespliegue separada en Issue #54 | Issue #52, ADR-027, PR #53, commit `d688f6ff1c483b2f8e409165acde3db80644d787` y `docs/governance/LCD-20260804-01-closure.md` | — |
-| LCD-20260804-02 | 2026-08-04 | Crear estándares canónicos de desarrollo, reducir las instrucciones de proyecto y preservar la continuidad operativa de herramientas | Aprobado por autorización explícita del usuario | `docs/governance/LCD-20260804-02-engineering-standards.md`, Issues #40, #56 y #57 y Pull Request del lote | — |
+| LCD-20260804-02 | 2026-08-04 | Crear estándares canónicos de desarrollo, reducir las instrucciones de proyecto y preservar la continuidad operativa de herramientas | Aprobado por autorización explícita del usuario | `docs/governance/LCD-20260804-02-engineering-standards.md`, Issues #40, #56 y #57 y Pull Request #58 | — |
+| LCD-20260804-03 | 2026-08-04 | Retirar de las instrucciones vigentes la convención visual de revisión heredada de Drive | Aprobado por autorización explícita del usuario | Issue #59, Pull Request #60 y `docs/governance/LCD-20260804-03-remove-drive-color-rule.md` | — |
 
 ## Próxima asignación
 
