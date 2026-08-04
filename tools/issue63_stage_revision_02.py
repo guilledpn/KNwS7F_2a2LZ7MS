@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from issue63_revision_02_model import *  # noqa: F401,F403
 from issue63_revision_02_runtime import *  # noqa: F401,F403
+from issue63_revision_02_runtime import _secret
 
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__); sub=parser.add_subparsers(dest="cmd",required=True)
