@@ -52,6 +52,10 @@ class LegacyServerFilterTests(unittest.TestCase):
         self.assertIn("sb.rpc('get_contacts_v2'", self.html)
         self.assertNotIn("if(hasNonV2EstadoFilters(fstate))items=clientPostFilter(items,fstate);", self.html)
 
+    def test_filter_preview_uses_same_server_filtered_path(self) -> None:
+        self.assertIn("fetchContactsPage(fdraft,1,0)", self.html)
+        self.assertNotIn("sb.rpc('get_contacts_v2',params)", self.html)
+
     def test_historical_situation_options_are_not_offered(self) -> None:
         filter_slice = self.html[
             self.html.index("const FILTER_SECTIONS"):self.html.index("function detectChip")
