@@ -97,13 +97,16 @@ begin
 
   select count(*)::integer into v_preserved_context_mismatches
   from issue63_ops.snapshot_work_queue s
-  join public.work_queue w on w.work_item_id=s.work_item_id
+  left join public.work_queue w on w.work_item_id=s.work_item_id
   where s.operation_key=v_operation.operation_key
-    and (w.estado_gestion,w.ingreso_estimado,w.comentarios,
-         w.recordatorio_titulo,w.recordatorio_fecha_hora,w.created_at)
-      is distinct from
-        (s.estado_gestion,s.ingreso_estimado,s.comentarios,
-         s.recordatorio_titulo,s.recordatorio_fecha_hora,s.created_at);
+    and (
+      w.work_item_id is null
+      or (w.estado_gestion,w.ingreso_estimado,w.comentarios,
+          w.recordatorio_titulo,w.recordatorio_fecha_hora,w.created_at)
+        is distinct from
+          (s.estado_gestion,s.ingreso_estimado,s.comentarios,
+          s.recordatorio_titulo,s.recordatorio_fecha_hora,s.created_at)
+    );
 
   select count(*)::integer into v_campaigns
   from public.campaigns where period=v_operation.period;
