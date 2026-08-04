@@ -133,6 +133,7 @@ svg{display:block}
 .info-text{min-width:0}
 .info-label{font-size:11.5px;color:var(--muted);line-height:1.1}
 .info-value{font-size:15px;line-height:1.25;margin-top:3px;color:var(--on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info-value.campaign-full{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .info-value.mono{font-family:var(--mono);font-weight:600;font-size:14px}
 .inline-actions{display:flex;align-items:center;gap:6px}
 .tonal-icon{width:42px;height:42px;border-radius:21px;display:grid;place-items:center;background:var(--surface-container);color:var(--on-surface-variant);transition:background .12s,transform .08s}
@@ -480,7 +481,7 @@ function countFS(o){
   return n;
 }
 let fstate=emptyFS(),fdraft=null;
-let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[];
+let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[],CAMPAIGN_OPTIONS_READY=false;
 const MES_LABEL=m=>monthLabel(m);
 const QUICK={all:null,pendiente:{estado:['pendiente']},asignado:{tipo_gestionable:['asignado']}};
 const FILTER_SECTIONS=()=>[
@@ -664,9 +665,9 @@ async function loadQueue(reset=true){
     if(data&&data.ok===false)throw new Error(data.error||'No se pudo cargar contactos v2');
     totalCount=Number(data?.result_total??data?.base_total??0);
     chipCounts={
-      all:Number(data?.base_total||0),
-      pendiente:Number(data?.base_pending||0),
-      asignado:Number(data?.base_assigned||0),
+      all:Number(data?.result_total??data?.base_total??0),
+      pendiente:Number(data?.result_pending??data?.base_pending??0),
+      asignado:Number(data?.result_assigned??data?.base_assigned??0),
       agenda:0,
       volver:0
     };
@@ -702,19 +703,25 @@ async function refreshChipCounts(){
 }
 
 async function loadCampaigns(){
+  CAMPAIGN_OPTIONS_READY=false;
   if(!sb){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};AVAILABLE_MONTHS=recentPeriods(12);return;}
-  try{
-    const modern=await sb.rpc('get_contacts_v2_filter_options',{p_active_period:null});
-    if(modern.error)throw modern.error;
-    const data=modern.data||{};
-    const months=(data.months||[]).map(x=>typeof x==='string'?x:x.period).filter(Boolean);
-    AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
-    ALL_CAMPS=[...new Set((data.campaigns||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-    const labels={};DESC_RAW_BY_KEY={};
-    (data.descriptions||[]).forEach(value=>{const raw=String(value||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
-    ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
-    return;
-  }catch(e){ }
+  let optionsError=null;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const modern=await sb.rpc('get_contacts_v2_filter_options',{p_active_period:null});
+      if(modern.error)throw modern.error;
+      const data=modern.data||{};
+      if(data.ok===false)throw new Error(data.error||'No se pudieron cargar las opciones completas');
+      const months=(data.months||[]).map(x=>typeof x==='string'?x:x.period).filter(Boolean);
+      AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
+      ALL_CAMPS=[...new Set((data.campaigns||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+      const labels={};DESC_RAW_BY_KEY={};
+      (data.descriptions||[]).forEach(value=>{const raw=String(value||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
+      ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
+      CAMPAIGN_OPTIONS_READY=true;
+      return;
+    }catch(e){optionsError=e;}
+  }
 
   try{
     const mres=await sb.rpc('get_contacts_v2_months');
@@ -722,14 +729,9 @@ async function loadCampaigns(){
     const months=rawMonths.map(x=>typeof x==='string'?x:x.period).filter(Boolean);
     AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
   }catch(e){AVAILABLE_MONTHS=recentPeriods(12);}
-  try{
-    const {data}=await sb.rpc('get_contacts_v2',{p_active_period:null,p_search:'',p_situation:'todos',p_pending_only:false,p_assigned_only:false,p_types:[],p_months:[],p_month_mode:'any',p_limit:200,p_offset:0});
-    const rows=data?.rows||[];
-    ALL_CAMPS=[...new Set(rows.map(x=>x.campaign_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-    const labels={};DESC_RAW_BY_KEY={};
-    rows.forEach(x=>{const raw=String(x.campaign_desc||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
-    ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
-  }catch(e){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};}
+  ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};
+  toast('No se pudieron cargar todas las campañas. Reintenta al abrir los filtros.');
+  if(optionsError)console.warn('get_contacts_v2_filter_options',optionsError);
 }
 
 function setScreen(s,btn){currentScreen=s;haptic();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));$('screen-'+s).classList.add('on');document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('on'));(btn||document.querySelector(`.nav-btn[data-screen="${s}"]`)).classList.add('on');$('main-title').textContent={contacts:'Contactos',stats:'Stats',import:'Importar'}[s];if(s==='stats')renderStats();}
@@ -789,7 +791,7 @@ async function callNum(n){
   window.location.href='tel:'+digitsOf(n);
 }
 function renderDetail(){const d=current();if(!d)return;const st=STATE[d.estado]||STATE.pendiente;$('prev-btn').disabled=detailIndex<=0;$('next-btn').disabled=detailIndex>=filtered.length-1&&filtered.length>=totalCount;let html=`<section class="hero" style="--state-color:${st.color};--state-bg:${st.bg}"><div class="hero-top"><div class="hero-main"><div class="hero-name">${esc(d.nombre)}</div><div class="hero-meta"><span class="status-pill"><span class="status-dot"></span>${esc(st.label)}</span>${d.origen==='asignado'?'<span class="assign-badge">Asignado</span>':''}</div><div class="identity-line"><div><div class="identity-label">RUT</div><div class="identity-value">${esc(d.rut)}</div></div><button class="tonal-icon" onclick="copyText('${esc(d.rut)}','RUT')">${ICON_COPY}</button></div></div></div></section>`;
-html+=`<section class="card"><div class="card-title">Contacto</div>`;d.fonos.forEach((f,idx)=>{html+=phoneLine(d,f,idx)});html+=emailLine(d);if(d.camp)html+=infoLine(ICON_CAMPAIGN,'Campaña',esc(d.camp),'','');if(d.camp_desc)html+=infoLine(ICON_CAMPAIGN,'Descripción de campaña',esc(d.camp_desc),'','');html+=`</section>`;
+html+=`<section class="card"><div class="card-title">Contacto</div>`;d.fonos.forEach((f,idx)=>{html+=phoneLine(d,f,idx)});html+=emailLine(d);if(d.camp)html+=infoLine(ICON_CAMPAIGN,'Campaña',esc(d.camp),'campaign-full','');if(d.camp_desc)html+=infoLine(ICON_CAMPAIGN,'Descripción de campaña',esc(d.camp_desc),'campaign-full','');html+=`</section>`;
 html+=`<section class="card"><div class="card-title">Gestión</div><div class="states-grid">${Object.entries(STATE).filter(([k])=>k!=='pendiente').map(([k,s])=>`<button class="state-choice ${d.estado===k?'on':''}" style="--state-color:${s.color};--state-bg:${s.bg}" onclick="setEstado('${k}')"><span class="status-dot"></span>${s.label}</button>`).join('')}</div><div class="field"><label>Ingreso estimado</label><div class="input-surface"><input id="ingreso" inputmode="numeric" value="${d.ingreso?('$ '+d.ingreso.toLocaleString('es-CL')):''}" placeholder="$ 0" oninput="autoSave()"></div></div><div class="field"><label>Comentarios</label><textarea class="input-surface" id="comentario" rows="3" placeholder="Notas de la gestión…" oninput="autoSave()">${esc(d.comentario)}</textarea></div></section>`;
 html+=`<section class="card"><div class="card-title"><span>Recordatorio</span><button class="add-task" onclick="createGoogleTask()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Tasks</button></div><div class="field" style="margin-top:4px"><label>Título</label><div class="input-surface"><input id="recordatorio" value="${esc(d.recordatorio||('Llamar a '+(d.nombre.split(' ')[0]||'')))}"></div></div><div class="two-col field"><div><label>Fecha</label><div class="input-surface"><input type="date" id="fecha" value="${esc(d.fecha)}"></div></div><div><label>Hora</label><div class="input-surface"><input type="time" id="hora" value="${esc(d.hora||'09:00')}"></div></div></div></section>`;
 $('detail-scroll').innerHTML=html}
@@ -1451,7 +1453,7 @@ async function saveMonthlyGoal(){
 
 
 // ── filtros (sheet) ──
-function openFilterSheet(){fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
+async function openFilterSheet(){if(!CAMPAIGN_OPTIONS_READY)await loadCampaigns();fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
 function closeFilterSheet(){$('filter-bg').classList.remove('on');$('filter-sheet').classList.remove('on');}
 function jsArg(v){return String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function renderFilterSheet(){

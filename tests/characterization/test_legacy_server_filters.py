@@ -56,6 +56,25 @@ class LegacyServerFilterTests(unittest.TestCase):
         self.assertIn("fetchContactsPage(fdraft,1,0)", self.html)
         self.assertNotIn("sb.rpc('get_contacts_v2',params)", self.html)
 
+    def test_filter_options_never_degrade_to_a_partial_contact_sample(self) -> None:
+        load_campaigns = self.html[
+            self.html.index("async function loadCampaigns()"):
+            self.html.index("function setScreen", self.html.index("async function loadCampaigns()"))
+        ]
+        self.assertIn("for(let attempt=0;attempt<2;attempt++)", load_campaigns)
+        self.assertNotIn("p_limit:200", load_campaigns)
+        self.assertIn("No se pudieron cargar todas las campañas", load_campaigns)
+
+    def test_chips_use_counts_from_the_same_filtered_result(self) -> None:
+        self.assertIn("data?.result_total??data?.base_total", self.html)
+        self.assertIn("data?.result_pending??data?.base_pending", self.html)
+        self.assertIn("data?.result_assigned??data?.base_assigned", self.html)
+
+    def test_campaign_fields_wrap_in_contact_detail(self) -> None:
+        self.assertIn(".info-value.campaign-full", self.html)
+        self.assertIn("'Campaña',esc(d.camp),'campaign-full'", self.html)
+        self.assertIn("'Descripción de campaña',esc(d.camp_desc),'campaign-full'", self.html)
+
     def test_historical_situation_options_are_not_offered(self) -> None:
         filter_slice = self.html[
             self.html.index("const FILTER_SECTIONS"):self.html.index("function detectChip")
