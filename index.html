@@ -481,7 +481,7 @@ function countFS(o){
   return n;
 }
 let fstate=emptyFS(),fdraft=null;
-let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[];
+let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[],CAMPAIGN_OPTIONS_READY=false;
 const MES_LABEL=m=>monthLabel(m);
 const QUICK={all:null,pendiente:{estado:['pendiente']},asignado:{tipo_gestionable:['asignado']}};
 const FILTER_SECTIONS=()=>[
@@ -703,6 +703,7 @@ async function refreshChipCounts(){
 }
 
 async function loadCampaigns(){
+  CAMPAIGN_OPTIONS_READY=false;
   if(!sb){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};AVAILABLE_MONTHS=recentPeriods(12);return;}
   let optionsError=null;
   for(let attempt=0;attempt<2;attempt++){
@@ -717,6 +718,7 @@ async function loadCampaigns(){
       const labels={};DESC_RAW_BY_KEY={};
       (data.descriptions||[]).forEach(value=>{const raw=String(value||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
       ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
+      CAMPAIGN_OPTIONS_READY=true;
       return;
     }catch(e){optionsError=e;}
   }
@@ -1451,7 +1453,7 @@ async function saveMonthlyGoal(){
 
 
 // ── filtros (sheet) ──
-function openFilterSheet(){fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
+async function openFilterSheet(){if(!CAMPAIGN_OPTIONS_READY)await loadCampaigns();fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
 function closeFilterSheet(){$('filter-bg').classList.remove('on');$('filter-sheet').classList.remove('on');}
 function jsArg(v){return String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function renderFilterSheet(){
