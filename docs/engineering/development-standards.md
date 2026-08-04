@@ -1,8 +1,9 @@
 # Estándares de Desarrollo y Calidad del CRM Patrimonial
 
 - Estado: Aprobado y evolutivo
-- LCD: LCD-20260804-02
-- Issues relacionados: #56 y #57
+- LCD de creación: LCD-20260804-02
+- Última actualización: 2026-08-04 · LCD-20260804-04
+- Issues relacionados: #56, #57 y #61
 
 ## 1. Propósito y alcance
 
@@ -58,6 +59,30 @@ No crear tablas, columnas, estados, procesos, pantallas o conceptos sin una nece
 
 Las entidades almacenan hechos. Vistas, colas, cachés, dashboards, estadísticas, recomendaciones y proyecciones son derivados reconstruibles y no constituyen fuente de verdad.
 
+### 3.1 Gestión de incertidumbre y evidencia
+
+No asumir la existencia, firma, estructura o comportamiento de archivos, funciones, tablas, columnas, políticas, contratos, dependencias, ambientes o abstracciones que no hayan sido comprobados.
+
+Ante información insuficiente, primero buscar evidencia en:
+
+- documentos canónicos;
+- estado real del repositorio;
+- pruebas y migraciones;
+- historial de Git e Issues;
+- configuración y procedimientos del ambiente aplicable.
+
+Si la incertidumbre persiste:
+
+- declarar qué información falta y qué decisiones dependen de ella;
+- detener únicamente el trabajo dependiente;
+- no inventar ni simular la pieza desconocida;
+- solicitar información sólo cuando no pueda obtenerse de las fuentes disponibles;
+- continuar con las partes independientes cuando sea seguro.
+
+Una inferencia necesaria debe identificarse como inferencia y no presentarse como hecho verificado.
+
+La falta de contexto no autoriza a crear fallbacks, mocks, contratos o abstracciones ficticias para aparentar que el trabajo está completo.
+
 ## 4. Preservación del Legacy
 
 APP LLAMADOS Legacy es una aplicación productiva frágil.
@@ -77,6 +102,30 @@ No asumir que una mejora de arquitectura autoriza cambiar comportamiento histór
 Una divergencia intencional debe estar documentada y aprobada.
 
 La transición hacia Next es gradual. No reescribir Legacy como efecto secundario de incorporar arquitectura objetivo.
+
+### 4.1 Clasificación física de productos y artefactos
+
+Antes de mover, eliminar, reutilizar o modificar un archivo, clasificarlo con evidencia como una de estas categorías:
+
+- fuente productiva de APP LLAMADOS Legacy;
+- fuente modular o transitoria;
+- artefacto generado;
+- infraestructura compartida;
+- código de CRM Patrimonial Next;
+- herramienta o documentación.
+
+La clasificación debe consultar, según corresponda:
+
+- `docs/architecture/current-repository-inventory.md`;
+- `docs/architecture/product-environment-deployment-matrix.md`;
+- `docs/architecture/target-monorepo-structure.md`;
+- el procedimiento de build, publicación o despliegue aplicable.
+
+No determinar la pertenencia de un archivo únicamente por su lenguaje, framework, nombre o carpeta aparente.
+
+La estructura objetivo no se presenta como estructura ya implementada. Mientras el inventario vigente lo indique, la raíz productiva, `src/dev/`, `dev/` y las rutas objetivo cumplen responsabilidades distintas.
+
+Si no puede determinarse la categoría, el consumidor o el origen de generación de un archivo, no debe moverse, eliminarse ni reutilizarse hasta resolver esa incertidumbre.
 
 ## 5. Prohibición de deuda técnica silenciosa
 
@@ -192,11 +241,44 @@ Toda migración debe ser:
 - transaccional cuando sea posible;
 - acompañada de rollback o estrategia explícita de recuperación.
 
-No usar `service_role`, JWT Secret, claves privadas ni credenciales privilegiadas.
+No usar `service_role`, secretos JWT, claves privadas ni credenciales privilegiadas.
 
 Aplicar mínimo privilegio.
 
-No otorgar permisos a `anon`, `PUBLIC` u otros roles amplios sin decisión explícita y verificación.
+No otorgar permisos a `anon`, `authenticated`, `PUBLIC` u otros roles amplios sin decisión explícita y verificación.
+
+Los `GRANT` y la exposición mediante Data API son una capa distinta de RLS. No asumir que una tabla está expuesta o protegida sólo por estar en un esquema determinado: comprobar la configuración real y los permisos explícitos.
+
+Toda tabla ubicada en un esquema expuesto por la Data API debe:
+
+- tener RLS habilitado;
+- contar con políticas explícitas acordes con el modelo de acceso;
+- limitar sus `GRANT` a las operaciones y roles necesarios;
+- probar el acceso permitido y denegado con identidades representativas.
+
+Una tabla sin RLS sólo puede justificarse fuera de los esquemas expuestos, sin acceso de `anon` ni `authenticated`, y con uso interno explícito. Preferir RLS como defensa adicional cuando sea viable.
+
+Toda vista expuesta que deba respetar las políticas de sus tablas subyacentes debe utilizar `security_invoker = true`. Si esto no corresponde o no está disponible, la vista debe ubicarse en un esquema no expuesto o revocar acceso a roles públicos.
+
+Las funciones usan `security invoker` por defecto. Una función `security definer` requiere:
+
+- necesidad explícita y documentada;
+- `search_path` seguro, preferentemente vacío;
+- referencias a objetos con esquema calificado;
+- ubicación y permisos de ejecución restringidos;
+- revisión de que no convierta una falla de autorización en bypass de RLS;
+- comprobación de identidad y autorización dentro de la función cuando opere en contexto de usuario.
+
+No confiar en los permisos de ejecución predeterminados de PostgreSQL. Revisar y revocar `EXECUTE` de `PUBLIC`, `anon` o `authenticated` cuando no corresponda, y concederlo sólo a los roles autorizados.
+
+Toda migración que cree o modifique tablas, vistas, funciones, políticas o permisos debe verificar:
+
+- RLS;
+- políticas `USING` y `WITH CHECK` cuando apliquen;
+- `GRANT` y `REVOKE`;
+- exposición mediante Data API;
+- comportamiento para roles autorizados y no autorizados;
+- advisors o controles de seguridad disponibles.
 
 No ocultar errores SQL devolviendo ceros, colecciones vacías o valores por defecto interpretables como datos reales.
 
@@ -272,7 +354,8 @@ Para SQL:
 - validación en ambiente no productivo;
 - comparación mediante consultas independientes;
 - conteos y conciliación;
-- revisión de permisos;
+- revisión de RLS, políticas, permisos y exposición;
+- pruebas de acceso permitido y denegado;
 - rollback o recuperación.
 
 Para UI:
@@ -331,6 +414,12 @@ Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
 
 Usar Conventional Commits.
 
+Los commits deben ser intencionales y corresponder a unidades lógicas del cambio.
+
+No crear commits separados para cada intento, error tipográfico o ajuste mecánico. Los commits `WIP`, `fixup` o equivalentes deben consolidarse antes del merge, ya sea reorganizando la rama o mediante squash merge.
+
+No fusionar cambios no relacionados en un mismo commit únicamente para reducir la cantidad de commits. Las divisiones que faciliten revisión, rollback o trazabilidad pueden conservarse.
+
 El Pull Request debe indicar:
 
 - objetivo;
@@ -343,6 +432,16 @@ El Pull Request debe indicar:
 - rollback;
 - limitaciones;
 - Issue, LCD y ADR relacionados.
+
+La descripción del PR debe ser completa pero directa. Debe evitar:
+
+- repetir el diff archivo por archivo sin aportar contexto;
+- narrar cada llamada de herramienta o intento intermedio;
+- incluir logs completos cuando basta una referencia o extracto relevante;
+- repetir información idéntica en varias secciones;
+- afirmar validaciones sin evidencia.
+
+La concisión no autoriza omitir impacto, pruebas, ambientes, riesgos, rollback o limitaciones.
 
 No reescribir historia publicada para ocultar errores.
 

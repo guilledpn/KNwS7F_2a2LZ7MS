@@ -1,7 +1,7 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-03
+- Último LCD aprobado: LCD-20260804-04
 - Gobernanza documental: ADR-023 y ADR-026
 - Última conciliación: 2026-08-04
 
@@ -51,6 +51,20 @@ Antes de modificar:
 
 En una emergencia productiva se puede restaurar primero la continuidad mediante el cambio seguro más pequeño. La documentación y el cierre siguen siendo obligatorios.
 
+## Evidencia e incertidumbre
+
+No asumir archivos, funciones, tablas, contratos, dependencias o ambientes no comprobados.
+
+Primero buscar evidencia en documentos canónicos, repositorio, pruebas, migraciones e historial. Si persiste la incertidumbre:
+
+- declararla;
+- detener sólo el trabajo dependiente;
+- no inventar ni simular la pieza desconocida;
+- continuar con partes independientes cuando sea seguro;
+- solicitar información sólo si no puede obtenerse de las fuentes disponibles.
+
+Toda inferencia debe identificarse como tal.
+
 ## Autoridad documental
 
 Gobiernan:
@@ -79,6 +93,8 @@ No crear tablas, estados, procesos o pantallas que no representen conceptos real
 
 Las entidades almacenan hechos. Colas, dashboards, estadísticas y proyecciones son derivados.
 
+Antes de mover, eliminar o reutilizar archivos, clasificar con evidencia si pertenecen a Legacy, fuente transitoria, artefacto generado, infraestructura compartida o Next. Consultar el inventario actual, la matriz producto/ambiente, la estructura objetivo y el procedimiento de build aplicable. Una ruta objetivo no se presume implementada.
+
 ## Calidad
 
 Cumplir `docs/engineering/development-standards.md`.
@@ -96,12 +112,16 @@ Reglas no negociables:
 - todo control omitido se informa como `No aplica` con motivo;
 - no declarar `PASS` sin evidencia.
 
+Para Supabase, toda modificación de tablas, vistas, funciones, políticas o permisos debe revisar RLS, `GRANT`, exposición mediante Data API y acceso permitido/denegado.
+
 ## Git
 
 - `main` permanece estable.
 - No experimentar directamente en `main`.
 - Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
 - Usar Conventional Commits.
+- Los commits deben representar unidades lógicas; consolidar ruido `WIP` o `fixup` antes del merge.
+- El PR debe ser completo y directo, sin narrar cada intento ni repetir el diff.
 - Abrir Pull Request antes de fusionar.
 - Un commit no equivale por sí solo a aprobación.
 - No reescribir historia publicada para ocultar errores.
@@ -113,7 +133,7 @@ Reglas no negociables:
 - PROD: datos reales; nunca experimentar.
 - Una autorización para DEV no autoriza STAGING ni PROD.
 - Toda operación destructiva o promoción requiere autorización explícita.
-- No usar `service_role`, JWT Secret ni claves privadas.
+- No usar `service_role`, secretos JWT ni claves privadas.
 - No almacenar PII, bases reales ni información patrimonial sensible en Git.
 - Tratar el repositorio como público.
 
