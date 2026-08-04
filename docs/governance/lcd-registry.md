@@ -38,7 +38,7 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260804-01 | 2026-08-04 | Unificar el contrato de estadísticas y documentar el pulso motivacional de CNS y pesos esperados por Agendamiento | Aprobado y promovido a PROD; aceptación visual postdespliegue separada en Issue #54 | Issue #52, ADR-027, PR #53, commit `d688f6ff1c483b2f8e409165acde3db80644d787` y `docs/governance/LCD-20260804-01-closure.md` | — |
 | LCD-20260804-02 | 2026-08-04 | Crear estándares canónicos de desarrollo, reducir las instrucciones de proyecto y preservar la continuidad operativa de herramientas | Aprobado por autorización explícita del usuario | `docs/governance/LCD-20260804-02-engineering-standards.md`, Issues #40, #56 y #57 y Pull Request #58 | — |
 | LCD-20260804-03 | 2026-08-04 | Retirar de las instrucciones vigentes la convención visual de revisión heredada de Drive | Aprobado por autorización explícita del usuario | Issue #59, Pull Request #60 y `docs/governance/LCD-20260804-03-remove-drive-color-rule.md` | — |
-| LCD-20260804-04 | 2026-08-04 | Reforzar seguridad Supabase, gestión de incertidumbre, clasificación física y disciplina Git/PR | Aprobado por autorización explícita del usuario | Issue #61, `docs/governance/LCD-20260804-04-engineering-hardening.md` y Pull Request del lote | — |
+| LCD-20260804-04 | 2026-08-04 | Reforzar seguridad Supabase, gestión de incertidumbre, clasificación física y disciplina Git/PR | Aprobado por autorización explícita del usuario | Issue #61, Pull Request #62 y `docs/governance/LCD-20260804-04-engineering-hardening.md` | — |
 
 ## Próxima asignación
 
