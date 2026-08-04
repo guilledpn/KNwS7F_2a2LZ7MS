@@ -547,7 +547,7 @@ function mapRow(r){
   };
 }
 
-function filterParamsFromState(state){
+function filterParamsFromState(state,limit=PAGE,offset=pageOffset){
   const monthMode=[...state.mes_modo][0]||'any';
   const types=[];
   if(state.tipo_gestionable.has('asignado'))types.push('asignado');
@@ -562,11 +562,11 @@ function filterParamsFromState(state){
     p_campaigns: [...state.campana],
     p_campaign_desc_keys: [...state.camp_desc],
     p_reminder: state.recordatorio.size===1?[...state.recordatorio][0]:'',
-    p_limit: PAGE,
-    p_offset: pageOffset
+    p_limit: limit,
+    p_offset: offset
   };
 }
-function legacyFilterParamsFromState(state){
+function legacyFilterParamsFromState(state,limit=PAGE,offset=pageOffset){
   const situacion=[...state.situacion][0]||'gestionables';
   const monthMode=[...state.mes_modo][0]||'any';
   const types=[];
@@ -581,8 +581,8 @@ function legacyFilterParamsFromState(state){
     p_types:types,
     p_months:[...state.mes],
     p_month_mode:monthMode,
-    p_limit:PAGE,
-    p_offset:pageOffset
+    p_limit:limit,
+    p_offset:offset
   };
 }
 function hasNonV2EstadoFilters(state){
@@ -623,14 +623,14 @@ function isMissingFilteredRpc(error){
   const msg=String(error?.message||error||'');
   return /get_contacts_v2_filtered|PGRST202|schema cache|could not find the function/i.test(msg);
 }
-async function fetchContactsPage(){
-  const modern=await sb.rpc('get_contacts_v2_filtered',filterParamsFromState(fstate));
+async function fetchContactsPage(state=fstate,limit=PAGE,offset=pageOffset){
+  const modern=await sb.rpc('get_contacts_v2_filtered',filterParamsFromState(state,limit,offset));
   if(!modern.error)return {data:modern.data,error:null,serverFiltered:true};
   if(!isMissingFilteredRpc(modern.error))return {data:modern.data,error:modern.error,serverFiltered:true};
 
-  const legacy=isBroadTodosQuery()
-    ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:PAGE,p_offset:pageOffset})
-    : await sb.rpc('get_contacts_v2',legacyFilterParamsFromState(fstate));
+  const legacy=isBroadTodosStateQuery(state)
+    ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:limit,p_offset:offset})
+    : await sb.rpc('get_contacts_v2',legacyFilterParamsFromState(state,limit,offset));
   return {data:legacy.data,error:legacy.error,serverFiltered:false};
 }
 
@@ -1489,16 +1489,7 @@ let applyBtnTimer;function updateApplyBtn(){
   btn.textContent='Calculando…';
   applyBtnTimer=setTimeout(async()=>{
     try{
-      let data,error;
-      if(isBroadTodosStateQuery(fdraft)){
-        const res=await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:1,p_offset:0});
-        data=res.data;error=res.error;
-      }else{
-        const params=filterParamsFromState(fdraft);
-        params.p_limit=1;params.p_offset=0;
-        const res=await sb.rpc('get_contacts_v2',params);
-        data=res.data;error=res.error;
-      }
+      const {data,error}=await fetchContactsPage(fdraft,1,0);
       if(error)throw error;
       const n=Number(data?.result_total??data?.base_total??data?.total??0);
       btn.textContent='Ver '+n.toLocaleString('es-CL')+(n===1?' contacto':' contactos');
