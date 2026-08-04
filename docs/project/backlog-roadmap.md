@@ -1,9 +1,9 @@
 # Backlog y Roadmap del CRM Patrimonial
 
 - Estado: Vigente
-- Versión: 2.1
+- Versión: 2.2
 - Última actualización: 2026-08-04
-- LCD: LCD-20260803-01 y LCD-20260804-01
+- LCD: LCD-20260803-01, LCD-20260804-01 y LCD-20260804-02
 
 Este documento ordena resultados y pendientes. Los Issues contienen ejecución y evidencia; el Modelo del Dominio contiene las reglas. No se duplican detalles técnicos aquí.
 
@@ -22,6 +22,8 @@ Estado: completada.
 - Registros únicos de LCD y ADR.
 - Inventario, mapas AS-IS/TO-BE y plan reversible.
 - Safety net del Legacy.
+- Estándares canónicos de desarrollo y calidad: LCD-20260804-02.
+- Instrucciones breves de ChatGPT separadas de `AGENTS.md` y del estándar técnico completo.
 
 Pendiente administrativo: revisar o cerrar el material educativo del PR #21.
 
@@ -115,15 +117,18 @@ Estado: pendiente y no prioritario.
 - desacoplamiento de `main` y publicación productiva;
 - observabilidad y rollback de cargas;
 - validación móvil y escritorio;
-- conservación de evidencia final de cada operación antes de borrar temporales.
+- conservación de evidencia final de cada operación antes de borrar temporales;
+- automatización gradual de quality gates: Issue #56;
+- auditoría de equivalencia y distribución de normalizadores operativos: Issue #57.
 
 ## Prioridad recomendada
 
-1. Completar manualmente las tres acciones de Drive registradas en Issue #40; el conector mantiene `403 appNotAuthorizedToFile`.
-2. Ejecutar el smoke visual autenticado postdespliegue del cockpit mediante Issue #54.
-3. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-4. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
-5. Definir el LCD de diseño físico mínimo `next_v03`.
-6. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
+1. Ejecutar el smoke visual autenticado postdespliegue del cockpit mediante Issue #54.
+2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
+3. Auditar los normalizadores operativos y definir su distribución mediante Issue #57.
+4. Automatizar gradualmente los controles del estándar mediante Issue #56.
+5. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
+6. Definir el LCD de diseño físico mínimo `next_v03`.
+7. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
 
 Toda iniciativa debe demostrar que representa negocio real, reduce carga, protege continuidad, puede probarse en DEV y evita crear otra fuente de verdad.

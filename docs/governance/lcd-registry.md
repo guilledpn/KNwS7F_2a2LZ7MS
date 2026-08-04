@@ -4,7 +4,7 @@
 - Fecha de reconciliación: 2026-08-01
 - Última actualización: 2026-08-04
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260804-01
+- Último LCD: LCD-20260804-02
 - Issue: #28
 
 Este archivo es la autoridad para asignar y consultar identificadores LCD. Los registros históricos de Drive y los Pull Requests se conservan como evidencia, pero no pueden crear una secuencia paralela.
@@ -34,8 +34,9 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260801-01 | 2026-08-01 | Reconciliar Drive y GitHub, corregir colisiones y fijar autoridad documental | Aprobado por autorización explícita del usuario; implementación documental trazada en Issue #28 | Issue #28 y Pull Requests #29 y #30 | — |
 | LCD-20260801-02 | 2026-08-01 | Crear los modelos Comercial y Operacional mínimos y la Matriz de Validación de Next v03 | Aprobado | Issue #31 y Pull Requests #32 y #33 | — |
 | LCD-20260802-01 | 2026-08-02 | Definir el modelo mínimo de Caso Comercial, Oportunidad, Propuesta y Pipeline | Aprobado; equivalencia histórica resuelta | Issue #34 y Pull Request #35 | — |
-| LCD-20260803-01 | 2026-08-03 | Conciliar y migrar la documentación a una ubicación única sin espejos | Aprobado | Issue #40, ADR-026, informe de conciliación y Pull Request del lote | — |
+| LCD-20260803-01 | 2026-08-03 | Conciliar y migrar la documentación a una ubicación única sin espejos | Aprobado | Issue #40, ADR-026, informe de conciliación y Pull Request #41 | — |
 | LCD-20260804-01 | 2026-08-04 | Unificar el contrato de estadísticas y documentar el pulso motivacional de CNS y pesos esperados por Agendamiento | Aprobado y promovido a PROD; aceptación visual postdespliegue separada en Issue #54 | Issue #52, ADR-027, PR #53, commit `d688f6ff1c483b2f8e409165acde3db80644d787` y `docs/governance/LCD-20260804-01-closure.md` | — |
+| LCD-20260804-02 | 2026-08-04 | Crear estándares canónicos de desarrollo, reducir las instrucciones de proyecto y preservar la continuidad operativa de herramientas | Aprobado por autorización explícita del usuario | `docs/governance/LCD-20260804-02-engineering-standards.md`, Issues #40, #56 y #57 y Pull Request del lote | — |
 
 ## Próxima asignación
 
