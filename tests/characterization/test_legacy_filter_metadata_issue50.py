@@ -60,6 +60,14 @@ class LegacyFilterMetadataIssue50Tests(unittest.TestCase):
         self.assertNotIn("p_limit:200", load_campaigns)
         self.assertIn("for(let attempt=0;attempt<2;attempt++)", load_campaigns)
 
+    def test_reopening_filters_retries_options_after_transient_failure(self) -> None:
+        self.assertIn("CAMPAIGN_OPTIONS_READY=false", self.html)
+        self.assertIn("CAMPAIGN_OPTIONS_READY=true", self.html)
+        self.assertIn(
+            "async function openFilterSheet(){if(!CAMPAIGN_OPTIONS_READY)await loadCampaigns();",
+            self.html,
+        )
+
     def test_campaign_detail_wraps_and_ui_version_is_consistent(self) -> None:
         self.assertIn(".info-value.campaign-full", self.html)
         self.assertIn("'campaign-full'", self.html)
