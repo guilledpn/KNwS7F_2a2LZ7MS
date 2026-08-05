@@ -19,6 +19,25 @@ python tools/validate_dev_snapshot.py
 python tools/validate_dev_pwa_identity.py
 ```
 
+## Preview candidato de Stats financiero
+
+Issue: `#67`.
+
+- Ruta DEV: <https://guilledpn.github.io/KNwS7F_2a2LZ7MS/dev/stats-v2.html>
+- Fuente canónica: `src/dev/previews/stats-financial-v2.html`.
+- Reglas verificables: `src/dev/previews/stats-financial-rules.js`.
+- Copias generadas: `dev/stats-v2.html` y `dev/assets/previews/stats-financial-rules.js`.
+- Contrato de lectura: `get_stats_cockpit_v1` en `crm-ffvv-dev`.
+
+La ruta es una superficie de validación aislada: no reemplaza Stats en la aplicación principal, no modifica PROD y no persiste Rachas, CNS ni dinero derivados.
+
+Publicar y validar:
+
+```bash
+python tools/publish_dev_previews.py
+python -m unittest -v tests/test_stats_financial_preview.py
+```
+
 ## Identidad instalable
 
 - PWA id: `/KNwS7F_2a2LZ7MS/dev/`

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#f59e0b">
+<title>Stats financiero · APP LLAMADOS DEV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/previews/stats-financial-v2.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./assets/app/config/environment.js"></script>
+<script src="./assets/app/core/errors.js"></script>
+<script src="./assets/app/core/supabase-client.js"></script>
+<script src="./assets/app/core/auth.js"></script>
+<script src="./assets/previews/stats-financial-rules.js"></script>
+</head>
+<body>
+<div class="login-layer hidden" id="login-layer">
+  <form class="login-card" id="login-form">
+    <div class="login-brand">APP LLAMADOS DEV</div>
+    <div class="login-title">Accede para ver Stats</div>
+    <div class="login-sub">Esta vista usa exclusivamente el ambiente DEV y reutiliza la sesión de la aplicación.</div>
+    <div class="field"><label for="login-email">Correo</label><input id="login-email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="login-pass">Contraseña</label><input id="login-pass" type="password" autocomplete="current-password" required></div>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" type="submit">Entrar</button>
+    <button class="login-magic" type="button" id="login-magic">Enviar enlace mágico</button>
+  </form>
+</div>
+
+<div class="app-shell">
+  <header class="topbar">
+    <a class="back-link" href="./" aria-label="Volver a APP LLAMADOS DEV">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <div class="heading">
+      <div class="heading-row"><h1>Estadísticas</h1><span class="env-chip">DEV · CANDIDATA</span></div>
+      <div class="subtitle">Tu avance en Agendamientos, CNS y dinero esperado.</div>
+    </div>
+    <div class="toolbar">
+      <div class="live-label"><strong>Actualización continua</strong><span id="updated-label">Sin datos</span></div>
+      <button class="refresh-btn" id="refresh-btn" aria-label="Actualizar estadísticas">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0 2 5.3"/><path d="M20 4v7h-7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section id="loading" class="loading-card">
+    <div class="loading-icon"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+    <div class="loading-title">Cargando estadísticas</div>
+    <div class="loading-text">Consultando el contrato vigente de DEV.</div>
+  </section>
+
+  <section id="error-view" class="error-card hidden" role="alert">
+    <div class="error-icon"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg></div>
+    <div class="error-title">Datos no disponibles</div>
+    <div class="error-text" id="error-text">La RPC de estadísticas no respondió correctamente.</div>
+    <button class="retry-btn" id="retry-btn">Reintentar</button>
+  </section>
+
+  <main id="dashboard" class="hidden">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <div>
+          <div class="eyebrow" id="hero-title">Dinero esperado hoy</div>
+          <div class="hero-money" id="hero-money">$0</div>
+          <div class="hero-target" id="hero-target"></div>
+          <div class="hero-equivalence">
+            <span class="hero-pill" id="hero-agendas"></span>
+            <span class="hero-pill" id="hero-cns"></span>
+          </div>
+        </div>
+        <div class="hero-icon" aria-hidden="true">
+          <svg width="39" height="39" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+        </div>
+      </div>
+      <div class="hero-progress"><span id="hero-progress"></span></div>
+      <div class="hero-message" id="hero-message"></div>
+    </section>
+
+    <section class="period-grid" id="period-grid" aria-label="Resumen por período"></section>
+
+    <section class="content-grid">
+      <article class="card" id="rhythm-card">
+        <div class="card-title-row">
+          <div><div class="card-kicker">Ritmo mensual</div><div class="card-title" id="rhythm-title"></div></div>
+          <div class="streak" id="streak-chip"></div>
+        </div>
+        <div class="rhythm-layout">
+          <div class="rhythm-ring" id="rhythm-ring"><strong id="rhythm-percent">0%</strong></div>
+          <div class="rhythm-copy" id="rhythm-copy"></div>
+        </div>
+        <div class="gap-box" id="gap-box"></div>
+        <div class="rhythm-bar"><span id="rhythm-bar"></span></div>
+        <div class="rhythm-foot"><span id="rhythm-current"></span><span id="rhythm-ideal"></span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-title-row">
+          <div><div class="card-kicker">Mes calendario</div><div class="card-title">Avance y proyección</div><div class="card-sub" id="chart-sub"></div></div>
+          <div class="chart-controls" aria-label="Unidad del gráfico"><button class="active" data-unit="agendas">Agendas</button><button data-unit="money">Dinero</button></div>
+        </div>
+        <div class="chart-wrap" id="chart-wrap"></div>
+        <div class="chart-legend"><span class="legend-key"><span class="legend-line"></span>Real</span><span class="legend-key"><span class="legend-line ideal"></span>Ritmo ideal</span><span class="legend-key"><span class="legend-line forecast"></span>Proyección</span></div>
+      </article>
+    </section>
+
+    <section class="card ops">
+      <div class="ops-head"><div><div class="card-kicker">Métricas operativas</div><div class="card-title">Cómo estás construyendo el resultado</div></div><div class="ops-period" id="ops-period"></div></div>
+      <div class="ops-grid" id="ops-grid"></div>
+    </section>
+
+    <div class="method-line"><span id="equivalence-line"></span><span id="contract-line"></span></div>
+  </main>
+</div>
+
+<script src="./assets/previews/stats-financial-view.js"></script>
+</body>
+</html>
