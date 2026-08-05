@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#315ed8">
+<title>Stats financiero · Simulación mitad de mes</title>
+<style>
+:root{
+  color-scheme:light;--bg:#f4f7fc;--surface:#fff;--surface-soft:#f3f6fb;--text:#172033;
+  --text-soft:#536078;--muted:#6d788b;--outline:#d8e0ec;--blue:#315ed8;--blue-dark:#2146b8;
+  --green:#14804f;--green-soft:#def4e9;--amber:#9b6500;--amber-soft:#fff0c9;
+  --violet:#6846cc;--violet-soft:#ebe4ff;--red:#b42318;--shadow:0 1px 2px rgba(18,35,66,.07),0 10px 30px rgba(18,35,66,.06);
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;--sans:Inter,Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;border:0;cursor:pointer}
+a{color:inherit}
+.shell{width:min(1120px,100%);margin:0 auto;padding:18px 16px 56px}
+.topbar{display:flex;gap:12px;align-items:flex-start;margin-bottom:15px}
+.back{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--surface);box-shadow:var(--shadow);text-decoration:none;color:var(--text-soft);flex:none}
+.heading{min-width:0;flex:1}
+.heading-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:28px;line-height:1.05;letter-spacing:-.04em;margin:0}
+.subtitle{font-size:13px;line-height:1.45;color:var(--text-soft);margin-top:6px}
+.chip{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:14px;background:var(--amber-soft);color:#744900;font-size:11px;font-weight:850;letter-spacing:.05em}
+.date-chip{background:#e8edf5;color:#4d5b70}
+.live-link{margin-left:auto;min-height:42px;padding:0 14px;border-radius:21px;background:var(--surface);box-shadow:var(--shadow);display:inline-flex;align-items:center;text-decoration:none;color:var(--blue);font-size:12px;font-weight:750}
+.notice{margin-bottom:14px;padding:11px 14px;border-radius:16px;background:#fff7dd;border:1px solid #f0d78c;color:#6f4d00;font-size:12px;line-height:1.45}
+.hero{position:relative;overflow:hidden;border-radius:29px;padding:22px;background:linear-gradient(135deg,#2447bb,#315ed8 58%,#5579e9);color:#fff;box-shadow:0 15px 40px rgba(35,72,183,.22)}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero:before{width:220px;height:220px;right:-84px;top:-92px}.hero:after{width:135px;height:135px;right:70px;bottom:-92px}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;color:rgba(255,255,255,.77)}
+.hero-money{font-family:var(--mono);font-size:clamp(42px,9vw,70px);font-weight:800;line-height:1;letter-spacing:-.06em;margin-top:10px}
+.hero-target{font-size:15px;margin-top:9px;color:rgba(255,255,255,.94)}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.hero-pill{display:inline-flex;align-items:center;min-height:32px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.14);font-size:12px;font-weight:700}
+.hero-icon{width:78px;height:78px;border-radius:26px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:34px}
+.progress{position:relative;z-index:1;height:8px;border-radius:5px;background:rgba(255,255,255,.19);margin-top:20px;overflow:hidden}
+.progress span{display:block;width:55.6%;height:100%;background:#fff;border-radius:5px}
+.hero-message{position:relative;z-index:1;margin-top:11px;font-size:13px;line-height:1.5;color:rgba(255,255,255,.92)}
+.period-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.period{text-align:left;border-radius:23px;padding:17px;min-height:185px;background:var(--surface);border:1px solid transparent;box-shadow:var(--shadow);color:var(--text);transition:.15s}
+.period:hover{transform:translateY(-1px)}.period.active{border-color:rgba(49,94,216,.45);box-shadow:0 0 0 3px rgba(49,94,216,.08),var(--shadow)}
+.period.day{background:linear-gradient(145deg,#f8faff,#edf3ff)}.period.week{background:linear-gradient(145deg,#f7fcf9,#eaf8f1)}.period.month{background:linear-gradient(145deg,#fcfaff,#f1edff)}
+.period-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.period-name{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
+.period-icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e4ebfb}
+.week .period-icon{background:var(--green-soft)}.month .period-icon{background:var(--violet-soft)}
+.period-money{font:800 27px/1.05 var(--mono);letter-spacing:-.045em;margin-top:16px}.period-label{font-size:12px;color:var(--muted);margin-top:4px}
+.period-facts{font-size:12px;color:var(--text-soft);margin-top:12px}.period-facts strong{font:800 19px var(--mono);color:var(--text)}
+.bar{height:7px;border-radius:5px;background:rgba(83,96,120,.14);overflow:hidden;margin-top:15px}.bar span{display:block;height:100%;border-radius:5px;background:var(--blue)}
+.week .bar span{background:var(--green)}.month .bar span{background:var(--violet)}.period-copy{font-size:11px;color:var(--muted);margin-top:8px}
+.grid{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);gap:14px;margin-top:14px}
+.card{background:var(--surface);border:1px solid rgba(205,216,231,.82);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:850;color:var(--muted)}.card h2{font-size:21px;letter-spacing:-.03em;margin:5px 0 0}
+.card-sub{font-size:13px;line-height:1.45;color:var(--text-soft);margin-top:6px}
+.rhythm-head{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.ring{width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--amber) 0 47.1%,#e6ebf2 47.1% 100%);display:grid;place-items:center}
+.ring:after{content:"47%";width:64px;height:64px;background:#fff;border-radius:50%;display:grid;place-items:center;font:800 18px var(--mono)}
+.streak{display:inline-flex;align-items:center;min-height:31px;padding:0 11px;border-radius:16px;background:var(--amber-soft);color:#775000;font-size:12px;font-weight:800;margin-top:13px}
+.gaps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.gap{padding:11px;border-radius:16px;background:var(--surface-soft);border:1px solid #e2e8f0}.gap span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:800}.gap b{display:block;font:800 16px var(--mono);margin-top:5px}
+.pace-track{height:8px;border-radius:5px;background:#e8edf3;overflow:hidden;margin-top:15px}.pace-track span{display:block;width:47.1%;height:100%;background:var(--amber);border-radius:5px}
+.pace-row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--muted)}
+.operations{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}.metric{padding:12px;border-radius:17px;background:var(--surface-soft);border:1px solid #e3e8ef}.metric b{display:block;font:800 22px var(--mono)}.metric span{font-size:11px;color:var(--muted)}
+.next{margin-top:12px;padding:13px;border-radius:18px;background:#eaf1ff;color:#2447a9;font-size:12px;line-height:1.45}.next strong{font-family:var(--mono)}
+.projection-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.projection{padding:13px;border-radius:18px;border:1px solid #e0e6ef;background:#fafbfe}.projection span{display:block;font-size:11px;color:var(--muted)}.projection b{display:block;font:800 22px var(--mono);margin-top:5px}.projection small{display:block;margin-top:4px;color:var(--text-soft);font-size:11px;line-height:1.35}
+.chart-card{margin-top:14px}.chart-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.segmented{display:flex;padding:3px;border-radius:18px;background:#edf1f6}.segmented button{min-height:32px;padding:0 11px;border-radius:15px;background:transparent;color:var(--text-soft);font-size:11px;font-weight:750}.segmented button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(20,35,65,.12)}
+.chart{margin-top:12px;border-radius:20px;background:var(--surface-soft);border:1px solid #e1e7ef;padding:10px;overflow:hidden}.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--muted)}.legend i{display:inline-block;width:18px;height:3px;border-radius:3px;margin-right:5px;vertical-align:middle}.actual-line{background:var(--blue)}.ideal-line{background:#aab5c5}.forecast-line{background:repeating-linear-gradient(90deg,var(--violet) 0 6px,transparent 6px 9px)}
+.explain{margin-top:14px;padding:16px;border-radius:22px;background:#172033;color:#fff;display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start}.explain-icon{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:21px}.explain h3{margin:0;font-size:15px}.explain p{margin:5px 0 0;color:rgba(255,255,255,.78);font-size:12px;line-height:1.5}
+.footer{margin-top:16px;text-align:center;font-size:11px;color:var(--muted);line-height:1.5}
+@media(max-width:760px){
+  .live-link{display:none}.hero-grid{grid-template-columns:1fr auto}.period-grid{grid-template-columns:1fr}.period{min-height:0}
+  .grid{grid-template-columns:1fr}.gaps{grid-template-columns:1fr 1fr}.chart-head{display:block}.segmented{margin-top:11px;width:max-content}
+}
+@media(max-width:420px){
+  .shell{padding:13px 12px 46px}h1{font-size:24px}.hero{padding:19px;border-radius:25px}.hero-money{font-size:42px}
+  .hero-icon{width:60px;height:60px;border-radius:21px;font-size:28px}.gaps,.projection-grid{grid-template-columns:1fr}.topbar{gap:9px}
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <a class="back" href="./stats-v2.html" aria-label="Volver a Stats vivo">←</a>
+    <div class="heading">
+      <div class="heading-row">
+        <h1>Stats financiero</h1>
+        <span class="chip">SIMULACIÓN DEV</span>
+        <span class="chip date-chip">14 AGO 2026 · 13:00</span>
+      </div>
+      <div class="subtitle">Escenario ficticio de mitad de mes para comprender la pantalla con cifras avanzadas.</div>
+    </div>
+    <a class="live-link" href="./stats-v2.html">Abrir datos vivos</a>
+  </header>
+
+  <div class="notice"><strong>Datos completamente ficticios.</strong> Esta ruta no consulta Supabase, no requiere autenticación y no representa gestiones reales.</div>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Dinero esperado hoy</div>
+        <div class="hero-money">$125.000</div>
+        <div class="hero-target">$125.000 de <strong>$225.000</strong> esperados para hoy</div>
+        <div class="hero-pills">
+          <span class="hero-pill">5 agendas</span>
+          <span class="hero-pill">12,5 CNS esperados</span>
+          <span class="hero-pill">Jornada ~50% avanzada</span>
+        </div>
+      </div>
+      <div class="hero-icon" aria-hidden="true">↗</div>
+    </div>
+    <div class="progress"><span></span></div>
+    <div class="hero-message">Llevas 56% de la meta diaria. Faltan 4 agendas: equivalen a 10,0 CNS y $100.000 esperados.</div>
+  </section>
+
+  <section class="period-grid" aria-label="Períodos">
+    <button class="period day active" data-period="today">
+      <div class="period-top"><span class="period-name">Día</span><span class="period-icon">☀</span></div>
+      <div class="period-money">$125.000</div><div class="period-label">esperados</div>
+      <div class="period-facts"><strong>5</strong> agendas · 12,5 CNS</div>
+      <div class="bar"><span style="width:55.6%"></span></div><div class="period-copy">56% de 9 agendas</div>
+    </button>
+    <button class="period week" data-period="week">
+      <div class="period-top"><span class="period-name">Semana</span><span class="period-icon">▦</span></div>
+      <div class="period-money">$1.100.000</div><div class="period-label">esperados</div>
+      <div class="period-facts"><strong>44</strong> agendas · 110,0 CNS</div>
+      <div class="bar"><span style="width:97.8%"></span></div><div class="period-copy">98% de 45 agendas</div>
+    </button>
+    <button class="period month" data-period="month">
+      <div class="period-top"><span class="period-name">Mes calendario</span><span class="period-icon">31</span></div>
+      <div class="period-money">$2.225.000</div><div class="period-label">esperados</div>
+      <div class="period-facts"><strong>89</strong> agendas · 222,5 CNS</div>
+      <div class="bar"><span style="width:47.1%"></span></div><div class="period-copy">47% de 189 agendas</div>
+    </button>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="rhythm-head">
+        <div>
+          <div class="kicker">Ritmo mensual</div>
+          <h2>Un poco bajo, aún recuperable</h2>
+          <div class="card-sub"><strong>Estás a sólo una agenda del ritmo ideal.</strong> Mantener 9 agendas por día activo todavía permite cerrar el mes.</div>
+        </div>
+        <div class="ring" aria-label="47% de la meta mensual"></div>
+      </div>
+      <div class="streak">🔥 Racha del mes: 6 días</div>
+      <div class="card-sub">El día actual aún no alcanza su meta, pero como sigue en curso no rompe la racha anterior.</div>
+      <div class="gaps">
+        <div class="gap"><span>Brecha al ritmo</span><b>−1 agenda</b></div>
+        <div class="gap"><span>CNS esperados</span><b>−2,5</b></div>
+        <div class="gap"><span>Dinero esperado</span><b>−$25.000</b></div>
+      </div>
+      <div class="pace-track"><span></span></div>
+      <div class="pace-row"><span>Avance real: 89</span><span>Ritmo ideal a hoy: 90 · normal 9/día · necesario 9/día</span></div>
+    </article>
+
+    <article class="card">
+      <div class="kicker">Lectura operativa</div>
+      <h2 id="ops-title">Hoy, hasta las 13:00</h2>
+      <div class="card-sub" id="ops-copy">La jornada está aproximadamente a la mitad y el rendimiento diario está levemente por encima del 50%.</div>
+      <div class="operations">
+        <div class="metric"><b id="m-worked">32</b><span>contactos trabajados</span></div>
+        <div class="metric"><b id="m-effective">18</b><span>llamadas efectivas</span></div>
+        <div class="metric"><b id="m-rate">27,8%</b><span>agendas / efectivas</span></div>
+        <div class="metric"><b id="m-per-agenda">6,4</b><span>contactos / agenda</span></div>
+      </div>
+      <div class="next">La próxima agenda agrega <strong>+2,5 CNS</strong> y <strong>+$25.000</strong>. Además, cerraría por sí sola la brecha mensual contra el ritmo ideal.</div>
+      <div class="projection-grid">
+        <div class="projection"><span>Proyección al ritmo observado</span><b>187</b><small>$4.675.000 esperados · 2 agendas bajo la meta.</small></div>
+        <div class="projection"><span>Completando hoy + ritmo normal</span><b>192</b><small>$4.800.000 esperados · 3 agendas sobre la meta.</small></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="card chart-card">
+    <div class="chart-head">
+      <div>
+        <div class="kicker">Historia del mes</div>
+        <h2>Real, ritmo ideal y proyección</h2>
+        <div class="card-sub">La línea real termina el 14 de agosto. La proyección futura es discontinua y no se confunde con hechos.</div>
+      </div>
+      <div class="segmented" role="group" aria-label="Unidad del gráfico">
+        <button class="on" data-unit="agendas">Agendas</button>
+        <button data-unit="money">Dinero</button>
+      </div>
+    </div>
+    <div class="chart" id="chart"></div>
+    <div class="legend"><span><i class="actual-line"></i>Real</span><span><i class="ideal-line"></i>Ritmo ideal</span><span><i class="forecast-line"></i>Proyección</span></div>
+  </section>
+
+  <section class="explain">
+    <div class="explain-icon">💡</div>
+    <div><h3>Qué significa cerrar la brecha</h3><p>La brecha mensual es una sola agenda. Al agendar una reunión adicional sumas 2,5 CNS y $25.000 esperados, alcanzando el ritmo ideal acumulado de 90 agendas para esta fecha.</p></div>
+  </section>
+
+  <div class="footer">Escenario estático del Issue #69 · No consulta ni modifica datos · Meta mensual Legacy: 189 agendas.</div>
+</main>
+<script>
+'use strict';
+(function(){
+  const chartRows=[{"day":1,"active":false,"ideal":0,"actual":0,"forecast":null},{"day":2,"active":false,"ideal":0,"actual":0,"forecast":null},{"day":3,"active":true,"ideal":9,"actual":9,"forecast":null},{"day":4,"active":true,"ideal":18,"actual":19,"forecast":null},{"day":5,"active":true,"ideal":27,"actual":27,"forecast":null},{"day":6,"active":true,"ideal":36,"actual":36,"forecast":null},{"day":7,"active":true,"ideal":45,"actual":45,"forecast":null},{"day":8,"active":false,"ideal":45,"actual":45,"forecast":null},{"day":9,"active":false,"ideal":45,"actual":45,"forecast":null},{"day":10,"active":true,"ideal":54,"actual":54,"forecast":null},{"day":11,"active":true,"ideal":63,"actual":63,"forecast":null},{"day":12,"active":true,"ideal":72,"actual":72,"forecast":null},{"day":13,"active":true,"ideal":81,"actual":84,"forecast":null},{"day":14,"active":true,"ideal":90,"actual":89,"forecast":89},{"day":15,"active":false,"ideal":90,"actual":null,"forecast":89},{"day":16,"active":false,"ideal":90,"actual":null,"forecast":89},{"day":17,"active":true,"ideal":99,"actual":null,"forecast":98},{"day":18,"active":true,"ideal":108,"actual":null,"forecast":107},{"day":19,"active":true,"ideal":117,"actual":null,"forecast":116},{"day":20,"active":true,"ideal":126,"actual":null,"forecast":125},{"day":21,"active":true,"ideal":135,"actual":null,"forecast":134},{"day":22,"active":false,"ideal":135,"actual":null,"forecast":134},{"day":23,"active":false,"ideal":135,"actual":null,"forecast":134},{"day":24,"active":true,"ideal":144,"actual":null,"forecast":143},{"day":25,"active":true,"ideal":153,"actual":null,"forecast":151},{"day":26,"active":true,"ideal":162,"actual":null,"forecast":160},{"day":27,"active":true,"ideal":171,"actual":null,"forecast":169},{"day":28,"active":true,"ideal":180,"actual":null,"forecast":178},{"day":29,"active":false,"ideal":180,"actual":null,"forecast":178},{"day":30,"active":false,"ideal":180,"actual":null,"forecast":178},{"day":31,"active":true,"ideal":189,"actual":null,"forecast":187}];
+  const periodData={
+    today:{title:'Hoy, hasta las 13:00',copy:'La jornada está aproximadamente a la mitad y el rendimiento diario está levemente por encima del 50%.',worked:'32',effective:'18',rate:'27,8%',per:'6,4'},
+    week:{title:'Semana del 10 al 16 de agosto',copy:'Semana calendario limitada al mes actual. La gestión está a una agenda de la meta semanal.',worked:'266',effective:'158',rate:'27,8%',per:'6,0'},
+    month:{title:'Agosto hasta el día 14',copy:'El acumulado mensual está a una sola agenda del ritmo ideal para la fecha.',worked:'548',effective:'321',rate:'27,7%',per:'6,2'}
+  };
+  let unit='agendas';
+  const $=id=>document.getElementById(id);
+  const money=value=>value*25000;
+  const label=value=>unit==='money'?(value>=1000000?'$'+(value/1000000).toFixed(1).replace('.',',')+'M':'$'+Math.round(value/1000)+'k'):Math.round(value).toString();
+
+  function path(points,x,y){
+    return points.filter(p=>p.v!==null).map((p,i)=>(i?'L':'M')+' '+x(p.i).toFixed(1)+' '+y(p.v).toFixed(1)).join(' ');
+  }
+  function renderChart(){
+    const w=720,h=230,p={l:58,r:16,t:16,b:32};
+    const convert=v=>unit==='money'?money(v):v;
+    const actual=chartRows.map((r,i)=>({i,v:r.actual===null?null:convert(r.actual)}));
+    const ideal=chartRows.map((r,i)=>({i,v:convert(r.ideal)}));
+    const forecast=chartRows.map((r,i)=>({i,v:r.forecast===null?null:convert(r.forecast)}));
+    const values=[...actual,...ideal,...forecast].map(p=>p.v).filter(v=>v!==null);
+    const max=Math.max(...values,1)*1.08;
+    const x=i=>p.l+(i/(chartRows.length-1))*(w-p.l-p.r);
+    const y=v=>p.t+(1-v/max)*(h-p.t-p.b);
+    const ticks=[0,.5,1].map(r=>max*r);
+    const todayIndex=13;
+    $('chart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Avance mensual simulado">
+      ${ticks.map(v=>`<line x1="${p.l}" y1="${y(v)}" x2="${w-p.r}" y2="${y(v)}" stroke="#dfe6ef"/><text x="${p.l-8}" y="${y(v)+4}" text-anchor="end" fill="#778397" font-size="11">${label(v)}</text>`).join('')}
+      <line x1="${x(todayIndex)}" y1="${p.t}" x2="${x(todayIndex)}" y2="${h-p.b}" stroke="#bbc5d4" stroke-dasharray="3 4"/>
+      <path d="${path(ideal,x,y)}" fill="none" stroke="#aab5c5" stroke-width="2"/>
+      <path d="${path(actual,x,y)}" fill="none" stroke="#315ed8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${path(forecast,x,y)}" fill="none" stroke="#6846cc" stroke-width="3" stroke-dasharray="8 7" stroke-linecap="round"/>
+      <circle cx="${x(todayIndex)}" cy="${y(convert(89))}" r="5" fill="#315ed8" stroke="#fff" stroke-width="3"/>
+      <text x="${p.l}" y="${h-8}" fill="#778397" font-size="11">1 ago</text>
+      <text x="${x(todayIndex)}" y="${h-8}" text-anchor="middle" fill="#536078" font-size="11">Hoy · 14</text>
+      <text x="${w-p.r}" y="${h-8}" text-anchor="end" fill="#778397" font-size="11">31 ago</text>
+    </svg>`;
+  }
+  document.querySelectorAll('[data-unit]').forEach(btn=>btn.addEventListener('click',()=>{
+    unit=btn.dataset.unit;
+    document.querySelectorAll('[data-unit]').forEach(b=>b.classList.toggle('on',b===btn));
+    renderChart();
+  }));
+  document.querySelectorAll('[data-period]').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b===btn));
+    const d=periodData[btn.dataset.period];
+    $('ops-title').textContent=d.title;$('ops-copy').textContent=d.copy;$('m-worked').textContent=d.worked;
+    $('m-effective').textContent=d.effective;$('m-rate').textContent=d.rate;$('m-per-agenda').textContent=d.per;
+  }));
+  renderChart();
+})();
+</script>
+</body>
+</html>
