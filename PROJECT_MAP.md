@@ -2,17 +2,18 @@
 
 - Estado: Vigente
 - Último LCD aprobado: LCD-20260804-05
+- Cambio candidato actual: LCD-20260805-01 · ADR-028 · Issue #76
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
-- Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
+- Pendientes abiertos relevantes: Issues #38, #54, #56, #57 y #76; PR #21
 
 ## Productos
 
 | Producto | Estado | Propósito |
 |---|---|---|
-| APP LLAMADOS Legacy | Productivo y estable | Operación actual de contactos, gestión, Stats, Importar, Ajustes y Sprint |
-| CRM Patrimonial Next | Modelo conceptual aprobado | Nueva generación, desarrollada por verticales sin reescritura abrupta |
+| APP LLAMADOS Legacy | Productivo y estable | Operación actual hasta el corte total hacia Next |
+| CRM Patrimonial Next | Modelo conceptual aprobado; shell local candidata | Reemplazo prioritario de Legacy y evolución patrimonial posterior |
 
-La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monolito modular. Decisiones: ADR-021 y ADR-022.
+La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monolito modular. ADR-028 precisa que compartir repositorio no significa compartir runtime ni ambientes.
 
 ## Documentos rectores
 
@@ -32,86 +33,49 @@ El índice detallado vive en `docs/governance/document-authority.md`.
 - GitHub: única ubicación de documentos propios, ADR/LCD, estándares, procedimientos, código, migraciones, pruebas y herramientas.
 - Drive: única ubicación de datos reales, bases, respaldos, fuentes de terceros, manuales, PDFs y material reservado.
 - No existen espejos ni copias editables paralelas. Una copia operativa puede existir si identifica su fuente y no evoluciona como autoridad.
-- La carpeta de Drive se denomina `Fuentes y evidencia del dominio`.
 
-ADR-026 y LCD-20260804-02 gobiernan esta separación.
+## Infraestructura de Next
 
-## Ingeniería y agentes
+Etapa A candidata mediante Issue #76:
 
-- `AGENTS.md` es el punto de entrada para agentes y colaboradores.
-- `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
-- `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
-- LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina de commits/PR.
-- LCD-20260804-05 clasifica el trabajo y exige controles proporcionales; reconoce la operación excepcional como vía temporal legítima cuando la solución canónica no resulta apta.
-- Issue #56 gobierna la automatización gradual de quality gates.
-- Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
+- workspace: `apps/crm-patrimonial/`;
+- shell PWA ejecutable en `http://127.0.0.1:4173`;
+- arranque Windows: `apps\crm-patrimonial\start-next.cmd`;
+- Supabase local reservado en puertos 56320–56324;
+- workflow propio `Next shell` con artefacto descargable;
+- ninguna referencia runtime a `crm-ffvv-dev` ni `crm-ffvv-v2`;
+- NEXT-DEV, NEXT-STAGING y NEXT-PROD no creados todavía.
 
-Las instrucciones de ChatGPT no reemplazan las fuentes del repositorio.
+El intento de crear NEXT-DEV fue bloqueado por el límite de dos proyectos gratuitos activos. Legacy no fue pausado ni modificado.
 
 ## Modelo de Next
 
-ADR-024 separa:
+ADR-024 separa Modelo Comercial y Modelo Operacional. ADR-025 aprueba Caso, Oportunidad, Cotización, Pipeline, CNS y Producto Contratado. El diseño físico `next_v03` todavía requiere un LCD propio.
 
-- Modelo Comercial: conceptos, hechos e invariantes del negocio.
-- Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
+ADR-028 candidato establece:
 
-ADR-025 aprueba:
-
-- Caso como negocio indivisible, unidad del Pipeline y contenedor de 0..N Oportunidades;
-- Oportunidades complementarias o alternativas;
-- Cotización como configuración;
-- etapas `Nuevo → Pendiente → Propuesta → En Firma → Sometido → Emitido`;
-- `Ganado` sólo en `Emitido` y `Perdido` como resultado;
-- proyección, sometimiento, emisión, reconocimiento de CNS y capital como conocimientos distintos;
-- Producto Contratado desde Oportunidad ganada y Cotización seleccionada;
-- Tareas/Actividades con Persona y Asesor esenciales y contexto comercial opcional.
-
-El diseño físico `next_v03` todavía requiere un LCD propio; la documentación aprobada no autoriza SQL ni cambios de runtime.
-
-## Estado Legacy al 2026-08-04
-
-- política única de gestionabilidad implementada y promovida;
-- métricas por Persona/día en PROD;
-- muestra analítica estratificada disponible;
-- edición de ficha separada de gestión real y datos ficticios saneados;
-- carga julio/agosto completada y conciliada;
-- campaña inválida retirada de la cola actual, con solución persistente pendiente en Issue #38;
-- navegación contextual y retorno exacto aprobados mediante Issue #39;
-- filtros mensuales y metadatos de campaña corregidos hasta PR #51, con defecto semántico residual de `get_contacts_v2` aún pendiente de Issue propio;
-- contrato estadístico unificado, equivalencias motivacionales y `UI-20260804-10` promovidos mediante LCD-20260804-01, ADR-027, Issue #52 y PR #53;
-- smoke visual autenticado postdespliegue pendiente en Issue #54, sin reabrir el lote aprobado.
+- un monorepo y dos productos con runtime independiente;
+- ambientes `NEXT-LOCAL`, `NEXT-DEV`, `NEXT-STAGING` y `NEXT-PROD` separados de Legacy;
+- desarrollo y ensayos previos sin doble escritura real;
+- corte operativo total: Next pasa a ser la única aplicación diaria y Legacy queda temporalmente como consulta o rollback.
 
 ## Ambientes
 
-- Local: análisis y pruebas sin datos reales.
-- DEV: experimentación con datos ficticios o sanitizados.
-- STAGING: candidatos ya validados en DEV.
-- PROD: operación real; nunca experimental.
+- LEGACY-DEV y LEGACY-PROD: proyectos actuales de APP LLAMADOS.
+- NEXT-LOCAL: shell creada; backend local configurado, pendiente de arranque con Docker.
+- NEXT-DEV: no creado por límite Supabase.
+- NEXT-STAGING: no creado.
+- NEXT-PROD: no creado.
 
 La matriz detallada está en `docs/architecture/product-environment-deployment-matrix.md`.
 
-## Flujo
+## Prioridad
 
-```text
-Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover
-```
-
-Antes de diseñar, el trabajo se clasifica como operación rutinaria, operación excepcional, hotfix, corrección estructural, desarrollo de producto o auditoría. La categoría determina el proceso proporcional aplicable.
-
-Ejecución trazable:
-
-```text
-Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge aprobado → promoción
-```
-
-## Próximos pasos
-
-1. Ejecutar la aceptación visual autenticada de Issue #54.
-2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-3. Auditar las copias operativas de normalizadores mediante Issue #57.
-4. Automatizar gradualmente quality gates mediante Issue #56.
-5. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
-6. Abrir el lote de diseño físico mínimo `next_v03`.
-7. Decidir el destino del PR educativo #21.
+1. Aprobar la infraestructura independiente de Issue #76.
+2. Resolver capacidad cloud y crear NEXT-DEV sin reutilizar Legacy.
+3. Abrir el LCD del esquema físico mínimo `next_v03`.
+4. Construir la vertical completa de llamados y gestión diaria.
+5. Ensayar migración, conciliación, rollback y corte total.
+6. Mantener Legacy sólo con operaciones y hotfix imprescindibles mientras siga siendo la aplicación activa.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.

@@ -1,10 +1,11 @@
 # Arquitectura del CRM Patrimonial
 
 - Estado: Aprobada y evolutiva
-- Versión: 1.0
-- Última reconciliación: 2026-08-03
-- LCD: LCD-20260803-01
-- ADR rectoras: ADR-021, ADR-022, ADR-024, ADR-025 y ADR-026
+- Versión vigente: 1.0
+- Extensión candidata: 1.1 · LCD-20260805-01
+- Última reconciliación aprobada: 2026-08-03
+- ADR rectoras aprobadas: ADR-021, ADR-022, ADR-024, ADR-025 y ADR-026
+- ADR candidata: ADR-028
 
 ## Propósito
 
@@ -18,18 +19,59 @@ Traducir la Constitución y el Modelo del Dominio a una arquitectura comprensibl
 - La cola operativa es temporal y reconstruible; la Relación Comercial es persistente.
 - Los hechos se almacenan; vistas, estadísticas y proyecciones se calculan.
 - La complejidad sólo se incorpora cuando representa una necesidad real.
-- Todo diseño nuevo se valida en DEV antes de considerar STAGING o PROD.
+- Todo diseño se valida en el ambiente del producto correspondiente antes de considerar STAGING o PROD.
 - El dominio no depende de UI, Supabase, PostgreSQL ni otros detalles de infraestructura.
+- Compartir repositorio no autoriza compartir runtime, base de datos, claves ni ambientes.
 
 ## Productos y transición
 
 ### APP LLAMADOS Legacy
 
-PWA productiva actual. Se preserva estable mediante parches pequeños, pruebas de caracterización y smoke tests. La superficie crítica y su procedimiento de validación viven en `docs/operations/legacy-critical-surface.md` y `docs/operations/legacy-smoke-test.md`.
+PWA productiva actual. Se preserva mediante operaciones necesarias, parches pequeños, pruebas de caracterización y smoke tests. Mientras siga activa, es la única aplicación donde se registran gestiones reales.
 
 ### CRM Patrimonial Next
 
-Nueva generación en descubrimiento y validación conceptual. La transición usa monorepo y Strangler Fig: las capacidades nuevas se incorporan por verticales verificables, sin una reescritura abrupta del Legacy.
+Nueva generación con modelo conceptual mínimo aprobado. Su prioridad inmediata es reemplazar completamente la jornada de llamados y gestión cotidiana; después evolucionará hacia las capacidades patrimoniales completas.
+
+El código fuente inicial vive en `apps/crm-patrimonial/`. La shell de Etapa A posee PWA, configuración, validaciones y artefacto propios, sin conexión a Legacy.
+
+La transición usa monorepo y Strangler Fig para el desarrollo, pero no divide la operación diaria. Antes del corte ambos productos pueden existir técnicamente; después del corte autorizado Next es la única aplicación operativa y Legacy queda temporalmente como consulta o rollback.
+
+## Separación de productos y ambientes
+
+```text
+APP LLAMADOS Legacy
+├── LEGACY-DEV
+└── LEGACY-PROD
+
+CRM Patrimonial Next
+├── NEXT-LOCAL
+├── NEXT-DEV
+├── NEXT-STAGING
+└── NEXT-PROD
+```
+
+Cada ambiente Next tiene frontend, PWA, variables, proyecto Supabase, migraciones, Auth, RLS, claves, storage, artefactos, despliegue y rollback propios.
+
+Queda prohibido:
+
+- apuntar Next hacia `crm-ffvv-dev` o `crm-ffvv-v2`;
+- copiar tablas Legacy como contrato físico inicial;
+- utilizar `dev/` como fuente de Next;
+- compartir service worker, caché o identidad PWA;
+- registrar gestiones reales simultáneamente en Legacy y Next;
+- llamar subconjuntos de contactos desde aplicaciones distintas durante la operación normal.
+
+## Estado de infraestructura
+
+| Ambiente | Estado | Evidencia |
+|---|---|---|
+| NEXT-LOCAL | Shell creada; backend configurado, no iniciado en este entorno | `apps/crm-patrimonial/` y pruebas de Issue #76 |
+| NEXT-DEV | No creado; bloqueado por límite de proyectos Supabase | Intento de creación registrado en LCD-20260805-01 |
+| NEXT-STAGING | No creado | Requiere candidato validado en NEXT-DEV |
+| NEXT-PROD | No creado | Requiere ensayo de corte, rollback y autorización |
+
+Los proyectos remotos previstos son `crm-patrimonial-next-dev`, `crm-patrimonial-next-staging` y `crm-patrimonial-next-prod`, preferentemente en São Paulo.
 
 ## Capas conceptuales
 
@@ -69,8 +111,6 @@ Los contextos candidatos se validan antes de convertirse en límites físicos: I
 - Tareas y Actividades siempre conservan Persona y Asesor; sus vínculos comerciales son contextuales.
 - Producto Contratado nace de una Oportunidad ganada y continúa con identidad e historial propios.
 
-El detalle normativo vive en los modelos Comercial, Operacional, Patrimonial y de Productos; esta Arquitectura no los duplica.
-
 ## Datos e importaciones
 
 - Los originales y datos personales permanecen fuera del repositorio público.
@@ -79,14 +119,19 @@ El detalle normativo vive en los modelos Comercial, Operacional, Patrimonial y d
 - Una carga nunca convierte silenciosamente gestión corporativa en actividad interna.
 - Operaciones masivas requieren validación previa, idempotencia, conciliación y rollback verificable.
 
-## Ambientes
+## Corte hacia Next
 
-| Ambiente | Uso | Regla |
-|---|---|---|
-| Local | análisis y pruebas sin datos reales | No depende de PROD |
-| DEV | laboratorio de diseño, migraciones, importadores y UI | Datos ficticios o sanitizados |
-| STAGING | candidato ya validado en DEV | Escenarios controlados |
-| PROD | operación real | Nunca se experimenta; cambios mínimos, trazables y aprobados |
+El corte requiere, como mínimo:
+
+1. vertical de llamados completa y aceptada;
+2. migración reproducible ensayada;
+3. conciliación de Personas, campañas, asignaciones, historial, tareas y agenda;
+4. captura final y congelamiento de escritura Legacy;
+5. rollback probado;
+6. habilitación de NEXT-PROD;
+7. smoke test y jornada operativa íntegra en Next.
+
+Legacy no se retira inmediatamente: permanece congelado durante la ventana de recuperación, sin convertirse en una segunda aplicación de trabajo.
 
 ## Documentación
 
@@ -97,11 +142,13 @@ El detalle normativo vive en los modelos Comercial, Operacional, Patrimonial y d
 
 ## Decisiones aún pendientes
 
+- capacidad y creación de proyectos Supabase remotos de Next;
+- hosting y dominios independientes de la shell y aplicaciones Next;
 - esquema físico y SQL reproducible de `next_v03`;
 - límites definitivos de módulos y contextos;
 - RLS, índices y estrategia de migración Legacy → Next;
 - privacidad detallada de información patrimonial;
-- producto mínimo de la primera vertical funcional;
-- mecanismo persistente para excluir campañas inválidas de la gestionabilidad (Issue #38).
+- diseño completo de la primera vertical de llamados;
+- mecanismo persistente para excluir campañas inválidas de la gestionabilidad mientras Legacy siga activo.
 
-Estas decisiones requieren su propio LCD y no se infieren de esta Arquitectura.
+Estas decisiones requieren sus propios lotes y no se infieren de la shell de Etapa A.
