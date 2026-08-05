@@ -130,7 +130,7 @@ h1{font-size:28px;line-height:1.05;letter-spacing:-.035em;margin:0;font-weight:7
 .error-title,.loading-title{font-size:18px;font-weight:700}
 .error-text,.loading-text{font-size:13px;color:var(--text-soft);line-height:1.5;margin-top:7px}
 .retry-btn{height:42px;border-radius:21px;background:var(--blue);color:white;font-weight:700;padding:0 18px;margin-top:16px}
-.login-layey{position:fixed;inset:0;background:rgba(236,241,249,.94);backdrop-filter:blur(12px);z-index:20;display:grid;place-items:center;padding:20px}
+.login-layer{position:fixed;inset:0;background:rgba(236,241,249,.94);backdrop-filter:blur(12px);z-index:20;display:grid;place-items:center;padding:20px}
 .login-card{width:min(400px,100%);background:var(--surface);border-radius:28px;padding:24px;box-shadow:0 22px 70px rgba(25,44,80,.18)}
 .login-brand{font-size:12px;font-weight:800;letter-spacing:.1em;color:#8a5c00;text-transform:uppercase}
 .login-title{font-size:25px;font-weight:700;margin-top:10px;letter-spacing:-.03em}
