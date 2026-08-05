@@ -1,6 +1,6 @@
 # APP LLAMADOS DEV
 
-Artefacto DEV autónomo generado desde el commit `af95f891b111`.
+Artefacto DEV autónomo generado desde el commit `e8fa90b361b4`.
 
 - Supabase: `crm-ffvv-dev`
 - URL: <https://guilledpn.github.io/KNwS7F_2a2LZ7MS/dev/>
