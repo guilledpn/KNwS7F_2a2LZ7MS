@@ -29,6 +29,8 @@ Fuentes principales:
 | Conceptos, hechos e invariantes | `docs/domain/README.md` y modelos especializados |
 | Prioridades y pendientes | `docs/project/backlog-roadmap.md` |
 | Autoridad y ubicación documental | `docs/governance/document-authority.md` |
+| Identificadores y estado ADR | `docs/governance/adr-registry.md` |
+| Identificadores y estado LCD | `docs/governance/lcd-registry.md` |
 | Desarrollo, código, SQL y calidad | `docs/engineering/development-standards.md` |
 | Ejecución de una operación | procedimiento aplicable en `docs/operations/` |
 | Historia de una decisión | ADR o LCD |
