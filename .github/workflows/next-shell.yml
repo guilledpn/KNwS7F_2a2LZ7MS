@@ -1,0 +1,34 @@
+name: Next shell
+
+on:
+  pull_request:
+    paths:
+      - 'apps/crm-patrimonial/**'
+      - '.github/workflows/next-shell.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/crm-patrimonial/**'
+      - '.github/workflows/next-shell.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate independent Next shell
+        run: python apps/crm-patrimonial/scripts/check.py
+      - name: Package executable preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: crm-patrimonial-next-local
+          path: apps/crm-patrimonial/
+          if-no-files-found: error
+          retention-days: 14

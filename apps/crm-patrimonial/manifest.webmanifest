@@ -1,0 +1,12 @@
+{
+  "name": "CRM Patrimonial Next",
+  "short_name": "CRM Next",
+  "description": "Primera shell ejecutable e independiente de CRM Patrimonial Next",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d0f13",
+  "theme_color": "#15171c",
+  "lang": "es-CL",
+  "icons": []
+}
