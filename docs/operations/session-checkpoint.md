@@ -1,83 +1,60 @@
 # Checkpoint de cierre y reanudación de sesiones
 
-- Fecha: 2026-07-14
-- Estado: Pendiente de revisión
-- LCD: LCD-20260714-01
-- Issue: #14
+- Estado: Procedimiento vigente
+- Última actualización: 2026-08-05
 
 ## Propósito
 
-Evitar que una pausa haga perder el estado real del trabajo. El checkpoint complementa Issues, Pull Requests, ADR y la Bitácora Arquitectónica.
+Conservar el estado necesario para cerrar o reanudar un trabajo versionado sin convertir el checkpoint en una segunda fuente de verdad.
 
-## Cierre de sesión
+Los Issues, Pull Requests y el repositorio conservan el estado oficial. Este documento sólo define una plantilla operativa.
 
-1. Identificar la rama activa.
-2. Revisar si existen cambios locales.
-3. Publicar los commits que deban conservarse.
-4. Registrar Issue, rama y Pull Request.
-5. Indicar si el PR está Draft, Ready, fusionado o cerrado.
-6. Confirmar si hubo cambios en DEV, STAGING o PROD.
-7. Registrar pruebas y resultados.
-8. Registrar rollback disponible.
-9. Eliminar ramas residuales sólo después de confirmar el merge.
-10. Escribir la próxima acción concreta.
+## Cuándo usarlo
 
-## Reanudación de sesión
+Usar cuando una tarea versionada se interrumpe y no queda resuelta únicamente por el estado visible del Issue o Pull Request.
 
-1. Cambiar a `main`.
-2. Ejecutar Fetch y Pull cuando corresponda.
-3. Revisar el último commit de `main`.
-4. Comprobar Pull Requests abiertos y recientemente fusionados.
-5. Comprobar Issues activos.
-6. Identificar ramas residuales.
-7. Abrir el checkpoint anterior.
-8. Verificar que el ambiente real coincida con lo documentado.
-9. Detenerse ante cualquier inconsistencia.
-10. Crear o cambiar a la rama de la tarea que continúa.
+No es obligatorio para operaciones breves que concluyen en la misma sesión y ya poseen registro operativo suficiente.
 
-## Plantilla mínima
+## Cierre
+
+Registrar sólo:
+
+- fecha y producto;
+- ambiente afectado;
+- `main` consultado;
+- Issue, rama y Pull Request cuando existan;
+- último commit relevante;
+- validaciones ejecutadas;
+- cambios operativos realizados;
+- recuperación disponible;
+- bloqueo o riesgo;
+- próxima acción concreta.
+
+## Reanudación
+
+1. confirmar el `main` vigente;
+2. revisar el Issue y Pull Request relacionados;
+3. comprobar la rama o commit registrado;
+4. verificar que el ambiente real coincida con el checkpoint;
+5. continuar desde la próxima acción;
+6. detener sólo el trabajo dependiente ante una divergencia.
+
+## Plantilla
 
 ```text
 Fecha y hora:
 Producto:
 Ambiente:
-Último main estable:
-Issue activo:
-Rama activa:
+Main consultado:
+Issue:
+Rama:
 Pull Request:
-Estado del PR:
-Cambios locales pendientes:
-Pruebas ejecutadas:
-Cambios operativos realizados:
-Rollback disponible:
-Riesgos o inconsistencias:
-Próxima acción concreta:
+Último commit:
+Validaciones:
+Cambios operativos:
+Recuperación:
+Riesgo o bloqueo:
+Próxima acción:
 ```
 
-## Ramas fusionadas
-
-```text
-Confirmar Merged
-→ cambiar a main
-→ Fetch/Pull
-→ comprobar el commit integrado
-→ eliminar rama remota residual
-→ eliminar rama local residual
-→ registrar el cierre
-```
-
-Eliminar una rama fusionada no elimina los cambios incorporados a `main`.
-
-## Interrupciones por incidentes
-
-Un incidente productivo puede interrumpir una tarea arquitectónica, pero debe conservar Issue, rama, diagnóstico y rollback propios. Un hotfix incompleto no se mezcla con un lote documental o de migración.
-
-## Checkpoint actual
-
-- Último lote aprobado: LCD-20260713-02 mediante PR #11.
-- Issue activo de migración: #14.
-- Rama del lote: `docs/lcd-20260714-01-close-stage-0`.
-- Etapa 0: aprobada y pendiente de cierre documental.
-- Etapa 1: preparación documental; pruebas aún no implementadas.
-- Incidente de gestionabilidad: separado y pendiente de tratamiento posterior.
-- Próxima acción: revisar el cierre de Etapa 0 y el alcance inicial de Etapa 1.
+No copiar en el checkpoint PII, secretos, bases reales ni logs extensos.

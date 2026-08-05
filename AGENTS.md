@@ -1,173 +1,100 @@
-# AGENTS.md · Reglas de trabajo del CRM Patrimonial
+# AGENTS.md · Router de trabajo del CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-05
+- Último LCD vigente: LCD-20260805-01
 - Gobernanza documental: ADR-023 y ADR-026
-- Última conciliación: 2026-08-04
+- Última conciliación: 2026-08-05
 
 ## Propósito
 
-Este archivo orienta a agentes y colaboradores. No reemplaza la Constitución, la Arquitectura, el Modelo del Dominio ni los Estándares de Desarrollo.
+Este archivo enruta el trabajo. No repite los estándares técnicos, los procedimientos operativos ni las decisiones históricas.
 
-## Lectura obligatoria
+La autoridad vive en las fuentes canónicas del repositorio. Ante una diferencia, prevalece el documento de mayor jerarquía y la fuente especializada de la materia.
 
-Antes de trabajar, consultar desde `main`:
-
-1. `docs/governance/document-authority.md`;
-2. `docs/project/constitution.md`;
-3. `docs/architecture/crm-patrimonial.md`;
-4. `docs/domain/README.md`;
-5. `docs/project/backlog-roadmap.md`;
-6. `docs/engineering/development-standards.md` para código, SQL, pruebas o configuración;
-7. los documentos especializados del alcance.
-
-Las instrucciones de ChatGPT son una puerta de entrada. La autoridad vive en el repositorio.
-
-Si falta una fuente obligatoria o existe una divergencia, detener sólo el trabajo dependiente y advertirla.
-
-## Jerarquía
+## Autoridad
 
 1. Constitución.
 2. Arquitectura.
 3. Modelo del Dominio.
 4. Backlog y Roadmap.
 5. ADR, LCD y registros.
-6. Estándares, procedimientos e instrucciones.
+6. Estándares y procedimientos.
 
-La ubicación técnica no altera la jerarquía semántica.
+Fuentes principales:
 
-## Flujo
+| Pregunta | Fuente |
+|---|---|
+| Principios del proyecto | `docs/project/constitution.md` |
+| Arquitectura Legacy/Next | `docs/architecture/crm-patrimonial.md` |
+| Conceptos, hechos e invariantes | `docs/domain/README.md` y modelos especializados |
+| Prioridades y pendientes | `docs/project/backlog-roadmap.md` |
+| Autoridad y ubicación documental | `docs/governance/document-authority.md` |
+| Identificadores y estado ADR | `docs/governance/adr-registry.md` |
+| Identificadores y estado LCD | `docs/governance/lcd-registry.md` |
+| Desarrollo, código, SQL y calidad | `docs/engineering/development-standards.md` |
+| Ejecución de una operación | procedimiento aplicable en `docs/operations/` |
+| Historia de una decisión | ADR o LCD |
+| Evidencia de una ejecución pasada | `docs/evidence/` |
 
-Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover.
+Confirma el `main` vigente y consulta sólo las fuentes necesarias para el alcance. Amplía la lectura cuando aparezca una duda concreta o una divergencia.
 
-## Clasificación del trabajo
+## Clasificación
 
-Antes de diseñar, clasificar la tarea como:
+Antes de actuar, clasifica la tarea por su objetivo inmediato:
 
-- operación rutinaria;
-- operación excepcional;
-- hotfix;
-- corrección estructural;
-- desarrollo de producto;
-- auditoría.
+| Categoría | Ruta principal |
+|---|---|
+| Operación rutinaria | procedimiento vigente → preflight → autorización → ejecución → verificación → registro |
+| Operación excepcional | objetivo acotado → mecanismo temporal mínimo → recuperación → autorización → ejecución → verificación → retiro o archivo |
+| Hotfix | `docs/operations/emergency-hotfix-protocol.md` |
+| Corrección estructural | Issue → estándar de desarrollo → rama → implementación → pruebas → PR |
+| Desarrollo de producto | dominio/arquitectura → diseño → estándar de desarrollo → implementación → pruebas → PR |
+| Auditoría | candidato congelado y evidencia; sólo lectura por defecto |
 
-La categoría define el procedimiento, el alcance y la evidencia proporcionales. La ausencia o insuficiencia de una solución canónica no obliga a construir inmediatamente su reemplazo: una necesidad acotada puede resolverse mediante una operación excepcional temporal, segura y trazable.
+La clasificación selecciona el procedimiento. No acumula automáticamente requisitos de otras categorías.
 
-No convertir una mejora estructural separable en precondición del objetivo inmediato. Si el alcance cambia de categoría, detener sólo la expansión, reclasificarla y obtener la trazabilidad o autorización correspondiente.
+Una operación rutinaria o excepcional que no modifique artefactos canónicos, contratos ni comportamiento permanente no requiere por defecto Issue, LCD, ADR, rama, Pull Request ni auditoría independiente.
 
-Antes de modificar:
+Si la operación comienza a crear una capacidad durable o a cambiar contratos, detén sólo esa expansión y reclasifícala.
 
-- comprender causa y alcance;
-- identificar conceptos, contratos y ambientes;
-- buscar solución canónica;
-- determinar Issue, LCD, ADR y documentos;
-- diseñar el mínimo cambio completo y correcto dentro del alcance aprobado;
-- implementar, probar y dejar trazabilidad.
+## Reglas no negociables
 
-En una emergencia productiva se puede restaurar primero la continuidad mediante el cambio seguro más pequeño. La documentación y el cierre siguen siendo obligatorios.
+- El dominio gobierna; la tecnología lo representa.
+- No inventar conceptos, estados, procesos, tablas o reglas de negocio.
+- APP LLAMADOS Legacy es productivo y frágil: preservar comportamiento fuera del alcance.
+- No usar PROD para experimentar.
+- Toda escritura en PROD requiere autorización explícita, alcance exacto, recuperación y verificación.
+- LOCAL y DEV usan datos ficticios o sanitizados; DEV nunca apunta a PROD.
+- No almacenar PII, bases reales, secretos ni información patrimonial sensible en Git.
+- `main` permanece estable; los cambios versionados se realizan en rama y mediante Pull Request.
+- Ante incertidumbre material, detener sólo el trabajo dependiente; no inventar la pieza faltante.
+- La documentación y la gobernanza protegen el resultado operativo; no lo sustituyen.
 
-## Evidencia e incertidumbre
+## Trazabilidad
 
-No asumir archivos, funciones, tablas, contratos, dependencias o ambientes no comprobados.
+### Cambio versionado o permanente
 
-Primero buscar evidencia en documentos canónicos, repositorio, pruebas, migraciones e historial. Si persiste la incertidumbre:
+Aplicar `docs/engineering/development-standards.md`. Requiere Issue, rama, commits lógicos, validación y Pull Request. LCD o ADR sólo cuando corresponda por la naturaleza del cambio.
 
-- declararla;
-- detener sólo el trabajo dependiente;
-- no inventar ni simular la pieza desconocida;
-- continuar con partes independientes cuando sea seguro;
-- solicitar información sólo si no puede obtenerse de las fuentes disponibles.
+### Operación sin cambio canónico
 
-Toda inferencia debe identificarse como tal.
+Conservar un registro suficiente para reconstruir:
 
-## Autoridad documental
+- origen y alcance;
+- ambiente y autorización;
+- mecanismo ejecutado;
+- resultado y conciliación;
+- recuperación disponible;
+- limitaciones o mejora pendiente.
 
-Gobiernan:
-
-- `docs/governance/document-authority.md`;
-- `docs/governance/lcd-registry.md`;
-- `docs/governance/adr-registry.md`.
-
-GitHub es canónico para conocimiento propio versionable, código, migraciones, pruebas y herramientas.
-
-Drive es canónico para datos reales, PII, fuentes externas o corporativas, respaldos y evidencia no publicable.
-
-Cada artefacto tiene una única ubicación editable canónica. Una copia operativa puede existir si identifica su fuente y no evoluciona como autoridad paralela.
-
-No eliminar herramientas operativas antes de comprobar uso, equivalencia y reemplazo.
-
-## Producto y arquitectura
-
-- APP LLAMADOS Legacy permanece operativo y se protege con parches pequeños, caracterización, regresión y smoke tests.
-- CRM Patrimonial Next evoluciona gradualmente mediante monorepo y Strangler Fig.
-- Arquitectura objetivo: DDD, arquitectura hexagonal y monolito modular.
-- Dependencias: Adaptadores → Aplicación → Dominio.
-- El dominio no depende de UI, Supabase, PostgreSQL ni APIs externas.
-
-No crear tablas, estados, procesos o pantallas que no representen conceptos reales.
-
-Las entidades almacenan hechos. Colas, dashboards, estadísticas y proyecciones son derivados.
-
-Antes de mover, eliminar o reutilizar archivos, clasificar con evidencia si pertenecen a Legacy, fuente transitoria, artefacto generado, infraestructura compartida o Next. Consultar el inventario actual, la matriz producto/ambiente, la estructura objetivo y el procedimiento de build aplicable. Una ruta objetivo no se presume implementada.
-
-## Calidad
-
-Cumplir `docs/engineering/development-standards.md`.
-
-Reglas no negociables:
-
-- no refactorizar ampliamente como efecto secundario de un fix;
-- no cambiar contratos o comportamiento sin declarar impacto;
-- no crear implementaciones paralelas sin revisar la solución canónica;
-- no duplicar reglas semánticas;
-- no introducir deuda técnica silenciosa;
-- no ocultar errores con tipos amplios, supresiones, casts o fallbacks;
-- todo bug debe considerar regresión o caracterización;
-- toda regla de dominio nueva debe tener pruebas de comportamiento;
-- todo control omitido se informa como `No aplica` con motivo;
-- no declarar `PASS` sin evidencia.
-
-Para Supabase, toda modificación de tablas, vistas, funciones, políticas o permisos debe revisar RLS, `GRANT`, exposición mediante Data API y acceso permitido/denegado.
-
-## Git
-
-- `main` permanece estable.
-- No experimentar directamente en `main`.
-- Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
-- Usar Conventional Commits.
-- Los commits deben representar unidades lógicas; consolidar ruido `WIP` o `fixup` antes del merge.
-- El PR debe ser completo y directo, sin narrar cada intento ni repetir el diff.
-- Abrir Pull Request antes de fusionar.
-- Un commit no equivale por sí solo a aprobación.
-- No reescribir historia publicada para ocultar errores.
-
-## Seguridad y ambientes
-
-- LOCAL/DEV: datos ficticios o sanitizados.
-- STAGING: candidato validado en DEV.
-- PROD: datos reales; nunca experimentar.
-- Una autorización para DEV no autoriza STAGING ni PROD.
-- Toda operación destructiva o promoción requiere autorización explícita.
-- No usar `service_role`, secretos JWT ni claves privadas.
-- No almacenar PII, bases reales ni información patrimonial sensible en Git.
-- Tratar el repositorio como público.
-
-Antes de PROD: estado estable, autorización, diff, rollback, cambio mínimo, validación, smoke test y trazabilidad.
-
-## Control documental
-
-Antes de crear LCD o ADR, revisar sus registros y reservar el identificador libre.
-
-Una conversación descubre; los documentos conservan las decisiones aprobadas.
+Si un artefacto temporal debe permanecer en el repositorio, esa parte sigue la ruta de cambio versionado.
 
 ## Cierre
 
-Informar:
+Informar de forma proporcional:
 
 - qué cambió y qué no;
 - qué se validó y qué no;
 - ambientes afectados;
 - evidencia;
 - riesgos, limitaciones y pendientes.
-
-Verificar si cambiaron Constitución, Arquitectura, Dominio, Roadmap, ADR, LCD, registros, `PROJECT_MAP.md`, `AGENTS.md`, contratos o deuda técnica.
