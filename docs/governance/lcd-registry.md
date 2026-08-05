@@ -2,9 +2,9 @@
 
 - Estado: Vigente
 - Fecha de reconciliación: 2026-08-01
-- Última actualización: 2026-08-04
+- Última actualización: 2026-08-05
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260804-05
+- Último LCD: LCD-20260805-01
 - Issue: #28
 
 Este archivo es la autoridad para asignar y consultar identificadores LCD. Los registros históricos de Drive y los Pull Requests se conservan como evidencia, pero no pueden crear una secuencia paralela.
@@ -40,6 +40,7 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260804-03 | 2026-08-04 | Retirar de las instrucciones vigentes la convención visual de revisión heredada de Drive | Aprobado por autorización explícita del usuario | Issue #59, Pull Request #60 y `docs/governance/LCD-20260804-03-remove-drive-color-rule.md` | — |
 | LCD-20260804-04 | 2026-08-04 | Reforzar seguridad Supabase, gestión de incertidumbre, clasificación física y disciplina Git/PR | Aprobado por autorización explícita del usuario | Issue #61, Pull Request #62 y `docs/governance/LCD-20260804-04-engineering-hardening.md` | — |
 | LCD-20260804-05 | 2026-08-04 | Clasificar el trabajo y aplicar controles proporcionales, incluyendo operaciones excepcionales acotadas | Candidato; pendiente de revisión y merge autorizado | Issue #65 y `docs/governance/LCD-20260804-05-work-classification-proportionality.md` | — |
+| LCD-20260805-01 | 2026-08-05 | Crear infraestructura independiente y shell ejecutable de CRM Patrimonial Next | Candidato; ambientes cloud remotos bloqueados por límite Supabase | Issue #76, ADR-028 y rama `feat/issue76-next-independent-infrastructure` | — |
 
 ## Próxima asignación
 

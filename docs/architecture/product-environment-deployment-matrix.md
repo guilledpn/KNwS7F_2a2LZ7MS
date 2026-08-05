@@ -1,12 +1,8 @@
 # Matriz Producto × Ambiente × Despliegue
 
-- Fecha: 2026-07-13
-- Estado: Aprobado
-- LCD canónico: LCD-20260713-04
-- Alias histórico en GitHub: LCD-20260713-02
-- Issue: #10
-- Aprobación: Pull Request #11
-- Reconciliación: LCD-20260801-01
+- Estado aprobado de origen: LCD-20260713-04
+- Actualización candidata: 2026-08-05 · LCD-20260805-01 · ADR-028
+- Issue de actualización: #76
 
 ## Propósito
 
@@ -23,111 +19,92 @@ Evitar confundir producto, ambiente, versión, código fuente y canal de desplie
 
 ## Matriz actual
 
-| Producto | Ambiente | Estado | Fuente actual | Artefacto publicado | Backend | Canal de despliegue | Datos | Observaciones |
-|---|---|---|---|---|---|---|---|---|
-| APP LLAMADOS Legacy | PROD | Operativo | raíz del repositorio, principalmente `index.html` y archivos PWA | `/root` de `main` | Supabase PROD | GitHub Pages desde `main` y `/root` | Reales | Continuidad operativa prioritaria |
-| APP LLAMADOS Legacy | DEV | Operativo como laboratorio | `index.html` PROD + `src/dev/` + herramientas Python | `dev/` generado | Supabase DEV | Publicación bajo el repositorio; mecanismo exacto por confirmar | Ficticios | Tiene identidad y configuración propias |
-| APP LLAMADOS Legacy | STAGING | No demostrado | — | — | — | — | — | No asumir que existe hasta verificarlo |
-| CRM Patrimonial Next | Local | Laboratorio conceptual y de datos | esquemas experimentales locales | PostgreSQL local | PostgreSQL local | Docker y DBeaver | Ficticios | No es DEV remoto ni producto desplegado |
-| CRM Patrimonial Next | DEV | No creado como aplicación | futuro `apps/crm-patrimonial/` | futuro | futuro backend DEV | por diseñar | Ficticios | Actualmente en dominio y arquitectura |
-| CRM Patrimonial Next | STAGING | Futuro | — | — | — | por diseñar | Sanitizados | Sólo después de validar en DEV |
-| CRM Patrimonial Next | PROD | Futuro | — | — | — | por diseñar | Reales | No existe todavía como producto desplegado |
+| Producto | Ambiente | Estado | Fuente | Artefacto o acceso | Backend | Datos | Observaciones |
+|---|---|---|---|---|---|---|---|
+| APP LLAMADOS Legacy | PROD | Operativo | raíz del repositorio | GitHub Pages `/root` | `crm-ffvv-v2` | Reales | Única aplicación operativa actual |
+| APP LLAMADOS Legacy | DEV | Operativo como laboratorio | `index.html` + `src/dev/` | `dev/` generado y publicado | `crm-ffvv-dev` | Ficticios | Es DEV de Legacy, no plataforma de Next |
+| APP LLAMADOS Legacy | STAGING | No demostrado | — | — | — | — | No asumir existencia |
+| CRM Patrimonial Next | LOCAL | Shell creada; backend configurado | `apps/crm-patrimonial/` | `http://127.0.0.1:4173` | Supabase local reservado 56320–56324 | Ficticios | Stack completo no iniciado en este entorno |
+| CRM Patrimonial Next | DEV | No creado | `apps/crm-patrimonial/` | Workflow y artefacto local | Proyecto remoto previsto | Ficticios | Bloqueado por límite Supabase |
+| CRM Patrimonial Next | STAGING | No creado | futuro candidato | — | proyecto remoto propio | Sanitizados | Sólo después de NEXT-DEV |
+| CRM Patrimonial Next | PROD | No creado | release aprobada | — | proyecto remoto propio | Reales | Sólo tras corte total autorizado |
 
-## Topología actual simplificada
-
-```mermaid
-flowchart LR
-    MAIN[main] --> ROOT[Raíz del repositorio]
-    ROOT --> PAGES[GitHub Pages PROD]
-    ROOT --> BUILDER[build_dev_snapshot.py]
-    SRCDEV[src/dev] --> BUILDER
-    BUILDER --> DEVDIR[dev generado]
-    PAGES --> PRODUI[APP LLAMADOS PROD]
-    DEVDIR --> DEVUI[APP LLAMADOS DEV]
-    PRODUI --> SBPROD[Supabase PROD]
-    DEVUI --> SBDEV[Supabase DEV]
-```
-
-## Topología objetivo conceptual
+## Topología actual
 
 ```mermaid
 flowchart TB
-    MONO[Monorepo]
-    MONO --> LEGACY[apps app-llamados]
-    MONO --> NEXT[apps crm-patrimonial]
-    MONO --> SHARED[packages compartidos sólo con reutilización real]
-    MONO --> DOCS[docs]
-    MONO --> DB[supabase]
-    MONO --> TOOLS[tools]
+    REPO[Monorepo]
+    REPO --> LROOT[Raíz Legacy PROD]
+    REPO --> LDEV[Fuente y artefacto Legacy DEV]
+    REPO --> NEXTSRC[apps/crm-patrimonial]
 
-    LEGACY --> LDEV[Legacy DEV]
-    LEGACY --> LSTG[Legacy STAGING opcional]
-    LEGACY --> LPROD[Legacy PROD]
+    LROOT --> LPAGES[GitHub Pages]
+    LROOT --> LBPROD[Supabase Legacy PROD]
+    LDEV --> LBDEV[Supabase Legacy DEV]
 
-    NEXT --> NDEV[Next DEV]
-    NEXT --> NSTG[Next STAGING]
-    NEXT --> NPROD[Next PROD futuro]
+    NEXTSRC --> NLOCAL[Shell NEXT-LOCAL]
+    NLOCAL --> NCFG[Supabase local 56320-56324]
+    NEXTSRC --> NCI[Workflow Next shell]
+    NCI --> NART[Artefacto descargable]
 ```
+
+## Topología objetivo
+
+```mermaid
+flowchart TB
+    NEXT[CRM Patrimonial Next]
+    NEXT --> NLOCAL[NEXT-LOCAL]
+    NEXT --> NDEV[NEXT-DEV]
+    NEXT --> NSTG[NEXT-STAGING]
+    NEXT --> NPROD[NEXT-PROD]
+
+    NDEV --> SBD[Supabase Next DEV]
+    NSTG --> SBS[Supabase Next STAGING]
+    NPROD --> SBP[Supabase Next PROD]
+```
+
+Ninguna flecha de runtime conecta Next con Supabase Legacy.
 
 ## Reglas de separación
 
 1. Un nombre de carpeta no define por sí solo un ambiente.
 2. Una rama Git no es un ambiente.
-3. `main` no equivale conceptualmente a PROD, aunque actualmente alimente GitHub Pages.
-4. Cada producto debe declarar explícitamente qué backend utiliza.
-5. DEV no puede contener endpoints, credenciales o datos de PROD.
-6. STAGING sólo se declara existente cuando posee despliegue, configuración y proceso de promoción verificables.
-7. CRM Patrimonial Next no debe reutilizar silenciosamente `dev/` como si fuera su aplicación inicial.
-8. Las versiones de Legacy y Next evolucionan de forma independiente.
-9. El laboratorio local no se confunde con DEV, STAGING ni PROD.
+3. `main` no equivale conceptualmente a PROD, aunque actualmente publique Legacy.
+4. Cada producto declara explícitamente su backend.
+5. Un ambiente Next no contiene endpoints, claves ni datos de Legacy.
+6. STAGING sólo existe cuando posee despliegue, configuración y promoción verificables.
+7. `dev/` pertenece a Legacy y no se reutiliza como aplicación Next.
+8. Las versiones, PWA, cachés y service workers evolucionan de forma independiente.
+9. El laboratorio local no se confunde con DEV remoto.
+10. La operación real no se divide por contactos o campañas entre Legacy y Next.
+11. Tras el corte, Next es la única fuente operativa de nuevas gestiones.
 
-## Nomenclatura propuesta
+## Nombres reservados
 
-### Productos
+- `crm-patrimonial-next-dev`;
+- `crm-patrimonial-next-staging`;
+- `crm-patrimonial-next-prod`.
 
-- `app-llamados`
-- `crm-patrimonial`
+Región prevista: `sa-east-1`.
 
-### Ambientes
+## Estado de capacidad Supabase
 
-- `local`
-- `dev`
-- `staging`
-- `prod`
+El intento de crear NEXT-DEV en la organización actual fue rechazado por el límite de dos proyectos gratuitos activos. No se modificaron los proyectos Legacy.
 
-### Identificadores completos
+La creación remota exige ampliar capacidad, usar otra organización autorizada o pausar un proyecto Legacy mediante una decisión explícita y coordinada.
 
-- `app-llamados-dev`
-- `app-llamados-prod`
-- `crm-patrimonial-local`
-- `crm-patrimonial-dev`
-- `crm-patrimonial-staging`
-- `crm-patrimonial-prod`
+## Barreras antes de NEXT-STAGING o NEXT-PROD
 
-### Versiones
+- proyecto NEXT-DEV real y saludable;
+- esquema físico aprobado y migraciones reproducibles;
+- primera vertical de llamados completa;
+- pruebas automatizadas y seguridad Supabase;
+- datos sanitizados en STAGING;
+- despliegue y rollback documentados;
+- ensayo de migración y conciliación;
+- smoke test definido;
+- autorización explícita para cada ambiente.
 
-- APP LLAMADOS Legacy: serie `1.x.y` mientras mantenga compatibilidad.
-- CRM Patrimonial Next: serie `0.x.y` durante desarrollo y `1.0.0` al alcanzar producción estable.
+## Publicación ejecutable de Etapa A
 
-## Barreras antes de crear STAGING o PROD para Next
-
-- modelo del dominio aprobado para el alcance;
-- primera vertical hexagonal validada;
-- pruebas automatizadas mínimas;
-- configuración separada;
-- datos sanitizados;
-- despliegue reproducible;
-- rollback documentado;
-- smoke test definido.
-
-## Pendientes
-
-- confirmar URL pública exacta de APP LLAMADOS DEV;
-- confirmar si existe algún ambiente intermedio informal;
-- registrar proyectos Supabase por ambiente sin exponer secretos;
-- definir estrategia futura de despliegue para cada aplicación;
-- decidir cuándo desacoplar `main` de la publicación automática de PROD.
-
-## Nota histórica
-
-Este documento fue aprobado originalmente en el Pull Request #11 bajo el identificador conflictivo `LCD-20260713-02`. La reconciliación conserva el contenido y la aprobación, pero fija `LCD-20260713-04` como identidad canónica.
+La shell puede abrirse localmente con `start-next.cmd`. El workflow `Next shell` genera además un artefacto descargable por 14 días. Esto permite evaluación sin alterar GitHub Pages ni el despliegue de Legacy.

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15171c">
+  <meta name="description" content="Shell ejecutable de CRM Patrimonial Next">
+  <title>CRM Patrimonial Next</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CRM Patrimonial</p>
+        <h1>Next</h1>
+      </div>
+      <button class="env-chip" id="environmentButton" type="button" aria-label="Ver estado del ambiente">
+        <span class="status-dot" aria-hidden="true"></span>
+        NEXT-LOCAL
+      </button>
+    </header>
+
+    <main id="mainContent">
+      <section class="hero" aria-labelledby="heroTitle">
+        <div>
+          <p class="eyebrow">Tu jornada</p>
+          <h2 id="heroTitle">Todo el trabajo, en una sola aplicación.</h2>
+          <p>Esta shell inaugura la infraestructura independiente de Next. Usa datos ficticios y no se conecta a Legacy.</p>
+        </div>
+        <div class="hero-metric" aria-label="Progreso ficticio del día">
+          <strong>7</strong>
+          <span>gestiones hoy</span>
+        </div>
+      </section>
+
+      <section class="quick-stats" aria-label="Resumen ficticio">
+        <article><span>Llamadas</span><strong>12</strong></article>
+        <article><span>Efectivas</span><strong>5</strong></article>
+        <article><span>Agendas</span><strong>2</strong></article>
+      </section>
+
+      <section class="section-heading">
+        <div>
+          <p class="eyebrow">Siguiente persona</p>
+          <h2>Cola de trabajo</h2>
+        </div>
+        <button class="text-button" id="showQueueButton" type="button">Ver cola</button>
+      </section>
+
+      <article class="contact-card" id="contactCard">
+        <div class="contact-header">
+          <div class="avatar" aria-hidden="true">AP</div>
+          <div class="contact-title">
+            <h3>Alejandra Pérez</h3>
+            <p>Propensión integral · Asignada</p>
+          </div>
+          <span class="priority">Prioridad alta</span>
+        </div>
+        <dl class="contact-data">
+          <div><dt>Teléfono</dt><dd>+56 9 5555 0101</dd></div>
+          <div><dt>Última gestión</dt><dd>Sin gestión propia</dd></div>
+          <div><dt>Contexto</dt><dd>Base ficticia de evaluación</dd></div>
+        </dl>
+        <div class="actions">
+          <button class="primary-button" id="startCallButton" type="button">Iniciar llamada</button>
+          <button class="secondary-button" id="openPersonButton" type="button">Abrir persona</button>
+        </div>
+      </article>
+
+      <section class="today-panel">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Próximos pasos</p>
+            <h2>Agenda</h2>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <time datetime="2026-08-05T11:30">11:30</time>
+          <div><strong>Reunión con Nicolás</strong><span>Revisión de APV</span></div>
+        </div>
+        <div class="timeline-item">
+          <time datetime="2026-08-05T15:00">15:00</time>
+          <div><strong>Volver a llamar a Daniela</strong><span>Confirmar antecedentes</span></div>
+        </div>
+      </section>
+
+      <section class="architecture-note">
+        <span aria-hidden="true">◈</span>
+        <div>
+          <strong>Infraestructura aislada</strong>
+          <p>Frontend, PWA, configuración local y futuro backend Next viven fuera del runtime de APP LLAMADOS Legacy.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-item active" data-view="hoy" type="button"><span>●</span>Hoy</button>
+      <button class="nav-item" data-view="personas" type="button"><span>◎</span>Personas</button>
+      <button class="nav-item" data-view="agenda" type="button"><span>◇</span>Agenda</button>
+      <button class="nav-item" data-view="stats" type="button"><span>▥</span>Stats</button>
+      <button class="nav-item" data-view="ajustes" type="button"><span>⚙</span>Ajustes</button>
+    </nav>
+  </div>
+
+  <dialog id="appDialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow" id="dialogEyebrow">Vista</p>
+          <h2 id="dialogTitle">CRM Patrimonial Next</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Cerrar">×</button>
+      </div>
+      <div id="dialogBody"></div>
+      <button class="primary-button full" value="default">Entendido</button>
+    </form>
+  </dialog>
+
+  <script src="./assets/app.js" defer></script>
+</body>
+</html>

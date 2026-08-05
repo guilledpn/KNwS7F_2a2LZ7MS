@@ -2,17 +2,18 @@
 
 - Estado: Vigente
 - Último LCD aprobado: LCD-20260804-05
+- Cambio candidato actual: LCD-20260805-01 · ADR-028 · Issue #76
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
-- Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
+- Pendientes abiertos relevantes: Issues #38, #54, #56, #57 y #76; PR #21
 
 ## Productos
 
 | Producto | Estado | Propósito |
 |---|---|---|
-| APP LLAMADOS Legacy | Productivo y estable | Operación actual de contactos, gestión, Stats, Importar, Ajustes y Sprint |
-| CRM Patrimonial Next | Modelo conceptual aprobado | Nueva generación, desarrollada por verticales sin reescritura abrupta |
+| APP LLAMADOS Legacy | Productivo y estable | Operación actual hasta el corte total hacia Next |
+| CRM Patrimonial Next | Modelo conceptual aprobado; shell local candidata | Reemplazo prioritario de Legacy y evolución patrimonial posterior |
 
-La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monolito modular. Decisiones: ADR-021 y ADR-022.
+La transición usa monorepo, Strangler Fig, DDD, arquitectura hexagonal y monolito modular. ADR-028 precisa que compartir repositorio no significa compartir runtime ni ambientes.
 
 ## Documentos rectores
 
@@ -41,7 +42,7 @@ ADR-026 y LCD-20260804-02 gobiernan esta separación.
 - `AGENTS.md` es el punto de entrada para agentes y colaboradores.
 - `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
 - `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
-- LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina de commits/PR.
+- LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina Git/PR.
 - LCD-20260804-05 clasifica el trabajo y exige controles proporcionales; reconoce la operación excepcional como vía temporal legítima cuando la solución canónica no resulta apta.
 - Issue #56 gobierna la automatización gradual de quality gates.
 - Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
@@ -66,7 +67,28 @@ ADR-025 aprueba:
 - Producto Contratado desde Oportunidad ganada y Cotización seleccionada;
 - Tareas/Actividades con Persona y Asesor esenciales y contexto comercial opcional.
 
-El diseño físico `next_v03` todavía requiere un LCD propio; la documentación aprobada no autoriza SQL ni cambios de runtime.
+El diseño físico `next_v03` todavía requiere un LCD propio; la shell de Etapa A no autoriza SQL ni define contratos físicos.
+
+ADR-028 candidato establece:
+
+- un monorepo y dos productos con runtime independiente;
+- ambientes `NEXT-LOCAL`, `NEXT-DEV`, `NEXT-STAGING` y `NEXT-PROD` separados de Legacy;
+- desarrollo y ensayos previos sin doble escritura real;
+- corte operativo total: Next pasa a ser la única aplicación diaria y Legacy queda temporalmente como consulta o rollback.
+
+## Infraestructura de Next
+
+Etapa A candidata mediante Issue #76:
+
+- workspace: `apps/crm-patrimonial/`;
+- shell PWA ejecutable en `http://127.0.0.1:4173`;
+- arranque Windows: `apps\crm-patrimonial\start-next.cmd`;
+- Supabase local reservado en puertos 56320–56324;
+- workflow propio `Next shell` con artefacto descargable;
+- ninguna referencia runtime a `crm-ffvv-dev` ni `crm-ffvv-v2`;
+- NEXT-DEV, NEXT-STAGING y NEXT-PROD no creados todavía.
+
+El intento de crear NEXT-DEV fue bloqueado por el límite de dos proyectos gratuitos activos. Legacy no fue pausado ni modificado.
 
 ## Estado Legacy al 2026-08-04
 
@@ -83,10 +105,11 @@ El diseño físico `next_v03` todavía requiere un LCD propio; la documentación
 
 ## Ambientes
 
-- Local: análisis y pruebas sin datos reales.
-- DEV: experimentación con datos ficticios o sanitizados.
-- STAGING: candidatos ya validados en DEV.
-- PROD: operación real; nunca experimental.
+- LEGACY-DEV y LEGACY-PROD: proyectos actuales de APP LLAMADOS.
+- NEXT-LOCAL: shell creada; backend local configurado, pendiente de arranque con Docker.
+- NEXT-DEV: no creado por límite Supabase.
+- NEXT-STAGING: no creado.
+- NEXT-PROD: no creado.
 
 La matriz detallada está en `docs/architecture/product-environment-deployment-matrix.md`.
 
@@ -106,12 +129,14 @@ Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge a
 
 ## Próximos pasos
 
-1. Ejecutar la aceptación visual autenticada de Issue #54.
-2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-3. Auditar las copias operativas de normalizadores mediante Issue #57.
-4. Automatizar gradualmente quality gates mediante Issue #56.
-5. Registrar y corregir la semántica de `get_contacts_v2` observada en Issue #36.
-6. Abrir el lote de diseño físico mínimo `next_v03`.
-7. Decidir el destino del PR educativo #21.
+1. Revisar y aprobar la infraestructura independiente de Issue #76.
+2. Resolver capacidad cloud y crear NEXT-DEV sin reutilizar Legacy.
+3. Abrir el LCD del esquema físico mínimo `next_v03`.
+4. Construir la vertical completa de llamados y gestión diaria.
+5. Ensayar migración, conciliación, rollback y corte total.
+6. Mantener Legacy sólo con operaciones y hotfix imprescindibles mientras siga siendo la aplicación activa.
+7. Continuar en paralelo los pendientes Legacy #38 y #54 según urgencia operativa.
+8. Auditar normalizadores y quality gates mediante Issues #57 y #56.
+9. Decidir el destino del PR educativo #21.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.

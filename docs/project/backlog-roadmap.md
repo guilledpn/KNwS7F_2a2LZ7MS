@@ -1,16 +1,22 @@
 # Backlog y Roadmap del CRM Patrimonial
 
 - Estado: Vigente
-- Versión: 2.2
-- Última actualización: 2026-08-04
-- LCD: LCD-20260803-01, LCD-20260804-01 y LCD-20260804-02
+- Versión aprobada: 2.2
+- Extensión candidata: 2.3 · LCD-20260805-01
+- Última actualización candidata: 2026-08-05
 
-Este documento ordena resultados y pendientes. Los Issues contienen ejecución y evidencia; el Modelo del Dominio contiene las reglas. No se duplican detalles técnicos aquí.
+Este documento ordena resultados y pendientes. Los Issues contienen ejecución y evidencia; el Modelo del Dominio contiene las reglas.
 
 ## Estado de productos
 
-- APP LLAMADOS Legacy: productivo, versión visible `UI-20260804-10`; cockpit estadístico y backend asociados promovidos mediante PR #53.
-- CRM Patrimonial Next: modelo conceptual mínimo aprobado; diseño físico aún no autorizado.
+- APP LLAMADOS Legacy: productivo, versión visible `UI-20260804-10`; continúa como única aplicación operativa hasta el corte.
+- CRM Patrimonial Next: modelo conceptual mínimo aprobado; shell local e infraestructura inicial candidatas mediante Issue #76; diseño físico aún no autorizado.
+
+## Dirección prioritaria
+
+El costo operativo de mantener Legacy hace prioritario construir Next como reemplazo completo de la jornada diaria de llamados. Legacy recibe sólo operaciones, hotfix y correcciones imprescindibles mientras siga activo.
+
+La transición no divide contactos ni campañas entre aplicaciones. Next se desarrolla aisladamente y, cuando alcance equivalencia operativa útil, reemplaza a Legacy mediante un corte total ensayado.
 
 ## Fase 0 · Fundamentos y gobernanza
 
@@ -20,52 +26,80 @@ Estado: completada.
 - Monorepo y transición Legacy/Next: ADR-021.
 - Docs-as-Code y autoridad única: ADR-022, ADR-023 y ADR-026.
 - Registros únicos de LCD y ADR.
-- Inventario, mapas AS-IS/TO-BE y plan reversible.
 - Safety net del Legacy.
-- Estándares canónicos de desarrollo y calidad: LCD-20260804-02.
-- Instrucciones breves de ChatGPT separadas de `AGENTS.md` y del estándar técnico completo.
+- Estándares canónicos de desarrollo y calidad.
 
 Pendiente administrativo: revisar o cerrar el material educativo del PR #21.
 
-## Fase 1 · Corrección de reglas y continuidad del Legacy
+## Fase 1 · Continuidad mínima del Legacy
 
-Estado: sustancialmente completada; quedan dos brechas funcionales explícitas y una aceptación visual postdespliegue.
+Estado: operación transitoria hasta el corte.
 
-| Resultado | Estado real al 2026-08-04 | Evidencia |
-|---|---|---|
-| Gestionabilidad por última aparición válida | Implementada y promovida | ADR-020, PR #19 y #20 |
-| Asignados propios visibles | Implementado | Política de elegibilidad y tests |
-| Conciliación externa sin inventar gestión interna | Implementada en modelo y runtime | Issues #24 a #27 |
-| Métricas por Persona/día | Implementadas en DEV y PROD | ADR-018, LCD-20260713-01 |
-| Analítica de muestra estratificada | Implementada | Issues #22 y #23 |
-| Separación edición de ficha / gestión | Implementada y saneada en PROD | Issues #26 y #27 |
-| Carga julio/agosto y activación | Ejecutada y conciliada | Issue #36 |
-| Campaña inválida excluida de cola actual | Aplicado en PROD como corrección controlada | Issue #37 |
-| Exclusión persistente de campañas inválidas | Pendiente de diseño e implementación | Issue #38 |
-| Navegación contextual y retorno exacto | Implementado y aprobado en PROD | Issue #39, `UI-20260803-07` |
-| Metadatos semánticos de `get_contacts_v2` | Defecto conocido; pendiente de Issue propio | Hallazgo del Issue #36 |
-| Contrato unificado y cockpit motivacional de estadísticas | Implementado, probado y promovido a PROD | LCD-20260804-01, ADR-027, Issue #52, PR #53, `UI-20260804-10` |
-| Smoke visual autenticado postdespliegue del cockpit | Pendiente; no reabre el lote aprobado | Issue #54 |
+Completado: gestionabilidad, asignados, métricas, navegación, filtros, cockpit y carga julio/agosto. Permanecen pendientes #38, #54 y el defecto semántico de `get_contacts_v2`.
 
-La antigua regla de “término automático de campaña por primera carga siguiente” no se presume vigente: el Modelo Operacional exige alcance comparable y conciliación explícita. La caducidad temporal de la cola tampoco debe confundirse con el historial de la Persona.
+Regla de prioridad: sólo ejecutar en Legacy trabajo necesario para mantener la jornada, proteger datos, cargar campañas o resolver incidentes que no puedan esperar a Next.
 
-## Fase 2 · Modelo relacional mínimo en DEV
+## Fase 2A · Infraestructura independiente de Next
 
-Estado: definición conceptual completada; implementación no iniciada.
+Estado: candidato en Issue #76.
 
-Completado documentalmente:
+Completado en la rama:
 
-- Persona, Relación Comercial, Responsabilidad, Tarea y Actividad;
-- Caso con 0..N Oportunidades;
-- Cotización, Pipeline, CNS y Producto Contratado;
-- Matriz de Validación Next v03;
-- separación Comercial/Operacional.
+- `apps/crm-patrimonial/` como fuente independiente;
+- shell PWA ejecutable con datos ficticios;
+- scripts de arranque para Windows;
+- configuración Supabase local en puertos propios;
+- pruebas de aislamiento;
+- workflow y artefacto descargable;
+- ADR-028 y guía de ambientes.
 
-Siguiente resultado: diseñar, mediante LCD propio, el esquema físico mínimo `next_v03` y sus pruebas reproducibles. No modificar PROD.
+Pendiente:
+
+- aprobar el lote;
+- resolver capacidad Supabase;
+- crear y verificar NEXT-DEV;
+- elegir hosting remoto independiente para previews;
+- iniciar y comprobar el stack Supabase local en un equipo con Docker.
+
+## Fase 2B · Esquema físico `next_v03`
+
+Estado: siguiente lote de producto.
+
+Objetivo: diseñar el núcleo físico mínimo compatible con el dominio aprobado y con la vertical de llamados, sin copiar la estructura Legacy.
+
+Debe incluir pruebas reproducibles, RLS, contratos de aplicación, migraciones y seeds ficticios. No modifica datos reales ni NEXT-PROD.
+
+## Fase 2C · Vertical de reemplazo operativo
+
+Estado: pendiente y prioritario.
+
+Circuito mínimo completo:
+
+```text
+Importar → Cola → Persona → Llamar → Registrar Actividad
+→ Crear Tarea o Agenda → Continuar → Consultar historial y métricas
+```
+
+Debe permitir una jornada completa sin abrir Legacy. Relación Comercial, Caso y Oportunidad aparecen sólo cuando los hechos del negocio los justifican.
+
+## Fase 2D · Migración y corte total
+
+Estado: pendiente.
+
+- migración reproducible hacia NEXT-STAGING;
+- conciliación de Personas, campañas, asignaciones, actividades, tareas y agenda;
+- pruebas de volumen y rendimiento;
+- rollback verificado;
+- congelamiento de escritura Legacy;
+- migración final;
+- habilitación NEXT-PROD;
+- Legacy temporalmente de sólo lectura.
+
+No se adopta un piloto por subconjunto de contactos como modalidad diaria.
 
 ## Fase 3 · Perfil patrimonial progresivo
 
-Estado: pendiente.
+Estado: pendiente después del reemplazo operativo inicial.
 
 - datos personales mínimos y sanitización;
 - propiedades, inversiones, créditos y relaciones bancarias;
@@ -85,13 +119,13 @@ Estado: estructura creada; auditoría de catálogo pendiente.
 
 ## Fase 5 · Proyección y analítica
 
-Estado: pendiente para Next, salvo métricas Legacy y cockpit motivacional ya promovidos.
+Estado: pendiente para Next.
 
 - proyección por Caso y período;
 - CNS proyectados, sometidos, emitidos y reconocidos;
 - capital esperado y materializado;
-- pipeline y escenarios mensual, trimestral y anual;
-- mantener separada la equivalencia operativa por Agendamiento de las proyecciones comerciales por Caso.
+- pipeline y escenarios;
+- equivalencia operativa por Agendamiento separada de proyecciones comerciales.
 
 ## Fase 6 · Productos Contratados y postventa
 
@@ -113,22 +147,21 @@ Estado: pendiente y no prioritario.
 ## Backlog transversal
 
 - seguridad y privacidad patrimonial;
-- STAGING reproducible;
-- desacoplamiento de `main` y publicación productiva;
+- hosting y STAGING reproducibles de Next;
+- desacoplamiento de `main` y publicación productiva Legacy;
 - observabilidad y rollback de cargas;
 - validación móvil y escritorio;
-- conservación de evidencia final de cada operación antes de borrar temporales;
 - automatización gradual de quality gates: Issue #56;
-- auditoría de equivalencia y distribución de normalizadores operativos: Issue #57.
+- auditoría de normalizadores operativos: Issue #57.
 
 ## Prioridad recomendada
 
-1. Ejecutar el smoke visual autenticado postdespliegue del cockpit mediante Issue #54.
-2. Diseñar y cerrar Issue #38 sin experimentar en PROD.
-3. Auditar los normalizadores operativos y definir su distribución mediante Issue #57.
-4. Automatizar gradualmente los controles del estándar mediante Issue #56.
-5. Registrar y corregir el defecto semántico de `get_contacts_v2` observado en Issue #36.
-6. Definir el LCD de diseño físico mínimo `next_v03`.
-7. Revisar PR #21 y decidir si su material se integra, reduce o descarta.
+1. Revisar y aprobar Issue #76.
+2. Resolver capacidad cloud y crear NEXT-DEV.
+3. Abrir el LCD de `next_v03`.
+4. Implementar la vertical completa de llamados.
+5. Ensayar migración y corte total.
+6. Atender Legacy sólo según urgencia operacional mientras siga activo.
+7. Continuar las capacidades patrimoniales sobre la base Next.
 
-Toda iniciativa debe demostrar que representa negocio real, reduce carga, protege continuidad, puede probarse en DEV y evita crear otra fuente de verdad.
+Toda iniciativa debe representar negocio real, reducir carga, proteger continuidad y evitar otra fuente de verdad.
