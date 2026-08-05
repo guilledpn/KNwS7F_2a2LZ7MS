@@ -1,7 +1,7 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-04
+- Último LCD aprobado: LCD-20260804-05
 - Gobernanza documental: ADR-023 y ADR-026
 - Última conciliación: 2026-08-04
 
@@ -40,13 +40,28 @@ La ubicación técnica no altera la jerarquía semántica.
 
 Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover.
 
+## Clasificación del trabajo
+
+Antes de diseñar, clasificar la tarea como:
+
+- operación rutinaria;
+- operación excepcional;
+- hotfix;
+- corrección estructural;
+- desarrollo de producto;
+- auditoría.
+
+La categoría define el procedimiento, el alcance y la evidencia proporcionales. La ausencia o insuficiencia de una solución canónica no obliga a construir inmediatamente su reemplazo: una necesidad acotada puede resolverse mediante una operación excepcional temporal, segura y trazable.
+
+No convertir una mejora estructural separable en precondición del objetivo inmediato. Si el alcance cambia de categoría, detener sólo la expansión, reclasificarla y obtener la trazabilidad o autorización correspondiente.
+
 Antes de modificar:
 
 - comprender causa y alcance;
 - identificar conceptos, contratos y ambientes;
 - buscar solución canónica;
 - determinar Issue, LCD, ADR y documentos;
-- diseñar el mínimo cambio completo y correcto;
+- diseñar el mínimo cambio completo y correcto dentro del alcance aprobado;
 - implementar, probar y dejar trazabilidad.
 
 En una emergencia productiva se puede restaurar primero la continuidad mediante el cambio seguro más pequeño. La documentación y el cierre siguen siendo obligatorios.

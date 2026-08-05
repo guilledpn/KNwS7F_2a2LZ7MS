@@ -2,8 +2,8 @@
 
 - Estado: Aprobado y evolutivo
 - LCD de creación: LCD-20260804-02
-- Última actualización: 2026-08-04 · LCD-20260804-04
-- Issues relacionados: #56, #57 y #61
+- Última actualización: 2026-08-04 · LCD-20260804-05
+- Issues relacionados: #56, #57, #61 y #65
 
 ## 1. Propósito y alcance
 
@@ -25,6 +25,40 @@ Un cambio completo:
 - actualiza documentación y trazabilidad;
 - no introduce deuda técnica silenciosa;
 - declara limitaciones reales.
+
+Completo significa completo respecto del alcance explícitamente aprobado. No significa resolver todos los problemas relacionados que puedan separarse sin comprometer el objetivo inmediato.
+
+### 2.1 Clasificación y proporcionalidad del trabajo
+
+Antes de diseñar o implementar, debe clasificarse el trabajo según su objetivo inmediato:
+
+| Categoría | Objetivo | Alcance normal |
+|---|---|---|
+| Operación rutinaria | Ejecutar un procedimiento vigente y conocido | Runbook, preflight, ejecución, verificación y evidencia; sin rediseño |
+| Operación excepcional | Resolver una necesidad concreta cuando la vía canónica no existe, falla o no resulta segura para el caso | Mecanismo temporal, acotado, recuperable y trazable; no exige construir la solución definitiva |
+| Hotfix | Restaurar continuidad ante una incidencia urgente actual | Cambio seguro mínimo, rollback, smoke test y regularización posterior |
+| Corrección estructural | Eliminar la causa persistente de un defecto | Diseño, implementación, regresión y validación completa del alcance |
+| Desarrollo de producto | Crear o ampliar una capacidad del producto | Diseño funcional y técnico, implementación, pruebas y promoción aplicable |
+| Auditoría | Evaluar un candidato congelado y su evidencia | Revisión independiente y de sólo lectura; hallazgos y veredicto |
+
+La categoría determina el proceso, el alcance, los controles y la evidencia proporcionales. No se aplican automáticamente a todas las categorías las obligaciones propias de desarrollo de producto o corrección estructural.
+
+La ausencia, insuficiencia o defecto de una solución canónica no obliga por sí mismo a desarrollar inmediatamente su reemplazo definitivo.
+
+Cuando exista una necesidad operativa concreta y acotada, se permite una operación excepcional, temporal y controlada, siempre que:
+
+- identifique la necesidad inmediata y sus límites;
+- preserve los invariantes críticos;
+- tenga autorización, preflight, verificación y recuperación proporcionales;
+- no se presente como nueva fuente de verdad ni como implementación canónica;
+- no introduzca contratos, APIs, esquemas o infraestructura durables salvo justificación y alcance separados;
+- declare qué mejora estructural queda pendiente, sin convertirla automáticamente en precondición de la operación actual.
+
+Una mejora estructural sólo es requisito previo cuando no existe una vía temporal capaz de resolver el alcance inmediato con seguridad suficiente.
+
+Si durante el trabajo cambia la categoría —por ejemplo, una operación excepcional comienza a crear una capacidad durable— debe detenerse únicamente la expansión de alcance, reclasificarse y obtener la trazabilidad o autorización correspondiente.
+
+La clasificación no reduce las exigencias no negociables de seguridad, autorización de ambientes, protección de datos, preservación de invariantes, recuperación y evidencia. Su propósito es impedir sobreingeniería, controles irrelevantes y expansión silenciosa del alcance.
 
 ## 3. Alcance y diseño
 
@@ -50,6 +84,8 @@ No crear implementaciones paralelas salvo transición explícita con:
 - límites;
 - Issue;
 - estrategia de retiro.
+
+Una operación excepcional acotada no constituye una implementación paralela cuando no se presenta como capacidad canónica, tiene límites y recuperación explícitos y se retira, archiva o regulariza al finalizar.
 
 No duplicar la definición semántica de una regla de negocio entre componentes, hooks, servicios, adaptadores, SQL o funciones de base de datos.
 
@@ -162,6 +198,8 @@ Una excepción debe:
 - vincularse a un Issue;
 - indicar condición de retiro cuando genere deuda;
 - no convertirse en desactivación global.
+
+Una operación excepcional temporal no es deuda técnica silenciosa cuando su propósito, límites, recuperación, trazabilidad y condición de retiro están declarados. Tampoco autoriza presentarla como solución permanente.
 
 ## 6. TypeScript y tipos
 
@@ -293,6 +331,8 @@ Toda carga o migración masiva debe considerar:
 - protección de hechos históricos;
 - recuperación verificable.
 
+La selección de estos controles debe ser proporcional a la categoría y al riesgo. Una operación excepcional no requiere convertir cada control en infraestructura durable ni en una API nueva.
+
 Una carga corporativa nunca debe convertirse silenciosamente en actividad interna del asesor.
 
 DEV nunca apunta a PROD y PROD nunca apunta a DEV.
@@ -316,7 +356,7 @@ Actualizar una dependencia como efecto secundario requiere justificar compatibil
 
 ## 11. Pruebas y validación
 
-La validación depende del impacto real.
+La validación depende del impacto real y de la categoría del trabajo.
 
 Todo cambio debe ejecutar los controles aplicables entre:
 
