@@ -33,6 +33,48 @@ El índice detallado vive en `docs/governance/document-authority.md`.
 - GitHub: única ubicación de documentos propios, ADR/LCD, estándares, procedimientos, código, migraciones, pruebas y herramientas.
 - Drive: única ubicación de datos reales, bases, respaldos, fuentes de terceros, manuales, PDFs y material reservado.
 - No existen espejos ni copias editables paralelas. Una copia operativa puede existir si identifica su fuente y no evoluciona como autoridad.
+- La carpeta de Drive se denomina `Fuentes y evidencia del dominio`.
+
+ADR-026 y LCD-20260804-02 gobiernan esta separación.
+
+## Ingeniería y agentes
+
+- `AGENTS.md` es el punto de entrada para agentes y colaboradores.
+- `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
+- `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
+- LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina Git/PR.
+- LCD-20260804-05 clasifica el trabajo y exige controles proporcionales; reconoce la operación excepcional como vía temporal legítima cuando la solución canónica no resulta apta.
+- Issue #56 gobierna la automatización gradual de quality gates.
+- Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
+
+Las instrucciones de ChatGPT no reemplazan las fuentes del repositorio.
+
+## Modelo de Next
+
+ADR-024 separa:
+
+- Modelo Comercial: conceptos, hechos e invariantes del negocio.
+- Modelo Operacional: importaciones, validación, idempotencia, linaje y conciliación.
+
+ADR-025 aprueba:
+
+- Caso como negocio indivisible, unidad del Pipeline y contenedor de 0..N Oportunidades;
+- Oportunidades complementarias o alternativas;
+- Cotización como configuración;
+- etapas `Nuevo → Pendiente → Propuesta → En Firma → Sometido → Emitido`;
+- `Ganado` sólo en `Emitido` y `Perdido` como resultado;
+- proyección, sometimiento, emisión, reconocimiento de CNS y capital como conocimientos distintos;
+- Producto Contratado desde Oportunidad ganada y Cotización seleccionada;
+- Tareas/Actividades con Persona y Asesor esenciales y contexto comercial opcional.
+
+El diseño físico `next_v03` todavía requiere un LCD propio; la shell de Etapa A no autoriza SQL ni define contratos físicos.
+
+ADR-028 candidato establece:
+
+- un monorepo y dos productos con runtime independiente;
+- ambientes `NEXT-LOCAL`, `NEXT-DEV`, `NEXT-STAGING` y `NEXT-PROD` separados de Legacy;
+- desarrollo y ensayos previos sin doble escritura real;
+- corte operativo total: Next pasa a ser la única aplicación diaria y Legacy queda temporalmente como consulta o rollback.
 
 ## Infraestructura de Next
 
@@ -48,16 +90,18 @@ Etapa A candidata mediante Issue #76:
 
 El intento de crear NEXT-DEV fue bloqueado por el límite de dos proyectos gratuitos activos. Legacy no fue pausado ni modificado.
 
-## Modelo de Next
+## Estado Legacy al 2026-08-04
 
-ADR-024 separa Modelo Comercial y Modelo Operacional. ADR-025 aprueba Caso, Oportunidad, Cotización, Pipeline, CNS y Producto Contratado. El diseño físico `next_v03` todavía requiere un LCD propio.
-
-ADR-028 candidato establece:
-
-- un monorepo y dos productos con runtime independiente;
-- ambientes `NEXT-LOCAL`, `NEXT-DEV`, `NEXT-STAGING` y `NEXT-PROD` separados de Legacy;
-- desarrollo y ensayos previos sin doble escritura real;
-- corte operativo total: Next pasa a ser la única aplicación diaria y Legacy queda temporalmente como consulta o rollback.
+- política única de gestionabilidad implementada y promovida;
+- métricas por Persona/día en PROD;
+- muestra analítica estratificada disponible;
+- edición de ficha separada de gestión real y datos ficticios saneados;
+- carga julio/agosto completada y conciliada;
+- campaña inválida retirada de la cola actual, con solución persistente pendiente en Issue #38;
+- navegación contextual y retorno exacto aprobados mediante Issue #39;
+- filtros mensuales y metadatos de campaña corregidos hasta PR #51, con defecto semántico residual de `get_contacts_v2` aún pendiente de Issue propio;
+- contrato estadístico unificado, equivalencias motivacionales y `UI-20260804-10` promovidos mediante LCD-20260804-01, ADR-027, Issue #52 y PR #53;
+- smoke visual autenticado postdespliegue pendiente en Issue #54, sin reabrir el lote aprobado.
 
 ## Ambientes
 
@@ -69,13 +113,30 @@ ADR-028 candidato establece:
 
 La matriz detallada está en `docs/architecture/product-environment-deployment-matrix.md`.
 
-## Prioridad
+## Flujo
 
-1. Aprobar la infraestructura independiente de Issue #76.
+```text
+Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover
+```
+
+Antes de diseñar, el trabajo se clasifica como operación rutinaria, operación excepcional, hotfix, corrección estructural, desarrollo de producto o auditoría. La categoría determina el proceso proporcional aplicable.
+
+Ejecución trazable:
+
+```text
+Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge aprobado → promoción
+```
+
+## Próximos pasos
+
+1. Revisar y aprobar la infraestructura independiente de Issue #76.
 2. Resolver capacidad cloud y crear NEXT-DEV sin reutilizar Legacy.
 3. Abrir el LCD del esquema físico mínimo `next_v03`.
 4. Construir la vertical completa de llamados y gestión diaria.
 5. Ensayar migración, conciliación, rollback y corte total.
 6. Mantener Legacy sólo con operaciones y hotfix imprescindibles mientras siga siendo la aplicación activa.
+7. Continuar en paralelo los pendientes Legacy #38 y #54 según urgencia operativa.
+8. Auditar normalizadores y quality gates mediante Issues #57 y #56.
+9. Decidir el destino del PR educativo #21.
 
 El estado y detalle autoritativos viven en el Roadmap y en los registros `lcd-registry.md` y `adr-registry.md`.
