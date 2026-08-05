@@ -6,6 +6,15 @@ Este procedimiento se usa sólo para una incidencia operativa urgente que afecte
 APP LLAMADOS Legacy. No reemplaza el flujo normal de desarrollo ni autoriza por
 sí mismo escrituras en PROD.
 
+## Distinción frente a una operación excepcional
+
+Una operación excepcional planificada no es un hotfix sólo porque utilice un mecanismo temporal.
+
+- El hotfix responde a una pérdida o amenaza inmediata de continuidad operativa.
+- La operación excepcional responde a una necesidad concreta y acotada para la cual la vía canónica no existe, falla o no resulta segura para el caso.
+
+La operación excepcional se prepara mediante el flujo normal, con controles proporcionales, autorización del ambiente, recuperación y trazabilidad. No autoriza a construir silenciosamente una solución definitiva ni a usar este protocolo de emergencia para evitar la preparación aplicable.
+
 ## Resultado mínimo exigible
 
 Un hotfix no se considera terminado sólo porque la aplicación vuelva a

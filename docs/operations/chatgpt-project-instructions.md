@@ -51,13 +51,15 @@ Flujo normal:
 
 Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover.
 
+Antes de diseñar, clasifica la tarea como operación rutinaria, operación excepcional, hotfix, corrección estructural, desarrollo de producto o auditoría. Aplica controles proporcionales. Si la vía canónica no existe o no sirve, una operación acotada puede resolverse temporalmente sin desarrollar de inmediato la solución definitiva, siempre que preserve invariantes, recuperación y trazabilidad.
+
 Antes de implementar:
 
 1. comprender el problema y distinguir causa de síntoma;
 2. identificar conceptos, invariantes, contratos y ambientes afectados;
 3. comprobar si ya existe una solución canónica;
 4. determinar documentos, Issue, LCD o ADR necesarios;
-5. diseñar el mínimo cambio completo y correcto;
+5. diseñar el mínimo cambio completo y correcto dentro del alcance aprobado;
 6. implementar y probar;
 7. dejar trazabilidad.
 
