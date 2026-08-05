@@ -127,6 +127,7 @@ svg{display:block}
 .info-text{min-width:0}
 .info-label{font-size:11.5px;color:var(--muted);line-height:1.1}
 .info-value{font-size:15px;line-height:1.25;margin-top:3px;color:var(--on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info-value.campaign-full{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .info-value.mono{font-family:var(--mono);font-weight:600;font-size:14px}
 .inline-actions{display:flex;align-items:center;gap:6px}
 .tonal-icon{width:42px;height:42px;border-radius:21px;display:grid;place-items:center;background:var(--surface-container);color:var(--on-surface-variant);transition:background .12s,transform .08s}
@@ -380,7 +381,7 @@ textarea.input-surface{display:block;resize:none;line-height:1.45;min-height:92p
   <div class="sheet" id="sheet"><div class="grip"></div><div class="sheet-title">Período activo</div><div id="period-list"></div></div>
   <div class="sheet-bg" id="settings-bg" onclick="closeSettings()"></div>
   <div class="sheet settings-sheet" id="settings-sheet"><div class="grip"></div><div class="sheet-head"><div class="sheet-title">Ajustes</div><button class="sheet-close" onclick="closeSettings()">Listo</button></div><div class="settings-body">
-      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · UI-20260804-10 candidata · Cockpit motivacional</div></div>
+      <div class="settings-section" id="crm-version-section"><label class="settings-label">Versión</label><div class="settings-note" style="margin:0 2px">App_llamados_DEV · v1.05 · UI-20260804-10 candidata · Cockpit motivacional</div></div>
       <div class="settings-section"><div class="toggle-row"><div class="toggle-main"><div class="toggle-title">Llamado automático</div><div class="toggle-sub">Cuando está activo, el botón de llamar envía el número al webhook MacroDroid en formato 9 dígitos.</div></div><button id="auto-call-switch" class="switch" onclick="toggleAutoCall()" aria-label="Activar llamado automático"></button></div><label class="settings-label" for="auto-call-url">Webhook MacroDroid</label><div class="input-surface compact"><input id="auto-call-url" type="url" inputmode="url" oninput="saveAutoCallUrl(this.value)"></div></div>
       <div class="settings-section"><label class="settings-label" for="tasks-webhook-url">Webhook Google Tasks</label><div class="input-surface compact"><input id="tasks-webhook-url" type="url" inputmode="url" placeholder="Pega aquí el webhook de Tasks" oninput="saveTasksWebhookUrl(this.value)"></div><div class="settings-note" style="margin:8px 2px 0">El recordatorio solo se guarda cuando presionas el botón Tasks en la tarjeta.</div></div>
       <div class="settings-section"><label class="settings-label" for="monthly-goal-input">Meta mensual de agendas</label><div class="input-surface compact"><input id="monthly-goal-input" type="number" min="0" inputmode="numeric" placeholder="Ej: 189"></div><label class="settings-label" for="cns-per-agenda-input" style="margin-top:12px">CNS esperados por agenda</label><div class="input-surface compact"><input id="cns-per-agenda-input" type="number" min="0.01" step="0.1" inputmode="decimal" placeholder="Ej: 2,5"></div><label class="settings-label" for="clp-per-cns-input" style="margin-top:12px">Valor estimado por CNS</label><div class="input-surface compact"><input id="clp-per-cns-input" type="number" min="1" step="1000" inputmode="numeric" placeholder="Ej: 10000"></div><div style="margin-top:10px"><button class="primary-btn" onclick="saveMonthlyGoal()">Guardar meta y equivalencias</button></div><div class="settings-note" id="monthly-goal-note" style="margin:8px 2px 0"></div></div>
@@ -497,15 +498,10 @@ function countFS(o){
   return n;
 }
 let fstate=emptyFS(),fdraft=null;
-let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[];
+let ALL_CAMPS=[],ALL_DESCS=[],DESC_RAW_BY_KEY={},AVAILABLE_MONTHS=[],CAMPAIGN_OPTIONS_READY=false;
 const MES_LABEL=m=>monthLabel(m);
 const QUICK={all:null,pendiente:{estado:['pendiente']},asignado:{tipo_gestionable:['asignado']}};
 const FILTER_SECTIONS=()=>[
- {key:'situacion',title:'Situación actual',mode:'choice',opts:[
-   ['gestionables','Gestionables','Contactos que puedes trabajar ahora: asignados a ti o disponibles por regla.'],
-   ['no_gestionables','No gestionables','Históricos o contactos en campaña activa que no están asignados a ti.'],
-   ['todos','Todos','Incluye gestionables y no gestionables para revisar la base completa.']
- ]},
  {key:'tipo_gestionable',title:'Tipo de gestionable',opts:[['asignado','Asignados a mí'],['regla','Disponibles por regla']],note:'Este filtro solo aplica cuando la situación actual incluye contactos gestionables.'},
  {key:'estado',title:'Estado de gestión',opts:[['gestionado','Gestionado'],['agenda','Agenda'],['no_agenda','No agenda'],['volver','Volver a llamar'],['no_contactado','No contactado'],['invalido','Inválido'],['pendiente','Pendiente']],dot:k=>(STATE[k]||{}).color},
  {key:'mes',title:'Apareció en',opts:(AVAILABLE_MONTHS.length?AVAILABLE_MONTHS:recentPeriods(12)).map(m=>[m,MES_LABEL(m)])},
@@ -569,8 +565,7 @@ function mapRow(r){
   };
 }
 
-function filterParamsFromState(state){
-  const situacion=[...state.situacion][0]||'gestionables';
+function filterParamsFromState(state,limit=PAGE,offset=pageOffset){
   const monthMode=[...state.mes_modo][0]||'any';
   const types=[];
   if(state.tipo_gestionable.has('asignado'))types.push('asignado');
@@ -578,14 +573,34 @@ function filterParamsFromState(state){
   return {
     p_active_period: null,
     p_search: search||'',
-    p_situation: situacion,
-    p_pending_only: state.estado.has('pendiente') && state.estado.size===1,
-    p_assigned_only: false,
+    p_states: [...state.estado],
     p_types: types,
     p_months: [...state.mes],
     p_month_mode: monthMode,
-    p_limit: PAGE,
-    p_offset: pageOffset
+    p_campaigns: [...state.campana],
+    p_campaign_desc_keys: [...state.camp_desc],
+    p_reminder: state.recordatorio.size===1?[...state.recordatorio][0]:'',
+    p_limit: limit,
+    p_offset: offset
+  };
+}
+function legacyFilterParamsFromState(state,limit=PAGE,offset=pageOffset){
+  const situacion=[...state.situacion][0]||'gestionables';
+  const monthMode=[...state.mes_modo][0]||'any';
+  const types=[];
+  if(state.tipo_gestionable.has('asignado'))types.push('asignado');
+  if(state.tipo_gestionable.has('regla'))types.push('regla');
+  return {
+    p_active_period:null,
+    p_search:search||'',
+    p_situation:situacion,
+    p_pending_only:state.estado.has('pendiente')&&state.estado.size===1,
+    p_assigned_only:false,
+    p_types:types,
+    p_months:[...state.mes],
+    p_month_mode:monthMode,
+    p_limit:limit,
+    p_offset:offset
   };
 }
 function hasNonV2EstadoFilters(state){
@@ -622,6 +637,21 @@ function isBroadTodosStateQuery(state){
 }
 function isBroadTodosQuery(){return isBroadTodosStateQuery(fstate);}
 
+function isMissingFilteredRpc(error){
+  const msg=String(error?.message||error||'');
+  return /get_contacts_v2_filtered|PGRST202|schema cache|could not find the function/i.test(msg);
+}
+async function fetchContactsPage(state=fstate,limit=PAGE,offset=pageOffset){
+  const modern=await sb.rpc('get_contacts_v2_filtered',filterParamsFromState(state,limit,offset));
+  if(!modern.error)return {data:modern.data,error:null,serverFiltered:true};
+  if(!isMissingFilteredRpc(modern.error))return {data:modern.data,error:modern.error,serverFiltered:true};
+
+  const legacy=isBroadTodosStateQuery(state)
+    ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:limit,p_offset:offset})
+    : await sb.rpc('get_contacts_v2',legacyFilterParamsFromState(state,limit,offset));
+  return {data:legacy.data,error:legacy.error,serverFiltered:false};
+}
+
 
 function renderContactsSkeleton(message='Cargando contactos…'){
   const summary=$('contact-summary'),list=$('contact-list');
@@ -637,34 +667,29 @@ async function loadQueue(reset=true){
   if(reset){pageOffset=0;filtered=[];detailIndex=-1;renderContactsSkeleton('Cargando contactos…');}
   else{const lm=document.querySelector('.load-more');if(lm){lm.classList.add('is-loading');lm.textContent='Cargando más contactos…';}}
   try{
-    const params=filterParamsFromState(fstate);
-    let {data,error}= isBroadTodosQuery()
-      ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:PAGE,p_offset:pageOffset})
-      : await sb.rpc('get_contacts_v2',params);
+    let {data,error,serverFiltered}=await fetchContactsPage();
     if(error)throw error;
     if(data&&data.ok===false&&data.code==='CACHE_NOT_READY'){
       loading=false;
       const ok=await prepareOperationalCacheIfNeeded(false);
       if(!ok)return;
       loading=true;
-      const retry= isBroadTodosQuery()
-        ? await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:PAGE,p_offset:pageOffset})
-        : await sb.rpc('get_contacts_v2',params);
-      data=retry.data;error=retry.error;
+      const retry=await fetchContactsPage();
+      data=retry.data;error=retry.error;serverFiltered=retry.serverFiltered;
       if(error)throw error;
     }
     loading=false;
     if(data&&data.ok===false)throw new Error(data.error||'No se pudo cargar contactos v2');
     totalCount=Number(data?.result_total??data?.base_total??0);
     chipCounts={
-      all:Number(data?.base_total||0),
-      pendiente:Number(data?.base_pending||0),
-      asignado:Number(data?.base_assigned||0),
+      all:Number(data?.result_total??data?.base_total??0),
+      pendiente:Number(data?.result_pending??data?.base_pending??0),
+      asignado:Number(data?.result_assigned??data?.base_assigned??0),
       agenda:0,
       volver:0
     };
     let items=(data?.rows||[]).map(mapRow);
-    if(hasNonV2EstadoFilters(fstate))items=clientPostFilter(items,fstate);
+    if(!serverFiltered&&hasNonV2EstadoFilters(fstate))items=clientPostFilter(items,fstate);
     filtered=reset?items:filtered.concat(items);
     renderFilters();
     renderContacts();
@@ -695,21 +720,35 @@ async function refreshChipCounts(){
 }
 
 async function loadCampaigns(){
+  CAMPAIGN_OPTIONS_READY=false;
   if(!sb){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};AVAILABLE_MONTHS=recentPeriods(12);return;}
+  let optionsError=null;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const modern=await sb.rpc('get_contacts_v2_filter_options',{p_active_period:null});
+      if(modern.error)throw modern.error;
+      const data=modern.data||{};
+      if(data.ok===false)throw new Error(data.error||'No se pudieron cargar las opciones completas');
+      const months=(data.months||[]).map(x=>typeof x==='string'?x:x.period).filter(Boolean);
+      AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
+      ALL_CAMPS=[...new Set((data.campaigns||[]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+      const labels={};DESC_RAW_BY_KEY={};
+      (data.descriptions||[]).forEach(value=>{const raw=String(value||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
+      ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
+      CAMPAIGN_OPTIONS_READY=true;
+      return;
+    }catch(e){optionsError=e;}
+  }
+
   try{
     const mres=await sb.rpc('get_contacts_v2_months');
     const rawMonths=Array.isArray(mres.data)?mres.data:(mres.data?.months||[]);
     const months=rawMonths.map(x=>typeof x==='string'?x:x.period).filter(Boolean);
     AVAILABLE_MONTHS=months.length?months:recentPeriods(12);
   }catch(e){AVAILABLE_MONTHS=recentPeriods(12);}
-  try{
-    const {data}=await sb.rpc('get_contacts_v2',{p_active_period:null,p_search:'',p_situation:'todos',p_pending_only:false,p_assigned_only:false,p_types:[],p_months:[],p_month_mode:'any',p_limit:3000,p_offset:0});
-    const rows=data?.rows||[];
-    ALL_CAMPS=[...new Set(rows.map(x=>x.campaign_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-    const labels={};DESC_RAW_BY_KEY={};
-    rows.forEach(x=>{const raw=String(x.campaign_desc||'').trim();const key=campaignDescKey(raw);if(!key)return;if(!DESC_RAW_BY_KEY[key])DESC_RAW_BY_KEY[key]=[];if(raw&&!DESC_RAW_BY_KEY[key].includes(raw))DESC_RAW_BY_KEY[key].push(raw);labels[key]=cleanCampaignDesc(raw);});
-    ALL_DESCS=Object.entries(labels).map(([k,l])=>[k,l]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
-  }catch(e){ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};}
+  ALL_CAMPS=[];ALL_DESCS=[];DESC_RAW_BY_KEY={};
+  toast('No se pudieron cargar todas las campañas. Reintenta al abrir los filtros.');
+  if(optionsError)console.warn('get_contacts_v2_filter_options',optionsError);
 }
 
 function setScreen(s,btn){currentScreen=s;haptic();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));$('screen-'+s).classList.add('on');document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('on'));(btn||document.querySelector(`.nav-btn[data-screen="${s}"]`)).classList.add('on');$('main-title').textContent={contacts:'Contactos',stats:'Stats',import:'Importar'}[s];if(s==='stats')renderStats();}
@@ -769,7 +808,7 @@ async function callNum(n){
   window.location.href='tel:'+digitsOf(n);
 }
 function renderDetail(){const d=current();if(!d)return;const st=STATE[d.estado]||STATE.pendiente;$('prev-btn').disabled=detailIndex<=0;$('next-btn').disabled=detailIndex>=filtered.length-1&&filtered.length>=totalCount;let html=`<section class="hero" style="--state-color:${st.color};--state-bg:${st.bg}"><div class="hero-top"><div class="hero-main"><div class="hero-name">${esc(d.nombre)}</div><div class="hero-meta"><span class="status-pill"><span class="status-dot"></span>${esc(st.label)}</span>${d.origen==='asignado'?'<span class="assign-badge">Asignado</span>':''}</div><div class="identity-line"><div><div class="identity-label">RUT</div><div class="identity-value">${esc(d.rut)}</div></div><button class="tonal-icon" onclick="copyText('${esc(d.rut)}','RUT')">${ICON_COPY}</button></div></div></div></section>`;
-html+=`<section class="card"><div class="card-title">Contacto</div>`;d.fonos.forEach((f,idx)=>{html+=phoneLine(d,f,idx)});html+=emailLine(d);if(d.camp)html+=infoLine(ICON_CAMPAIGN,'Campaña',esc(d.camp),'','');if(d.camp_desc)html+=infoLine(ICON_CAMPAIGN,'Descripción de campaña',esc(d.camp_desc),'','');html+=`</section>`;
+html+=`<section class="card"><div class="card-title">Contacto</div>`;d.fonos.forEach((f,idx)=>{html+=phoneLine(d,f,idx)});html+=emailLine(d);if(d.camp)html+=infoLine(ICON_CAMPAIGN,'Campaña',esc(d.camp),'campaign-full','');if(d.camp_desc)html+=infoLine(ICON_CAMPAIGN,'Descripción de campaña',esc(d.camp_desc),'campaign-full','');html+=`</section>`;
 html+=`<section class="card"><div class="card-title">Gestión</div><div class="states-grid">${Object.entries(STATE).filter(([k])=>k!=='pendiente'&&k!=='gestionado').map(([k,s])=>`<button class="state-choice ${d.estado===k?'on':''}" style="--state-color:${s.color};--state-bg:${s.bg}" onclick="setEstado('${k}')"><span class="status-dot"></span>${s.label}</button>`).join('')}</div><div class="field"><label>Ingreso estimado</label><div class="input-surface"><input id="ingreso" inputmode="numeric" value="${d.ingreso?('$ '+d.ingreso.toLocaleString('es-CL')):''}" placeholder="$ 0" oninput="autoSave()"></div></div><div class="field"><label>Comentarios</label><textarea class="input-surface" id="comentario" rows="3" placeholder="Notas de la gestión…" oninput="autoSave()">${esc(d.comentario)}</textarea></div></section>`;
 html+=`<section class="card"><div class="card-title"><span>Recordatorio</span><button class="add-task" onclick="createGoogleTask()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Tasks</button></div><div class="field" style="margin-top:4px"><label>Título</label><div class="input-surface"><input id="recordatorio" value="${esc(d.recordatorio||('Llamar a '+(d.nombre.split(' ')[0]||'')))}"></div></div><div class="two-col field"><div><label>Fecha</label><div class="input-surface"><input type="date" id="fecha" value="${esc(d.fecha)}"></div></div><div><label>Hora</label><div class="input-surface"><input type="time" id="hora" value="${esc(d.hora||'09:00')}"></div></div></div></section>`;
 $('detail-scroll').innerHTML=html}
@@ -1451,7 +1490,7 @@ async function saveMonthlyGoal(){
 
 
 // ── filtros (sheet) ──
-function openFilterSheet(){fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
+async function openFilterSheet(){if(!CAMPAIGN_OPTIONS_READY)await loadCampaigns();fdraft=cloneFS(fstate);renderFilterSheet();$('filter-bg').classList.add('on');$('filter-sheet').classList.add('on');haptic();}
 function closeFilterSheet(){$('filter-bg').classList.remove('on');$('filter-sheet').classList.remove('on');}
 function jsArg(v){return String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function renderFilterSheet(){
@@ -1489,16 +1528,7 @@ let applyBtnTimer;function updateApplyBtn(){
   btn.textContent='Calculando…';
   applyBtnTimer=setTimeout(async()=>{
     try{
-      let data,error;
-      if(isBroadTodosStateQuery(fdraft)){
-        const res=await sb.rpc('get_contacts_v2_all_page',{p_active_period:null,p_limit:1,p_offset:0});
-        data=res.data;error=res.error;
-      }else{
-        const params=filterParamsFromState(fdraft);
-        params.p_limit=1;params.p_offset=0;
-        const res=await sb.rpc('get_contacts_v2',params);
-        data=res.data;error=res.error;
-      }
+      const {data,error}=await fetchContactsPage(fdraft,1,0);
       if(error)throw error;
       const n=Number(data?.result_total??data?.base_total??data?.total??0);
       btn.textContent='Ver '+n.toLocaleString('es-CL')+(n===1?' contacto':' contactos');
@@ -1557,7 +1587,6 @@ async function bootData(){
   const auxPromise=Promise.allSettled([loadCampaigns(),refreshGoal()]).then(()=>{if($('filter-sheet')?.classList.contains('on'))renderFilterSheet();});
   await contactsPromise;
   auxPromise.catch(error=>DEV_ERRORS.report(error,{source:'bootData.aux'}));
-  if(new URLSearchParams(location.search).get('screen')==='stats')setScreen('stats');
 }
 async function initAuth(){
   applyPalette(activePalette,true);

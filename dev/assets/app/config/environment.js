@@ -6,7 +6,7 @@
     appEnv: 'DEV',
     appName: 'APP LLAMADOS DEV',
     appVersion: 'v1.05',
-    buildId: 'adb03a99cfd6',
+    buildId: 'af95f891b111',
     supabaseProject: 'crm-ffvv-dev',
     supabaseProjectRef: 'xcujixexjbuqqzlbomgw',
     supabaseUrl: 'https://xcujixexjbuqqzlbomgw.supabase.co',
