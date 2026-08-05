@@ -1,29 +1,33 @@
 # AGENTS.md · Reglas de trabajo del CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-05
+- Último LCD aprobado: LCD-20260805-01
 - Gobernanza documental: ADR-023 y ADR-026
-- Última conciliación: 2026-08-04
+- Última conciliación: 2026-08-05
 
 ## Propósito
 
 Este archivo orienta a agentes y colaboradores. No reemplaza la Constitución, la Arquitectura, el Modelo del Dominio ni los Estándares de Desarrollo.
 
-## Lectura obligatoria
+## Lectura aplicable
 
-Antes de trabajar, consultar desde `main`:
+Antes de trabajar, confirmar el `main` vigente y consultar las fuentes necesarias para el alcance real.
 
-1. `docs/governance/document-authority.md`;
-2. `docs/project/constitution.md`;
-3. `docs/architecture/crm-patrimonial.md`;
-4. `docs/domain/README.md`;
-5. `docs/project/backlog-roadmap.md`;
-6. `docs/engineering/development-standards.md` para código, SQL, pruebas o configuración;
-7. los documentos especializados del alcance.
+La Constitución, la Arquitectura, el Modelo del Dominio, el Roadmap y los estándares forman el contexto rector, pero no deben releerse íntegramente en cada operación cuando su contenido ya es conocido y no existe indicio de cambio o conflicto.
+
+Una operación rutinaria o excepcional consulta prioritariamente:
+
+- el procedimiento operativo aplicable;
+- el estado real del producto y ambiente;
+- los contratos e invariantes afectados;
+- los antecedentes directos de operaciones equivalentes;
+- los defectos o contenciones que puedan solaparse.
+
+Ampliar la lectura únicamente cuando aparezca una duda concreta de autoridad, dominio, arquitectura o gobernanza.
 
 Las instrucciones de ChatGPT son una puerta de entrada. La autoridad vive en el repositorio.
 
-Si falta una fuente obligatoria o existe una divergencia, detener sólo el trabajo dependiente y advertirla.
+Si falta una fuente necesaria o existe una divergencia, detener sólo el trabajo dependiente y advertirla.
 
 ## Jerarquía
 
@@ -40,9 +44,11 @@ La ubicación técnica no altera la jerarquía semántica.
 
 Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover.
 
+Este flujo completo corresponde a correcciones estructurales, desarrollo de producto y cambios versionados que lo requieran. No se aplica automáticamente a una operación rutinaria o excepcional.
+
 ## Clasificación del trabajo
 
-Antes de diseñar, clasificar la tarea como:
+Antes de actuar, clasificar la tarea como:
 
 - operación rutinaria;
 - operación excepcional;
@@ -51,18 +57,29 @@ Antes de diseñar, clasificar la tarea como:
 - desarrollo de producto;
 - auditoría.
 
-La categoría define el procedimiento, el alcance y la evidencia proporcionales. La ausencia o insuficiencia de una solución canónica no obliga a construir inmediatamente su reemplazo: una necesidad acotada puede resolverse mediante una operación excepcional temporal, segura y trazable.
+La clasificación gobierna el procedimiento aplicable. Las obligaciones propias de una categoría no se acumulan automáticamente con las de las demás.
+
+Para una operación rutinaria o excepcional, el objetivo es ejecutar de manera segura y eficiente la necesidad concreta. No corresponde desarrollar la solución definitiva, corregir toda causa estructural relacionada ni aplicar el flujo completo de desarrollo, salvo que no exista una vía temporal con seguridad suficiente.
+
+Una operación rutinaria o excepcional que no modifique artefactos canónicos, contratos ni comportamiento permanente no requiere por defecto LCD, ADR, rama, Pull Request ni auditoría independiente. Requiere preflight, autorización del ambiente, mecanismo mínimo, recuperación proporcional, ejecución controlada, verificación y registro del resultado.
 
 No convertir una mejora estructural separable en precondición del objetivo inmediato. Si el alcance cambia de categoría, detener sólo la expansión, reclasificarla y obtener la trazabilidad o autorización correspondiente.
 
-Antes de modificar:
+La documentación y la gobernanza protegen el resultado operativo; no sustituyen el resultado operativo.
 
-- comprender causa y alcance;
-- identificar conceptos, contratos y ambientes;
-- buscar solución canónica;
-- determinar Issue, LCD, ADR y documentos;
-- diseñar el mínimo cambio completo y correcto dentro del alcance aprobado;
-- implementar, probar y dejar trazabilidad.
+## Antes de actuar
+
+1. identificar el objetivo inmediato;
+2. clasificar la tarea;
+3. identificar invariantes, riesgos y ambientes realmente afectados;
+4. comprobar si existe una vía vigente que sirva para el caso;
+5. elegir el procedimiento más pequeño que produzca un resultado seguro y verificable;
+6. ejecutar los controles propios de la categoría;
+7. dejar trazabilidad proporcional.
+
+Sólo las correcciones estructurales y el desarrollo de producto deben tratar necesariamente la causa persistente, diseñar una solución durable y recorrer el flujo completo de ingeniería.
+
+En una operación excepcional puede resolverse temporalmente el efecto operativo sin corregir todavía la causa estructural, siempre que ésta quede identificada y la operación no se presente como solución permanente.
 
 En una emergencia productiva se puede restaurar primero la continuidad mediante el cambio seguro más pequeño. La documentación y el cierre siguen siendo obligatorios.
 
@@ -70,7 +87,7 @@ En una emergencia productiva se puede restaurar primero la continuidad mediante 
 
 No asumir archivos, funciones, tablas, contratos, dependencias o ambientes no comprobados.
 
-Primero buscar evidencia en documentos canónicos, repositorio, pruebas, migraciones e historial. Si persiste la incertidumbre:
+Primero buscar evidencia en las fuentes directamente relacionadas con el alcance. Si persiste la incertidumbre:
 
 - declararla;
 - detener sólo el trabajo dependiente;
@@ -108,11 +125,11 @@ No crear tablas, estados, procesos o pantallas que no representen conceptos real
 
 Las entidades almacenan hechos. Colas, dashboards, estadísticas y proyecciones son derivados.
 
-Antes de mover, eliminar o reutilizar archivos, clasificar con evidencia si pertenecen a Legacy, fuente transitoria, artefacto generado, infraestructura compartida o Next. Consultar el inventario actual, la matriz producto/ambiente, la estructura objetivo y el procedimiento de build aplicable. Una ruta objetivo no se presume implementada.
+Antes de mover, eliminar o reutilizar archivos, clasificar con evidencia si pertenecen a Legacy, fuente transitoria, artefacto generado, infraestructura compartida o Next. Consultar sólo el inventario, matriz o procedimiento necesario para resolver esa clasificación. Una ruta objetivo no se presume implementada.
 
 ## Calidad
 
-Cumplir `docs/engineering/development-standards.md`.
+Cumplir `docs/engineering/development-standards.md` cuando la tarea modifique código, SQL, pruebas, configuración, automatizaciones, herramientas o infraestructura versionada.
 
 Reglas no negociables:
 
@@ -122,29 +139,32 @@ Reglas no negociables:
 - no duplicar reglas semánticas;
 - no introducir deuda técnica silenciosa;
 - no ocultar errores con tipos amplios, supresiones, casts o fallbacks;
-- todo bug debe considerar regresión o caracterización;
+- todo bug estructural debe considerar regresión o caracterización;
 - toda regla de dominio nueva debe tener pruebas de comportamiento;
-- todo control omitido se informa como `No aplica` con motivo;
+- ejecutar los controles definidos por la categoría y el riesgo;
 - no declarar `PASS` sin evidencia.
 
-Para Supabase, toda modificación de tablas, vistas, funciones, políticas o permisos debe revisar RLS, `GRANT`, exposición mediante Data API y acceso permitido/denegado.
+Los controles propios de otras categorías quedan excluidos y no requieren justificación individual. Un control esperado dentro de la categoría seleccionada que se omita debe informarse como `No aplica` con motivo.
+
+Para Supabase, toda modificación permanente de tablas, vistas, funciones, políticas o permisos debe revisar RLS, `GRANT`, exposición mediante Data API y acceso permitido/denegado.
 
 ## Git
 
 - `main` permanece estable.
 - No experimentar directamente en `main`.
-- Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
+- Todo cambio en artefactos canónicos, código, SQL versionado, contratos, configuración o comportamiento permanente comienza en Issue y rama breve, salvo auditoría de sólo lectura.
+- Una operación rutinaria o excepcional que sólo ejecute datos mediante un procedimiento vigente o un artefacto temporal no requiere por defecto rama o Pull Request. Debe conservar registro suficiente de origen, autorización, ejecución, resultado y recuperación.
+- Si durante la operación se crea o modifica un artefacto que deba permanecer en el repositorio, esa parte se separa y sigue el flujo de Issue, rama y Pull Request.
 - Usar Conventional Commits.
 - Los commits deben representar unidades lógicas; consolidar ruido `WIP` o `fixup` antes del merge.
 - El PR debe ser completo y directo, sin narrar cada intento ni repetir el diff.
-- Abrir Pull Request antes de fusionar.
 - Un commit no equivale por sí solo a aprobación.
 - No reescribir historia publicada para ocultar errores.
 
 ## Seguridad y ambientes
 
 - LOCAL/DEV: datos ficticios o sanitizados.
-- STAGING: candidato validado en DEV.
+- STAGING: candidato validado en DEV cuando la categoría lo requiera.
 - PROD: datos reales; nunca experimentar.
 - Una autorización para DEV no autoriza STAGING ni PROD.
 - Toda operación destructiva o promoción requiere autorización explícita.
@@ -152,17 +172,19 @@ Para Supabase, toda modificación de tablas, vistas, funciones, políticas o per
 - No almacenar PII, bases reales ni información patrimonial sensible en Git.
 - Tratar el repositorio como público.
 
-Antes de PROD: estado estable, autorización, diff, rollback, cambio mínimo, validación, smoke test y trazabilidad.
+Antes de PROD: estado estable, autorización, alcance exacto, recuperación, cambio mínimo, validación y trazabilidad. El smoke test debe corresponder a la superficie realmente afectada.
 
 ## Control documental
 
-Antes de crear LCD o ADR, revisar sus registros y reservar el identificador libre.
+Toda modificación del conocimiento canónico pertenece a un LCD. Antes de crear LCD o ADR, revisar sus registros y reservar el identificador libre.
+
+Una operación que no modifica conocimiento canónico no genera un LCD sólo por requerir trazabilidad operativa.
 
 Una conversación descubre; los documentos conservan las decisiones aprobadas.
 
 ## Cierre
 
-Informar:
+Informar de forma proporcional:
 
 - qué cambió y qué no;
 - qué se validó y qué no;

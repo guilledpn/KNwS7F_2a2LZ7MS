@@ -2,69 +2,125 @@
 
 - Estado: Aprobado y evolutivo
 - LCD de creación: LCD-20260804-02
-- Última actualización: 2026-08-04 · LCD-20260804-05
-- Issues relacionados: #56, #57, #61 y #65
+- Última actualización: 2026-08-05 · LCD-20260805-01
+- Issues relacionados: #56, #57, #61, #65 y #84
 
 ## 1. Propósito y alcance
 
 Este documento define las reglas canónicas de implementación, revisión y validación para APP LLAMADOS Legacy y CRM Patrimonial Next.
 
-Aplica a código, SQL, migraciones, pruebas, configuración, automatizaciones, herramientas e infraestructura versionada. No define conocimiento del negocio y no puede contradecir la Constitución, la Arquitectura ni el Modelo del Dominio.
+Aplica plenamente a cambios en código, SQL versionado, migraciones, pruebas, configuración, automatizaciones, herramientas e infraestructura. Para operaciones rutinarias o excepcionales sobre datos, aplica la vía operativa abreviada y sólo los controles relacionados con sus riesgos reales.
+
+No define conocimiento del negocio y no puede contradecir la Constitución, la Arquitectura ni el Modelo del Dominio.
 
 `AGENTS.md` orienta el trabajo. Este documento contiene el estándar técnico completo.
 
 ## 2. Principio rector
 
-Todo cambio debe ser el mínimo cambio completo y correcto, no simplemente el mínimo cambio que haga desaparecer el síntoma.
+Todo trabajo debe ser el mínimo trabajo completo y correcto dentro del alcance explícitamente aprobado.
 
-Un cambio completo:
+Completo no significa resolver todos los problemas relacionados. Significa:
 
-- trata la causa dentro del alcance aprobado;
-- preserva contratos y comportamiento no incluidos;
-- incorpora validación proporcional al riesgo;
-- actualiza documentación y trazabilidad;
-- no introduce deuda técnica silenciosa;
-- declara limitaciones reales.
+- alcanzar el objetivo autorizado;
+- preservar contratos, invariantes y comportamiento fuera del alcance;
+- aplicar validación proporcional al riesgo y a la categoría;
+- dejar la trazabilidad necesaria;
+- declarar limitaciones reales;
+- no introducir deuda técnica silenciosa.
 
-Completo significa completo respecto del alcance explícitamente aprobado. No significa resolver todos los problemas relacionados que puedan separarse sin comprometer el objetivo inmediato.
+La documentación y la gobernanza protegen el resultado operativo; no sustituyen el resultado operativo.
 
-### 2.1 Clasificación y proporcionalidad del trabajo
+## 3. Clasificación y selección del procedimiento
 
-Antes de diseñar o implementar, debe clasificarse el trabajo según su objetivo inmediato:
+Antes de actuar, clasificar el trabajo según su objetivo inmediato:
 
-| Categoría | Objetivo | Alcance normal |
+| Categoría | Objetivo | Procedimiento normal |
 |---|---|---|
-| Operación rutinaria | Ejecutar un procedimiento vigente y conocido | Runbook, preflight, ejecución, verificación y evidencia; sin rediseño |
-| Operación excepcional | Resolver una necesidad concreta cuando la vía canónica no existe, falla o no resulta segura para el caso | Mecanismo temporal, acotado, recuperable y trazable; no exige construir la solución definitiva |
-| Hotfix | Restaurar continuidad ante una incidencia urgente actual | Cambio seguro mínimo, rollback, smoke test y regularización posterior |
-| Corrección estructural | Eliminar la causa persistente de un defecto | Diseño, implementación, regresión y validación completa del alcance |
-| Desarrollo de producto | Crear o ampliar una capacidad del producto | Diseño funcional y técnico, implementación, pruebas y promoción aplicable |
-| Auditoría | Evaluar un candidato congelado y su evidencia | Revisión independiente y de sólo lectura; hallazgos y veredicto |
+| Operación rutinaria | Ejecutar un procedimiento vigente y conocido | Preflight, autorización, ejecución, verificación y registro |
+| Operación excepcional | Resolver una necesidad concreta cuando la vía vigente no existe, falla o no es segura para el caso | Mecanismo temporal mínimo, recuperación, autorización, ejecución, verificación y retiro o archivo |
+| Hotfix | Restaurar continuidad ante una incidencia urgente actual | Contención mínima, rollback, smoke test y regularización posterior |
+| Corrección estructural | Eliminar la causa persistente de un defecto | Issue, diseño, implementación, regresión, PR y promoción aplicable |
+| Desarrollo de producto | Crear o ampliar una capacidad del producto | Descubrimiento, diseño, implementación, pruebas, PR y promoción |
+| Auditoría | Evaluar un candidato o estado congelado | Revisión independiente y de sólo lectura; hallazgos y veredicto |
 
-La categoría determina el proceso, el alcance, los controles y la evidencia proporcionales. No se aplican automáticamente a todas las categorías las obligaciones propias de desarrollo de producto o corrección estructural.
+La clasificación gobierna el procedimiento. Las obligaciones propias de una categoría no se acumulan automáticamente con las de las demás.
+
+No se aplican a una operación rutinaria o excepcional los requisitos propios de corrección estructural o desarrollo de producto salvo que un riesgo concreto los haga necesarios.
+
+Si durante el trabajo cambia la categoría, detener sólo la expansión de alcance, reclasificarla y obtener la trazabilidad o autorización correspondiente.
+
+### 3.1 Operación excepcional
 
 La ausencia, insuficiencia o defecto de una solución canónica no obliga por sí mismo a desarrollar inmediatamente su reemplazo definitivo.
 
-Cuando exista una necesidad operativa concreta y acotada, se permite una operación excepcional, temporal y controlada, siempre que:
+Una operación excepcional es válida cuando:
 
-- identifique la necesidad inmediata y sus límites;
-- preserve los invariantes críticos;
-- tenga autorización, preflight, verificación y recuperación proporcionales;
-- no se presente como nueva fuente de verdad ni como implementación canónica;
-- no introduzca contratos, APIs, esquemas o infraestructura durables salvo justificación y alcance separados;
-- declare qué mejora estructural queda pendiente, sin convertirla automáticamente en precondición de la operación actual.
+- identifica la necesidad inmediata y sus límites;
+- preserva invariantes críticos;
+- tiene preflight, autorización, verificación y recuperación proporcionales;
+- no se presenta como fuente de verdad ni como implementación canónica;
+- evita contratos, APIs, esquemas o infraestructura durables salvo alcance separado;
+- declara la mejora estructural pendiente sin convertirla automáticamente en precondición;
+- retira, archiva o regulariza sus artefactos temporales al finalizar.
 
-Una mejora estructural sólo es requisito previo cuando no existe una vía temporal capaz de resolver el alcance inmediato con seguridad suficiente.
+Una mejora estructural sólo es requisito previo cuando no existe una vía temporal con seguridad suficiente.
 
-Si durante el trabajo cambia la categoría —por ejemplo, una operación excepcional comienza a crear una capacidad durable— debe detenerse únicamente la expansión de alcance, reclasificarse y obtener la trazabilidad o autorización correspondiente.
+Una operación excepcional temporal no constituye implementación paralela ni deuda técnica silenciosa cuando su propósito, límites, recuperación, trazabilidad y condición de retiro están declarados.
 
-La clasificación no reduce las exigencias no negociables de seguridad, autorización de ambientes, protección de datos, preservación de invariantes, recuperación y evidencia. Su propósito es impedir sobreingeniería, controles irrelevantes y expansión silenciosa del alcance.
+### 3.2 Vía operativa abreviada
 
-## 3. Alcance y diseño
+Las operaciones rutinarias y excepcionales utilizan, salvo riesgo concreto que exija más controles:
+
+Objetivo → preflight → mecanismo mínimo → recuperación → autorización → ejecución → verificación → registro.
+
+No requieren por defecto:
+
+- investigación estructural completa;
+- desarrollo de una capacidad reutilizable;
+- LCD o ADR;
+- modificación del Roadmap;
+- múltiples ambientes de promoción;
+- auditoría independiente;
+- rama o Pull Request cuando no cambian artefactos versionados;
+- pruebas no relacionadas con los invariantes afectados.
+
+Un control adicional sólo se incorpora cuando protege un riesgo concreto y declarado. No debe agregarse por analogía con otra categoría.
+
+Una operación rutinaria o excepcional que no modifique conocimiento ni artefactos canónicos conserva registro operativo, no un lote documental.
+
+## 4. Lectura y evidencia aplicables
+
+Antes de trabajar, confirmar el `main` vigente y consultar las fuentes necesarias para el alcance real.
+
+La Constitución, Arquitectura, Modelo del Dominio, Roadmap y estándares forman el contexto rector, pero no deben releerse íntegramente en cada operación cuando su contenido ya es conocido y no existe indicio de cambio o conflicto.
+
+Una operación rutinaria o excepcional consulta prioritariamente:
+
+- el procedimiento aplicable;
+- el estado real del producto y ambiente;
+- los contratos e invariantes afectados;
+- antecedentes directos de operaciones equivalentes;
+- defectos o contenciones que puedan solaparse.
+
+Ampliar la lectura sólo ante una duda concreta de autoridad, dominio, arquitectura o gobernanza.
+
+No asumir la existencia, firma, estructura o comportamiento de archivos, funciones, tablas, columnas, políticas, contratos, dependencias o ambientes no comprobados.
+
+Si persiste una incertidumbre material:
+
+- declararla;
+- detener únicamente el trabajo dependiente;
+- no inventar ni simular la pieza desconocida;
+- continuar con partes independientes cuando sea seguro;
+- solicitar información sólo cuando no pueda obtenerse de las fuentes disponibles.
+
+Toda inferencia necesaria debe identificarse como inferencia.
+
+## 5. Alcance y diseño
 
 No realizar refactorizaciones amplias como efecto secundario de un fix.
 
-Una refactorización útil pero no imprescindible debe separarse en otro Issue o lote.
+Una mejora útil pero no imprescindible se separa en otro Issue o lote cuando el trabajo es versionado. En una operación excepcional se registra como pendiente sin bloquear el objetivo inmediato.
 
 No cambiar contratos, modelos, esquemas, reglas de negocio, APIs, permisos, estados, eventos, tipos compartidos o comportamiento de Legacy sin identificar explícitamente:
 
@@ -75,201 +131,107 @@ No cambiar contratos, modelos, esquemas, reglas de negocio, APIs, permisos, esta
 - documentación y pruebas requeridas;
 - ambientes involucrados.
 
-Antes de crear una implementación, comprobar si existe una abstracción o solución canónica reutilizable.
+Antes de crear una implementación durable, comprobar si existe una abstracción o solución canónica reutilizable.
 
-No crear implementaciones paralelas salvo transición explícita con:
-
-- propósito;
-- fuente de verdad;
-- límites;
-- Issue;
-- estrategia de retiro.
-
-Una operación excepcional acotada no constituye una implementación paralela cuando no se presenta como capacidad canónica, tiene límites y recuperación explícitos y se retira, archiva o regulariza al finalizar.
+No crear implementaciones paralelas permanentes salvo transición explícita con propósito, fuente de verdad, límites, Issue y estrategia de retiro.
 
 No duplicar la definición semántica de una regla de negocio entre componentes, hooks, servicios, adaptadores, SQL o funciones de base de datos.
 
-Se permiten validaciones defensivas en varias fronteras cuando protegen responsabilidades diferentes, siempre que deriven de la misma regla canónica y produzcan resultados compatibles.
+Se permiten validaciones defensivas en varias fronteras cuando protegen responsabilidades diferentes y derivan de la misma regla canónica.
 
 No crear tablas, columnas, estados, procesos, pantallas o conceptos sin una necesidad real del negocio o de la operación.
 
-Las entidades almacenan hechos. Vistas, colas, cachés, dashboards, estadísticas, recomendaciones y proyecciones son derivados reconstruibles y no constituyen fuente de verdad.
+Las entidades almacenan hechos. Vistas, colas, cachés, dashboards, estadísticas, recomendaciones y proyecciones son derivados reconstruibles.
 
-### 3.1 Gestión de incertidumbre y evidencia
-
-No asumir la existencia, firma, estructura o comportamiento de archivos, funciones, tablas, columnas, políticas, contratos, dependencias, ambientes o abstracciones que no hayan sido comprobados.
-
-Ante información insuficiente, primero buscar evidencia en:
-
-- documentos canónicos;
-- estado real del repositorio;
-- pruebas y migraciones;
-- historial de Git e Issues;
-- configuración y procedimientos del ambiente aplicable.
-
-Si la incertidumbre persiste:
-
-- declarar qué información falta y qué decisiones dependen de ella;
-- detener únicamente el trabajo dependiente;
-- no inventar ni simular la pieza desconocida;
-- solicitar información sólo cuando no pueda obtenerse de las fuentes disponibles;
-- continuar con las partes independientes cuando sea seguro.
-
-Una inferencia necesaria debe identificarse como inferencia y no presentarse como hecho verificado.
-
-La falta de contexto no autoriza a crear fallbacks, mocks, contratos o abstracciones ficticias para aparentar que el trabajo está completo.
-
-## 4. Preservación del Legacy
+## 6. Preservación del Legacy
 
 APP LLAMADOS Legacy es una aplicación productiva frágil.
 
-Todo cambio debe:
+Una corrección estructural o cambio de software debe:
 
-- conservar el comportamiento fuera del alcance;
+- conservar comportamiento fuera del alcance;
 - evitar reestructuraciones innecesarias;
-- considerar pruebas de caracterización;
-- agregar regresión para el defecto corregido;
-- revisar navegación, persistencia, filtros y cálculos relacionados;
-- ejecutar smoke test proporcional al riesgo;
-- mantener un rollback claro.
+- considerar caracterización o regresión;
+- revisar superficies relacionadas;
+- ejecutar smoke test proporcional;
+- mantener rollback claro.
 
-No asumir que una mejora de arquitectura autoriza cambiar comportamiento histórico.
+Una operación sobre datos debe:
 
-Una divergencia intencional debe estar documentada y aprobada.
+- identificar el conjunto exacto;
+- preservar historia e invariantes;
+- evitar escrituras concurrentes no previstas;
+- disponer de recuperación proporcional;
+- conciliar antes y después;
+- ejecutar el smoke test correspondiente a la superficie realmente afectada.
 
-La transición hacia Next es gradual. No reescribir Legacy como efecto secundario de incorporar arquitectura objetivo.
+Una operación sobre datos no hereda automáticamente todas las pruebas de un cambio de software.
 
-### 4.1 Clasificación física de productos y artefactos
+No asumir que una mejora de arquitectura autoriza cambiar comportamiento histórico. No reescribir Legacy como efecto secundario de incorporar arquitectura objetivo.
 
-Antes de mover, eliminar, reutilizar o modificar un archivo, clasificarlo con evidencia como una de estas categorías:
+### 6.1 Clasificación física de artefactos
 
-- fuente productiva de APP LLAMADOS Legacy;
+Antes de mover, eliminar, reutilizar o modificar un archivo, clasificarlo con evidencia como:
+
+- fuente productiva de Legacy;
 - fuente modular o transitoria;
 - artefacto generado;
 - infraestructura compartida;
-- código de CRM Patrimonial Next;
+- código de Next;
 - herramienta o documentación.
 
-La clasificación debe consultar, según corresponda:
+Consultar sólo el inventario, matriz de despliegue, estructura objetivo o procedimiento de build necesario para resolver la clasificación.
 
-- `docs/architecture/current-repository-inventory.md`;
-- `docs/architecture/product-environment-deployment-matrix.md`;
-- `docs/architecture/target-monorepo-structure.md`;
-- el procedimiento de build, publicación o despliegue aplicable.
+No determinar la pertenencia por lenguaje, framework, nombre o carpeta aparente. Una ruta objetivo no se presume implementada.
 
-No determinar la pertenencia de un archivo únicamente por su lenguaje, framework, nombre o carpeta aparente.
-
-La estructura objetivo no se presenta como estructura ya implementada. Mientras el inventario vigente lo indique, la raíz productiva, `src/dev/`, `dev/` y las rutas objetivo cumplen responsabilidades distintas.
-
-Si no puede determinarse la categoría, el consumidor o el origen de generación de un archivo, no debe moverse, eliminarse ni reutilizarse hasta resolver esa incertidumbre.
-
-## 5. Prohibición de deuda técnica silenciosa
+## 7. Prohibición de deuda técnica silenciosa
 
 No introducir, salvo excepción local y explícitamente justificada:
 
-- `any`;
-- `any[]`;
-- `as any`;
-- `Promise<any>`;
-- `Record<string, any>`;
+- `any`, `any[]`, `as any`, `Promise<any>` o `Record<string, any>`;
 - parámetros implícitamente tipados como `any`;
-- `@ts-ignore`;
-- `@ts-nocheck`;
-- desactivaciones amplias de ESLint;
+- `@ts-ignore`, `@ts-nocheck` o desactivaciones amplias de ESLint;
 - castings usados sólo para silenciar TypeScript;
 - non-null assertions injustificadas;
-- errores capturados y descartados;
-- bloques `catch` vacíos;
-- fallbacks que conviertan errores o datos inválidos en resultados aparentemente válidos;
+- errores capturados y descartados o bloques `catch` vacíos;
+- fallbacks que conviertan errores o datos inválidos en resultados válidos;
 - valores hardcodeados para simular comportamiento real;
-- `TODO`, `FIXME`, mocks, stubs o placeholders sin Issue asociado;
+- `TODO`, `FIXME`, mocks, stubs o placeholders sin Issue asociado cuando deban permanecer;
 - validaciones semánticas duplicadas o inconsistentes;
 - funciones vacías;
 - implementaciones provisionales presentadas como terminadas;
 - pruebas que sólo demuestren compilación;
-- eliminación, omisión o debilitamiento de pruebas para obtener un resultado exitoso.
+- debilitamiento de pruebas para obtener un resultado exitoso.
 
-No declarar terminado un camino que pueda ejecutarse en producción si conserva datos simulados, placeholders o ramas sin implementar.
+No declarar terminado un camino productivo con datos simulados, placeholders o ramas sin implementar.
 
-Una excepción debe:
+Una excepción técnica durable debe limitar superficie, explicar necesidad y riesgo, vincular Issue e indicar condición de retiro.
 
-- limitarse a la menor superficie posible;
-- explicar necesidad y riesgo;
-- vincularse a un Issue;
-- indicar condición de retiro cuando genere deuda;
-- no convertirse en desactivación global.
-
-Una operación excepcional temporal no es deuda técnica silenciosa cuando su propósito, límites, recuperación, trazabilidad y condición de retiro están declarados. Tampoco autoriza presentarla como solución permanente.
-
-## 6. TypeScript y tipos
+## 8. TypeScript, datos externos y errores
 
 Estas reglas aplican al TypeScript nuevo o modificado.
 
-El código debe cumplir configuración estricta y lint con información de tipos cuando el proyecto lo soporte.
+- cumplir configuración estricta y lint con información de tipos cuando el proyecto lo soporte;
+- no relajar globalmente `tsconfig`, ESLint u otra configuración por un cambio local;
+- representar conceptos y contratos reales con tipos explícitos;
+- recibir datos externos como `unknown`, validarlos en la frontera y convertirlos;
+- usar castings sólo cuando expresen conocimiento demostrado;
+- justificar non-null assertions mediante una invariante cercana;
+- distinguir código generado y regenerarlo mediante procedimiento reproducible.
 
-No relajar globalmente `tsconfig`, ESLint u otra configuración de calidad para integrar un cambio local.
-
-Los tipos deben representar conceptos y contratos reales. No usar tipos amplios sólo para facilitar transporte entre capas.
-
-Cuando transporte, persistencia, aplicación y dominio representen responsabilidades distintas, sus tipos deben distinguirse.
-
-Un dato externo desconocido entra como `unknown`, se valida en la frontera y se convierte a un tipo explícito.
-
-Los castings deben expresar conocimiento demostrado, no suprimir incertidumbre.
-
-Las non-null assertions requieren una invariante verificable y cercana.
-
-El código generado debe:
-
-- distinguirse del mantenido manualmente;
-- regenerarse mediante procedimiento reproducible;
-- no editarse manualmente salvo proceso documentado.
-
-## 7. Datos externos y validación
-
-Distinguir entre:
-
-- ausencia legítima;
-- dato desconocido;
-- dato inválido;
-- error de infraestructura;
-- resultado igual a cero.
-
-No transformar silenciosamente una categoría en otra.
+Distinguir entre ausencia legítima, dato desconocido, dato inválido, error de infraestructura y resultado igual a cero.
 
 Toda entrada de archivo, API, formulario, variable de entorno o base externa debe validarse en su frontera.
 
-Las validaciones deben producir errores comprensibles y trazables.
+Un error no debe convertirse silenciosamente en dato válido. Un `catch` debe resolver, transformar con contexto o propagar.
 
-Un fallback sólo es válido cuando representa una regla explícita y segura. No debe ocultar corrupción, incompatibilidad o falta de datos.
-
-## 8. Manejo de errores y observabilidad
-
-Un error no debe convertirse silenciosamente en un dato válido.
-
-Los errores recuperables deben tener conducta definida.
-
-Los errores no recuperables deben propagarse o bloquear visiblemente la operación.
-
-Los mensajes al usuario deben ser comprensibles sin eliminar la información técnica necesaria para diagnóstico.
-
-Los logs no deben contener:
-
-- PII;
-- secretos;
-- tokens;
-- bases de campaña;
-- información patrimonial sensible.
-
-No registrar objetos completos si contienen datos reservados.
-
-Un `catch` debe resolver, transformar con contexto o propagar. Capturar y descartar está prohibido.
+Los logs no deben contener PII, secretos, tokens, bases de campaña ni información patrimonial sensible.
 
 ## 9. SQL, migraciones y Supabase
 
 No utilizar PROD para experimentar o descubrir una solución.
 
-Toda migración debe ser:
+Toda migración durable debe ser:
 
 - versionada;
 - reproducible;
@@ -277,53 +239,34 @@ Toda migración debe ser:
 - compatible con el estado real previo;
 - idempotente cuando pueda repetirse;
 - transaccional cuando sea posible;
-- acompañada de rollback o estrategia explícita de recuperación.
+- acompañada de rollback o recuperación explícita.
 
-No usar `service_role`, secretos JWT, claves privadas ni credenciales privilegiadas.
+Una operación SQL excepcional temporal no se presenta como migración canónica. Debe tener alcance, guardas, recuperación, autorización y retiro definidos.
 
-Aplicar mínimo privilegio.
+No usar `service_role`, secretos JWT, claves privadas ni credenciales privilegiadas. Aplicar mínimo privilegio.
 
 No otorgar permisos a `anon`, `authenticated`, `PUBLIC` u otros roles amplios sin decisión explícita y verificación.
 
-Los `GRANT` y la exposición mediante Data API son una capa distinta de RLS. No asumir que una tabla está expuesta o protegida sólo por estar en un esquema determinado: comprobar la configuración real y los permisos explícitos.
+Los `GRANT` y la exposición mediante Data API son distintos de RLS. Toda modificación durable de tablas, vistas, funciones, políticas o permisos debe comprobar:
 
-Toda tabla ubicada en un esquema expuesto por la Data API debe:
-
-- tener RLS habilitado;
-- contar con políticas explícitas acordes con el modelo de acceso;
-- limitar sus `GRANT` a las operaciones y roles necesarios;
-- probar el acceso permitido y denegado con identidades representativas.
-
-Una tabla sin RLS sólo puede justificarse fuera de los esquemas expuestos, sin acceso de `anon` ni `authenticated`, y con uso interno explícito. Preferir RLS como defensa adicional cuando sea viable.
-
-Toda vista expuesta que deba respetar las políticas de sus tablas subyacentes debe utilizar `security_invoker = true`. Si esto no corresponde o no está disponible, la vista debe ubicarse en un esquema no expuesto o revocar acceso a roles públicos.
-
-Las funciones usan `security invoker` por defecto. Una función `security definer` requiere:
-
-- necesidad explícita y documentada;
-- `search_path` seguro, preferentemente vacío;
-- referencias a objetos con esquema calificado;
-- ubicación y permisos de ejecución restringidos;
-- revisión de que no convierta una falla de autorización en bypass de RLS;
-- comprobación de identidad y autorización dentro de la función cuando opere en contexto de usuario.
-
-No confiar en los permisos de ejecución predeterminados de PostgreSQL. Revisar y revocar `EXECUTE` de `PUBLIC`, `anon` o `authenticated` cuando no corresponda, y concederlo sólo a los roles autorizados.
-
-Toda migración que cree o modifique tablas, vistas, funciones, políticas o permisos debe verificar:
-
-- RLS;
-- políticas `USING` y `WITH CHECK` cuando apliquen;
+- RLS y políticas `USING`/`WITH CHECK`;
 - `GRANT` y `REVOKE`;
 - exposición mediante Data API;
-- comportamiento para roles autorizados y no autorizados;
+- acceso permitido y denegado;
 - advisors o controles de seguridad disponibles.
+
+Toda tabla en un esquema expuesto debe tener RLS y permisos limitados. Una tabla sin RLS sólo puede justificarse fuera de esquemas expuestos y sin acceso de roles públicos.
+
+Las vistas expuestas que deban respetar RLS usan `security_invoker = true` o se ubican fuera del esquema expuesto.
+
+Una función `security definer` requiere necesidad explícita, `search_path` seguro, objetos calificados, permisos restringidos y autorización interna cuando opere en contexto de usuario.
 
 No ocultar errores SQL devolviendo ceros, colecciones vacías o valores por defecto interpretables como datos reales.
 
-Toda carga o migración masiva debe considerar:
+Toda carga masiva debe seleccionar, según categoría y riesgo, los controles aplicables entre:
 
 - validación previa;
-- staging cuando corresponda;
+- staging cuando aporte seguridad real;
 - hash u origen;
 - conteos antes y después;
 - conciliación;
@@ -331,7 +274,7 @@ Toda carga o migración masiva debe considerar:
 - protección de hechos históricos;
 - recuperación verificable.
 
-La selección de estos controles debe ser proporcional a la categoría y al riesgo. Una operación excepcional no requiere convertir cada control en infraestructura durable ni en una API nueva.
+Una operación excepcional no requiere convertir cada control en infraestructura durable, API nueva o migración separada.
 
 Una carga corporativa nunca debe convertirse silenciosamente en actividad interna del asesor.
 
@@ -341,211 +284,124 @@ DEV nunca apunta a PROD y PROD nunca apunta a DEV.
 
 Antes de incorporar una dependencia, comprobar si la plataforma, biblioteca estándar o una dependencia existente resuelve la necesidad.
 
-Toda dependencia nueva debe justificar:
-
-- necesidad;
-- alcance;
-- mantenimiento;
-- seguridad;
-- impacto en build y despliegue;
-- alternativa descartada.
+Toda dependencia nueva debe justificar necesidad, alcance, mantenimiento, seguridad, impacto en build y alternativa descartada.
 
 No incorporar una biblioteca para evitar una validación pequeña o duplicar una capacidad existente.
 
-Actualizar una dependencia como efecto secundario requiere justificar compatibilidad y riesgo.
-
 ## 11. Pruebas y validación
 
-La validación depende del impacto real y de la categoría del trabajo.
+La categoría selecciona los controles aplicables. No se parte de una lista universal que deba justificarse elemento por elemento.
 
-Todo cambio debe ejecutar los controles aplicables entre:
+Entre los controles posibles se encuentran:
 
 - validación documental;
-- typecheck;
-- lint;
-- pruebas unitarias;
-- pruebas de integración;
-- pruebas de caracterización;
-- pruebas de regresión;
-- pruebas de contratos;
+- typecheck y lint;
+- pruebas unitarias, integración, caracterización, regresión o contratos;
 - validación de migraciones;
-- build de producción;
+- build;
 - smoke test;
 - revisión visual;
-- comprobaciones de seguridad y permisos.
+- comprobaciones de seguridad y permisos;
+- dry-run, conteos, conciliación, idempotencia y recuperación para operaciones de datos.
 
-Para TypeScript, cuando existan:
+Para un cambio TypeScript, ejecutar typecheck, lint, pruebas afectadas e integración o build cuando correspondan.
 
-- typecheck;
-- lint;
-- pruebas unitarias afectadas;
-- integración aplicable;
-- build de producción.
+Para una corrección estructural de Legacy, ejecutar caracterización o regresión, safety checks y smoke test proporcional.
 
-Para Legacy:
+Para SQL durable, validar fuera de PROD, comparar con consultas independientes, revisar permisos y probar rollback.
 
-- caracterización;
-- safety checks;
-- regresión;
-- smoke test proporcional.
+Para una operación sobre datos, probar el mecanismo y la recuperación de forma proporcional al conjunto y riesgo; no exigir pruebas de UI, build o contratos no afectados.
 
-Para SQL:
+Los controles propios de otras categorías quedan excluidos y no requieren registro individual. Un control esperado dentro de la categoría seleccionada que se omita debe registrarse como `No aplica` con motivo concreto.
 
-- validación en ambiente no productivo;
-- comparación mediante consultas independientes;
-- conteos y conciliación;
-- revisión de RLS, políticas, permisos y exposición;
-- pruebas de acceso permitido y denegado;
-- rollback o recuperación.
-
-Para UI:
-
-- flujo funcional afectado;
-- viewport representativo móvil;
-- viewport representativo de escritorio;
-- estados vacío, carga, error y éxito cuando apliquen;
-- accesibilidad básica.
-
-Un control no aplicable debe registrarse como `No aplica` con motivo concreto.
-
-No afirmar `PASS` sin evidencia identificable.
-
-Un build exitoso no demuestra comportamiento correcto.
-
-Una regresión debe fallar por la causa correcta antes del fix cuando sea viable y pasar después.
+No afirmar `PASS` sin evidencia identificable. Un build exitoso no demuestra comportamiento correcto.
 
 Las pruebas deben validar comportamiento observable, contratos e invariantes, no sólo detalles internos.
 
-No afirmar revisión visual de la aplicación real cuando sólo se inspeccionó un artefacto aislado, una captura o un viewport simulado.
-
-## 12. Producción y rollback
+## 12. Producción y recuperación
 
 Antes de modificar PROD:
 
 1. verificar el último estado estable;
-2. confirmar autorización explícita;
-3. revisar el diff exacto;
-4. preparar rollback;
+2. confirmar autorización explícita para la operación exacta;
+3. revisar el alcance o diff aplicable;
+4. preparar rollback o recuperación;
 5. aplicar el mínimo cambio;
-6. validar;
-7. ejecutar smoke test;
+6. validar el resultado;
+7. ejecutar smoke test proporcional a la superficie afectada;
 8. dejar trazabilidad.
 
-Una autorización para DEV no autoriza STAGING ni PROD.
-
-Una autorización para promover un cambio no autoriza otros cambios descubiertos durante el proceso.
+Una autorización para DEV no autoriza STAGING ni PROD. Una autorización para un cambio no autoriza otros hallazgos.
 
 La continuidad operativa prevalece sobre una mejora funcional.
 
-No eliminar o reemplazar una herramienta operativa sólo por existir una fuente canónica. Primero comprobar:
-
-- uso real;
-- equivalencia;
-- forma de acceso;
-- actualización;
-- reemplazo;
-- recuperación.
+No eliminar o reemplazar una herramienta operativa sólo por existir una fuente canónica. Primero comprobar uso, equivalencia, acceso, actualización, reemplazo y recuperación.
 
 ## 13. Git, PR y evidencia
 
 `main` debe permanecer estable.
 
-Cada cambio comienza en Issue y rama breve, salvo auditoría de sólo lectura.
+Todo cambio en artefactos canónicos, código, SQL versionado, contratos, configuración o comportamiento permanente comienza en Issue y rama breve, salvo auditoría de sólo lectura.
 
-Usar Conventional Commits.
+Una operación rutinaria o excepcional que sólo ejecute datos mediante un procedimiento vigente o artefacto temporal no requiere por defecto rama o Pull Request. Conserva un registro operativo suficiente para reconstruir:
 
-Los commits deben ser intencionales y corresponder a unidades lógicas del cambio.
-
-No crear commits separados para cada intento, error tipográfico o ajuste mecánico. Los commits `WIP`, `fixup` o equivalentes deben consolidarse antes del merge, ya sea reorganizando la rama o mediante squash merge.
-
-No fusionar cambios no relacionados en un mismo commit únicamente para reducir la cantidad de commits. Las divisiones que faciliten revisión, rollback o trazabilidad pueden conservarse.
-
-El Pull Request debe indicar:
-
-- objetivo;
-- causa;
+- origen;
 - alcance;
-- contratos o documentos afectados;
-- ambientes modificados;
-- pruebas y resultados;
-- riesgos;
-- rollback;
-- limitaciones;
-- Issue, LCD y ADR relacionados.
+- autorización;
+- ejecución;
+- resultado;
+- recuperación.
 
-La descripción del PR debe ser completa pero directa. Debe evitar:
+Si durante una operación se crea o modifica un artefacto que deba permanecer en el repositorio, esa parte se separa y sigue Issue, rama, commit y Pull Request.
 
-- repetir el diff archivo por archivo sin aportar contexto;
-- narrar cada llamada de herramienta o intento intermedio;
-- incluir logs completos cuando basta una referencia o extracto relevante;
-- repetir información idéntica en varias secciones;
-- afirmar validaciones sin evidencia.
+Usar Conventional Commits. Los commits deben representar unidades lógicas; consolidar `WIP` o `fixup` antes del merge.
 
-La concisión no autoriza omitir impacto, pruebas, ambientes, riesgos, rollback o limitaciones.
+El Pull Request debe ser directo e indicar objetivo, causa, alcance, contratos o documentos afectados, ambientes, pruebas, riesgos, recuperación, limitaciones e identificadores relacionados.
 
-No reescribir historia publicada para ocultar errores.
+Evitar repetir el diff, narrar cada intento, incluir logs completos o afirmar validaciones sin evidencia.
 
-Un commit registra cambios, pero no constituye aprobación por sí solo.
-
-El diff debe revisarse para detectar:
-
-- archivos accidentales;
-- secretos;
-- PII;
-- cambios fuera de alcance;
-- pruebas eliminadas;
-- configuraciones relajadas;
-- artefactos generados no intencionales.
+Revisar el diff para detectar archivos accidentales, secretos, PII, cambios fuera de alcance, pruebas eliminadas, configuraciones relajadas y artefactos generados no intencionales.
 
 ## 14. Excepciones
 
-Una excepción técnica no puede aprobarse implícitamente.
+Una excepción técnica durable no se aprueba implícitamente. Debe registrar regla exceptuada, motivo, superficie, riesgo, mitigación, Issue y criterio de retiro.
 
-Debe registrar:
-
-- regla exceptuada;
-- motivo;
-- superficie;
-- riesgo;
-- mitigación;
-- Issue;
-- responsable o condición de revisión;
-- criterio de retiro.
-
-Las excepciones permanentes requieren una decisión explícita y no pueden esconderse en una configuración global.
+Una operación excepcional ya clasificada no necesita declararse además como excepción a cada regla propia de otras categorías.
 
 ## 15. Criterio de finalización
 
-Un cambio sólo puede declararse terminado cuando:
+### 15.1 Cambio versionado
 
-- se trató la causa dentro del alcance;
+Puede declararse terminado cuando:
+
+- se trató la causa dentro del alcance aprobado;
 - los contratos afectados están identificados;
-- las pruebas aplicables pasan;
+- pasan las pruebas seleccionadas por categoría y riesgo;
 - la documentación necesaria está actualizada;
-- no se introdujo deuda silenciosa;
-- las excepciones están registradas;
-- no existen archivos accidentales;
+- no existe deuda silenciosa;
 - el diff fue revisado;
-- los ambientes afectados están declarados;
-- las limitaciones restantes poseen Issue;
+- los ambientes y limitaciones están declarados;
 - el resultado real coincide con lo informado.
 
-El cierre debe distinguir:
+### 15.2 Operación rutinaria o excepcional
 
-- qué se modificó;
-- qué no;
-- qué se validó;
-- qué no pudo validarse;
-- ambientes afectados;
-- evidencia;
-- riesgos y pendientes.
+Puede declararse terminada cuando:
+
+- se alcanzó el objetivo operativo autorizado;
+- los invariantes afectados fueron verificados;
+- la recuperación quedó disponible o dejó de ser necesaria por cierre comprobado;
+- no quedaron efectos parciales silenciosos ni residuos indebidos;
+- el resultado y las incidencias fueron registrados;
+- los artefactos temporales fueron retirados, archivados o regularizados.
+
+No es requisito haber corregido la causa estructural separable.
+
+El cierre debe distinguir, de forma proporcional, qué se modificó, qué no, qué se validó, qué no pudo validarse, ambientes, evidencia, riesgos y pendientes.
 
 ## 16. Cumplimiento automático
 
 Las reglas automatizables deben trasladarse gradualmente a configuración, pruebas y CI.
 
-Secuencia preferida:
+Regla canónica → configuración técnica → check reproducible → evidencia.
 
-Regla canónica → configuración técnica → check reproducible → evidencia en PR.
-
-Issue #56 gobierna la adopción gradual de quality gates. Ningún control debe hacerse bloqueante antes de comprobar compatibilidad con el estado real del repositorio.
+Issue #56 gobierna la adopción gradual de quality gates. Ningún control debe hacerse bloqueante antes de comprobar compatibilidad con el estado real y la categoría a la que corresponde.

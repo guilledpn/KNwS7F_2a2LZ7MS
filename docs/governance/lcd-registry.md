@@ -2,9 +2,9 @@
 
 - Estado: Vigente
 - Fecha de reconciliación: 2026-08-01
-- Última actualización: 2026-08-04
+- Última actualización: 2026-08-05
 - LCD rector: LCD-20260801-01
-- Último LCD: LCD-20260804-05
+- Último LCD: LCD-20260805-01
 - Issue: #28
 
 Este archivo es la autoridad para asignar y consultar identificadores LCD. Los registros históricos de Drive y los Pull Requests se conservan como evidencia, pero no pueden crear una secuencia paralela.
@@ -39,7 +39,8 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260804-02 | 2026-08-04 | Crear estándares canónicos de desarrollo, reducir las instrucciones de proyecto y preservar la continuidad operativa de herramientas | Aprobado por autorización explícita del usuario | `docs/governance/LCD-20260804-02-engineering-standards.md`, Issues #40, #56 y #57 y Pull Request #58 | — |
 | LCD-20260804-03 | 2026-08-04 | Retirar de las instrucciones vigentes la convención visual de revisión heredada de Drive | Aprobado por autorización explícita del usuario | Issue #59, Pull Request #60 y `docs/governance/LCD-20260804-03-remove-drive-color-rule.md` | — |
 | LCD-20260804-04 | 2026-08-04 | Reforzar seguridad Supabase, gestión de incertidumbre, clasificación física y disciplina Git/PR | Aprobado por autorización explícita del usuario | Issue #61, Pull Request #62 y `docs/governance/LCD-20260804-04-engineering-hardening.md` | — |
-| LCD-20260804-05 | 2026-08-04 | Clasificar el trabajo y aplicar controles proporcionales, incluyendo operaciones excepcionales acotadas | Candidato; pendiente de revisión y merge autorizado | Issue #65 y `docs/governance/LCD-20260804-05-work-classification-proportionality.md` | — |
+| LCD-20260804-05 | 2026-08-04 | Clasificar el trabajo y aplicar controles proporcionales, incluyendo operaciones excepcionales acotadas | Aprobado por autorización explícita del usuario | Issue #65, Pull Request #66, commit `d5da04503f73cf6a82397e53fcc018de8dcdfc1f` y `docs/governance/LCD-20260804-05-work-classification-proportionality.md` | — |
+| LCD-20260805-01 | 2026-08-05 | Hacer selectiva la clasificación y habilitar una vía operativa abreviada sin acumulación de controles | Candidato; pendiente de revisión y merge autorizado | Issue #84 y `docs/governance/LCD-20260805-01-selective-workflow.md` | — |
 
 ## Próxima asignación
 

@@ -1,7 +1,7 @@
 # PROJECT_MAP.md · Mapa del Proyecto CRM Patrimonial
 
 - Estado: Vigente
-- Último LCD aprobado: LCD-20260804-05
+- Último LCD aprobado: LCD-20260805-01
 - Última entrega Legacy: `UI-20260804-10` · Issue #52 · PR #53
 - Pendientes abiertos relevantes: Issues #38, #54, #56 y #57; PR #21
 
@@ -42,7 +42,8 @@ ADR-026 y LCD-20260804-02 gobiernan esta separación.
 - `docs/engineering/development-standards.md` contiene las reglas técnicas completas.
 - `docs/operations/chatgpt-project-instructions.md` contiene la versión canónica, breve y copiable de las instrucciones del proyecto.
 - LCD-20260804-04 refuerza RLS y permisos Supabase, gestión de incertidumbre, clasificación física de artefactos y disciplina de commits/PR.
-- LCD-20260804-05 clasifica el trabajo y exige controles proporcionales; reconoce la operación excepcional como vía temporal legítima cuando la solución canónica no resulta apta.
+- LCD-20260804-05 clasifica el trabajo y reconoce la operación excepcional como vía temporal legítima.
+- LCD-20260805-01 establece que la clasificación selecciona el procedimiento y excluye por defecto los controles propios de otras categorías. También habilita una vía operativa abreviada y limita Issue, rama, PR, LCD y auditoría a los casos que realmente los requieren.
 - Issue #56 gobierna la automatización gradual de quality gates.
 - Issue #57 gobierna la auditoría y distribución de los normalizadores operativos.
 
@@ -85,24 +86,28 @@ El diseño físico `next_v03` todavía requiere un LCD propio; la documentación
 
 - Local: análisis y pruebas sin datos reales.
 - DEV: experimentación con datos ficticios o sanitizados.
-- STAGING: candidatos ya validados en DEV.
+- STAGING: candidatos ya validados en DEV cuando la categoría lo requiera.
 - PROD: operación real; nunca experimental.
 
 La matriz detallada está en `docs/architecture/product-environment-deployment-matrix.md`.
 
 ## Flujo
 
-```text
-Descubrir → Validar → Documentar → Diseñar → Implementar → Verificar → Promover
-```
+La clasificación se realiza antes de elegir el procedimiento.
 
-Antes de diseñar, el trabajo se clasifica como operación rutinaria, operación excepcional, hotfix, corrección estructural, desarrollo de producto o auditoría. La categoría determina el proceso proporcional aplicable.
-
-Ejecución trazable:
+Cambio versionado o permanente:
 
 ```text
-Issue → LCD/ADR → rama → documentos/código → pruebas → PR → merge aprobado → promoción
+Issue → LCD/ADR cuando corresponda → rama → documentos/código → pruebas → PR → merge aprobado → promoción
 ```
+
+Operación rutinaria o excepcional sin cambios canónicos:
+
+```text
+Objetivo → preflight → mecanismo mínimo → recuperación → autorización → ejecución → verificación → registro
+```
+
+La segunda vía no requiere por defecto Issue, rama, PR, LCD, ADR ni auditoría independiente. Esos controles se incorporan sólo cuando la operación cambia artefactos permanentes o un riesgo concreto los hace necesarios.
 
 ## Próximos pasos
 
