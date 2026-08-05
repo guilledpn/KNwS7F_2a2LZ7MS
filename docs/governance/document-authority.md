@@ -1,198 +1,156 @@
 # Autoridad e índice documental del CRM Patrimonial
 
 - Estado: Aprobado
-- Última actualización: 2026-08-04
-- LCD: LCD-20260803-01, LCD-20260804-01 y LCD-20260804-02
-- ADR: ADR-023, ADR-026 y ADR-027
+- Última actualización: 2026-08-05
+- LCD: LCD-20260803-01, LCD-20260804-02 y LCD-20260805-01
+- ADR: ADR-023 y ADR-026
 
 ## Regla fundamental
 
-> Cada artefacto posee una sola ubicación editable y una sola copia vigente.
+> Cada materia tiene una fuente editable canónica. Las copias, resúmenes, decisiones históricas y evidencias no pueden evolucionar como autoridad paralela.
 
-GitHub es la opción predeterminada. Drive se utiliza cuando el contenido no debe publicarse o no es apropiado para Git.
+Una rama o Pull Request contiene un candidato. El merge aprobado incorpora el cambio a `main`.
 
-No existen espejos, sincronización bidireccional ni copias navegables paralelas presentadas como autoridad.
+## Jerarquía semántica
 
-Una copia operativa o distribución puede existir cuando sea necesaria para trabajar, siempre que identifique su fuente canónica, no evolucione independientemente y no se presente como versión editable vigente.
+1. Constitución.
+2. Arquitectura.
+3. Modelo del Dominio.
+4. Backlog y Roadmap.
+5. ADR, LCD y registros.
+6. Estándares y procedimientos.
 
-## GitHub
+La ubicación de un archivo no altera esta jerarquía.
 
-Única autoridad para conocimiento propio, publicable y versionable:
+## Fuente principal por materia
 
-- documentos rectores y modelos;
-- ADR y LCD;
-- estándares, procedimientos, diagramas y evidencia técnica publicable;
-- código, migraciones, pruebas y herramientas genéricas;
-- trazabilidad mediante Issues, ramas, commits, PR y Releases.
+| Materia | Fuente canónica |
+|---|---|
+| Principios del proyecto | `docs/project/constitution.md` |
+| Arquitectura integral | `docs/architecture/crm-patrimonial.md` |
+| Conceptos, hechos e invariantes | `docs/domain/README.md` y modelos especializados |
+| Prioridades y estado planificado | `docs/project/backlog-roadmap.md` |
+| Decisiones arquitectónicas | `docs/adr/` y `docs/governance/adr-registry.md` |
+| Cambios documentales aprobados | `docs/governance/LCD-*` y `docs/governance/lcd-registry.md` |
+| Enrutamiento del trabajo | `AGENTS.md` |
+| Desarrollo y calidad técnica | `docs/engineering/development-standards.md` |
+| Procedimientos operativos vigentes | `docs/operations/` |
+| Evidencia técnica histórica | `docs/evidence/` |
+| Estado resumido del proyecto | `PROJECT_MAP.md` |
+| Instrucciones copiables de ChatGPT | `docs/operations/chatgpt-project-instructions.md`, subordinadas a `AGENTS.md` |
 
-Una rama o PR contiene un candidato. El merge aprobado incorpora el cambio canónico.
+Cada pregunta debe resolverse primero en su fuente principal. Un documento de menor nivel puede enlazarla, pero no redefinirla.
 
-## Drive
+## Clases documentales
+
+### Normas vigentes
+
+Constitución, Arquitectura, Modelo del Dominio, Roadmap, `AGENTS.md` y estándar de desarrollo.
+
+### Procedimientos vigentes
+
+Runbooks y protocolos de `docs/operations/`. Explican cómo ejecutar una operación concreta y no redefinen la política general.
+
+### Decisiones históricas
+
+ADR y LCD explican por qué se adoptó o cambió una norma. No deben usarse como una segunda versión de la regla vigente.
+
+Todo ADR o LCD puede conservar lenguaje normativo propio de su decisión, pero la conducta actual se consulta en el documento canónico que esa decisión modificó.
+
+### Evidencia histórica
+
+Informes de validación, resultados de ejecuciones, cierres técnicos y registros fechados viven en `docs/evidence/`. Demuestran qué ocurrió; no son procedimientos vigentes.
+
+### Copias operativas
+
+Una copia necesaria para trabajar debe:
+
+- identificar su fuente canónica;
+- no introducir reglas nuevas;
+- no evolucionar independientemente;
+- no presentarse como versión editable vigente.
+
+Las instrucciones de ChatGPT son una copia operativa de este tipo.
+
+## GitHub y Drive
+
+### GitHub
+
+Única autoridad para:
+
+- documentos propios y publicables;
+- ADR, LCD, estándares y procedimientos;
+- código, migraciones, pruebas y herramientas;
+- evidencia técnica publicable;
+- trazabilidad mediante Issues, ramas, commits y Pull Requests.
+
+### Drive
 
 Única autoridad para:
 
 - bases originales y normalizadas con datos reales;
-- archivos con PII o información patrimonial sensible;
-- manuales, fichas, PDFs y documentos corporativos o de terceros;
+- PII e información patrimonial sensible;
+- documentos corporativos o de terceros;
 - fuentes regulatorias y evidencia externa;
-- respaldos, archivos grandes y resultados operativos no publicables;
-- matrices de trabajo reservadas que dependan de Sheets.
+- respaldos, archivos grandes y material no publicable.
 
-GitHub puede enlazar estas fuentes, pero no copiar contenido reservado. Drive no copia documentos canónicos de GitHub.
+GitHub puede enlazar fuentes de Drive, pero no copiar datos reservados. Drive no mantiene copias editables de documentos canónicos de GitHub.
 
-La carpeta `App_llamados_crm/Fuentes y evidencia del dominio` contiene fuentes para estudiar y validar el dominio; no es el Modelo del Dominio canónico.
+## Índice principal
 
-## Prohibiciones del repositorio público
+### Proyecto y arquitectura
 
-- datos personales reales;
-- bases de campaña;
-- secretos, tokens o credenciales privadas;
-- documentación corporativa reservada;
-- información patrimonial sensible;
-- binarios de terceros sin autorización de publicación.
+- `docs/project/constitution.md`
+- `docs/architecture/crm-patrimonial.md`
+- `docs/architecture/current-repository-inventory.md`
+- `docs/architecture/product-environment-deployment-matrix.md`
+- `docs/architecture/target-monorepo-structure.md`
 
-## Índice canónico
+### Dominio
 
-### Nivel 1 · Constitución
+- `docs/domain/README.md`
+- `docs/domain/dictionary.md`
+- `docs/domain/commercial-model.md`
+- `docs/domain/operational-model.md`
+- `docs/domain/patrimonial-model.md`
+- `docs/domain/product-model.md`
 
-| Documento | Uso |
-|---|---|
-| `docs/project/constitution.md` | Principios que gobiernan todas las decisiones |
+### Gobernanza
 
-### Nivel 2 · Arquitectura
+- `docs/governance/document-authority.md`
+- `docs/governance/adr-registry.md`
+- `docs/governance/lcd-registry.md`
+- `docs/adr/`
+- `docs/governance/LCD-*`
 
-| Documento | Uso |
-|---|---|
-| `docs/architecture/crm-patrimonial.md` | Arquitectura integral Legacy/Next |
-| `docs/architecture/contact-eligibility-policy.md` | Política ejecutable de gestionabilidad |
-| `docs/architecture/current-repository-inventory.md` | Inventario técnico AS-IS |
-| `docs/architecture/product-environment-deployment-matrix.md` | Separación producto/ambiente/despliegue |
-| `docs/architecture/target-monorepo-structure.md` | Estructura objetivo del monorepo |
-| `docs/architecture/reversible-monorepo-migration-plan.md` | Secuencia reversible de transición |
-| `docs/architecture/diagrams/` | Mapas AS-IS, TO-BE y transición |
-| `docs/architecture/legacy-automation-security-audit.md` | Auditoría de automatizaciones Legacy |
-| `docs/architecture/prod-pwa-validator-drift.md` | Riesgo de deriva del validador productivo |
+### Trabajo y operación
 
-### Nivel 3 · Modelo del Dominio
+- `AGENTS.md`
+- `docs/engineering/development-standards.md`
+- `docs/operations/`
+- `docs/evidence/`
+- `PROJECT_MAP.md`
 
-| Documento | Uso |
-|---|---|
-| `docs/domain/README.md` | Entrada y separación de responsabilidades |
-| `docs/domain/dictionary.md` | Lenguaje ubicuo |
-| `docs/domain/commercial-model.md` | Reglas comerciales |
-| `docs/domain/operational-model.md` | Reglas de importación y conciliación |
-| `docs/domain/patrimonial-model.md` | Conocimiento patrimonial |
-| `docs/domain/product-model.md` | Estructura transversal de productos |
-| `docs/domain/validation-matrix-next-v03.md` | Criterios verificables de Next |
+## Artefactos implementables y evidencia
 
-### Nivel 4 · Planificación
+Código, migraciones, pruebas y herramientas viven en las rutas técnicas del repositorio, entre ellas:
 
-| Documento | Uso |
-|---|---|
-| `docs/project/backlog-roadmap.md` | Estado real, pendientes y prioridad |
+- `releases/`;
+- `supabase/`;
+- `tests/`;
+- `tools/`;
+- fuentes y artefactos clasificados por el inventario vigente.
 
-### Nivel 5 · Decisiones y gobernanza
+La evidencia sensible o con datos reales permanece en Drive.
 
-| Documento | Uso |
-|---|---|
-| `docs/adr/ADR-001-020-historical-decisions.md` | Historia consolidada anterior a Docs-as-Code |
-| `docs/adr/ADR-021-*` a `ADR-027-*` | Decisiones completas actuales |
-| `docs/governance/adr-registry.md` | Identificadores y estado de ADR |
-| `docs/governance/lcd-registry.md` | Identificadores y estado de LCD |
-| `docs/governance/document-authority.md` | Regla e índice actual |
-| `docs/governance/LCD-20260804-01-closure.md` | Cierre del lote estadístico |
-| `docs/governance/LCD-20260804-02-engineering-standards.md` | Alcance y aprobación del estándar de ingeniería |
-| `PROJECT_MAP.md` | Mapa breve para orientación |
+## Divergencias
 
-### Nivel 6 · Operación, ingeniería y aprendizaje
+Si dos documentos parecen gobernar la misma materia:
 
-| Documento o conjunto | Uso |
-|---|---|
-| `AGENTS.md` | Punto de entrada obligatorio para agentes y colaboradores |
-| `docs/engineering/development-standards.md` | Estándares canónicos de desarrollo y calidad |
-| `docs/operations/chatgpt-project-instructions.md` | Texto canónico de las instrucciones de proyecto de ChatGPT |
-| `docs/operations/` | Procedimientos, smoke tests y validaciones |
-| `docs/learning/` | Registro educativo; no gobierna el dominio |
-| documentos técnicos raíz de `docs/` | Ambientes, base, recuperación, releases y entregas históricas |
-| `docs/CHANGELOG.md` | Historia humana de la aplicación productiva |
-| `releases/`, `supabase/`, `tests/` y `tools/` | Artefactos implementables y verificables |
+1. identificar la fuente principal de la tabla anterior;
+2. detener sólo el trabajo que dependa de la divergencia;
+3. tratar el otro documento como copia, decisión histórica, procedimiento o evidencia;
+4. corregir la duplicación en un cambio documental;
+5. no eliminar una copia operativa hasta comprobar uso y reemplazo.
 
-## Fuentes exclusivas de Drive
-
-| Conjunto | Uso | Regla |
-|---|---|---|
-| `Bases_maestras` y respaldos | originales, normalizados y evidencia de campaña | Nunca Git público |
-| `CARGA_CONTROLADA_*` | evidencia operativa y datos de una carga | No se presenta como procedimiento canónico si está obsoleto |
-| `Productos Consorcio` | PDFs, manuales, fichas y matriz corporativa | Fuente del Modelo de Productos, no copia del modelo |
-| `Fuentes y evidencia del dominio` | fuentes externas y corporativas usadas para validar conocimiento | No contiene el Modelo del Dominio canónico |
-| Backups y archivos grandes | recuperación y evidencia | Mantener control de acceso y período |
-
-La carpeta Drive `App_llamados_crm` es un repositorio de fuentes y evidencia, no un repositorio documental paralelo.
-
-## Copias operativas de normalizadores
-
-En Drive permanecen:
-
-- `Bases_maestras/normalizar_bases_campanas.py`;
-- `Bases_maestras/normalizar_bases_campanas_sin_fechas.py`.
-
-El usuario confirmó que ambos forman parte de su flujo operativo.
-
-`tools/normalize_campaign_bases.py` es la implementación canónica versionada en GitHub, pero esa autoridad no permite eliminar las copias operativas antes de comprobar equivalencia y reemplazo.
-
-Issue #57 gobierna:
-
-- la comparación funcional;
-- la identificación de la fuente canónica;
-- el mecanismo de distribución y actualización;
-- la eventual conservación, sustitución o retiro de las copias.
-
-Mientras #57 permanezca abierto:
-
-- los scripts de Drive no se eliminan;
-- no se editan como una línea de desarrollo paralela;
-- no se presume equivalencia sin pruebas;
-- la continuidad operativa tiene prioridad.
-
-La carpeta `Modelo del dominio` fue renombrada manualmente por el usuario como `Fuentes y evidencia del dominio` el 2026-08-04. La acción documental pendiente del Issue #40 quedó completada.
-
-## Identificadores
-
-Los espacios `LCD-AAAAMMDD-NN` y `ADR-NNN` son únicos.
-
-Antes de iniciar un lote:
-
-1. revisar `lcd-registry.md` y `adr-registry.md`;
-2. reservar el siguiente identificador libre;
-3. no derivarlo de un PR, conversación o archivo aislado;
-4. no reutilizar identificadores cancelados;
-5. mantener la misma identidad en Issue, documentos, commits y PR.
-
-## Control preventivo
-
-Toda revisión comprueba:
-
-- una ubicación editable por artefacto;
-- identificadores registrados y únicos;
-- enlaces cruzados válidos;
-- ausencia de PII, secretos y material reservado;
-- ausencia de referencias a espejos o catálogos retirados;
-- actualización del estado documental cuando cambia la realidad;
-- evidencia de validación antes del merge;
-- preservación de herramientas operativas hasta validar reemplazo.
-
-Una copia adjunta o exportada nunca adquiere autoridad por sí sola.
-
-Si aparece una copia presentada como canónica, se detiene el trabajo dependiente hasta clasificarla. Esto no autoriza su eliminación automática.
-
-## Migración entre ubicaciones
-
-1. identificar uso, autoridad y restricciones;
-2. congelar el original como fuente editable cuando corresponda;
-3. preparar y reconciliar el candidato en una rama;
-4. validar equivalencia, seguridad y continuidad operativa;
-5. fusionar el PR;
-6. retirar o reclasificar el original sólo cuando exista reemplazo validado;
-7. verificar que quede una única fuente editable canónica.
-
-No existe una fase posterior de sincronización bidireccional.
+Los registros `lcd-registry.md` y `adr-registry.md` son la única autoridad para identificadores y estado de decisiones.

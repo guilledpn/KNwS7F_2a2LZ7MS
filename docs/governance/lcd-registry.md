@@ -40,7 +40,7 @@ Este archivo es la autoridad para asignar y consultar identificadores LCD. Los r
 | LCD-20260804-03 | 2026-08-04 | Retirar de las instrucciones vigentes la convención visual de revisión heredada de Drive | Aprobado por autorización explícita del usuario | Issue #59, Pull Request #60 y `docs/governance/LCD-20260804-03-remove-drive-color-rule.md` | — |
 | LCD-20260804-04 | 2026-08-04 | Reforzar seguridad Supabase, gestión de incertidumbre, clasificación física y disciplina Git/PR | Aprobado por autorización explícita del usuario | Issue #61, Pull Request #62 y `docs/governance/LCD-20260804-04-engineering-hardening.md` | — |
 | LCD-20260804-05 | 2026-08-04 | Clasificar el trabajo y aplicar controles proporcionales, incluyendo operaciones excepcionales acotadas | Aprobado por autorización explícita del usuario | Issue #65, Pull Request #66, commit `d5da04503f73cf6a82397e53fcc018de8dcdfc1f` y `docs/governance/LCD-20260804-05-work-classification-proportionality.md` | — |
-| LCD-20260805-01 | 2026-08-05 | Hacer selectiva la clasificación y habilitar una vía operativa abreviada sin acumulación de controles | Candidato; pendiente de revisión y merge autorizado | Issue #84 y `docs/governance/LCD-20260805-01-selective-workflow.md` | — |
+| LCD-20260805-01 | 2026-08-05 | Hacer selectiva la clasificación, consolidar la autoridad operativa y separar procedimientos de evidencia histórica | Aprobado por autorización explícita del usuario; incorporación mediante PR #85 | Issue #84, Pull Request #85 y `docs/governance/LCD-20260805-01-selective-workflow.md` | — |
 
 ## Próxima asignación
 
